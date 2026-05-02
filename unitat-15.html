@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unitat 15 — Signals de Django | Curs Django</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #F4F7FB;
+      --surface:      #FFFFFF;
+      --surface-2:    #EBF0F8;
+      --code-bg:      #F1F5F9;
+      --border:       #C5D3E4;
+      --border-dim:   #DAE3EF;
+      --text:         #1C2E45;
+      --text-muted:   #4E6478;
+      --text-dim:     #96ABBE;
+      --heading:      #091929;
+      --accent:       #1755C4;
+      --accent-glow:  #1755C420;
+      --blue:         #2463EB;
+      --green:        #057A55;
+      --amber:        #92530A;
+      --purple:       #5B21B6;
+      --django-green: #E8F0FD;
+      --exercise-bg:  #F0FDF8;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'Lora', serif; min-height: 100vh; }
+    .page-wrapper { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+
+    .unit-header {
+      background: linear-gradient(135deg, var(--django-green) 0%, var(--bg) 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 4rem;
+    }
+    .unit-number { font-family: 'Lora', serif; font-weight: 500; font-size: 0.78rem; color: var(--accent); letter-spacing: 0.14em; text-transform: uppercase; }
+    .unit-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 2.6rem; color: var(--heading); margin: 0.5rem 0; letter-spacing: -0.01em; }
+    .unit-subtitle { font-family: 'Lora', serif; font-size: 1.1rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+    .objectives { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-top: 1.5rem; }
+    .objectives h3 { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.75rem; }
+    .objectives ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .objectives li { font-family: 'Lora', serif; font-size: 0.95rem; color: var(--text); padding-left: 1.25rem; position: relative; }
+    .objectives li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-family: 'Syne', sans-serif; }
+
+    .theory-section { padding: 2.5rem 0; border-bottom: 1px solid var(--border-dim); }
+    .section-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 1.3rem; color: var(--heading); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; }
+    .section-icon { color: var(--accent); font-size: 0.8em; }
+    .theory-text { font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.8; color: var(--text); margin-bottom: 1rem; }
+    .concept-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+    .concept-list li { font-family: 'Lora', serif; color: var(--text); line-height: 1.7; padding-left: 1.5rem; position: relative; }
+    .concept-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-family: 'Syne', sans-serif; }
+    .concept-list code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; color: var(--blue); background: var(--surface-2); padding: 0.1em 0.4em; border-radius: 4px; }
+
+    .code-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 1.5rem 0; }
+    .code-header { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .code-lang { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent); font-weight: 600; text-transform: uppercase; }
+    .code-file { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
+    .copy-btn { margin-left: auto; background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-family: 'Syne', sans-serif; font-size: 0.7rem; padding: 0.3rem 0.75rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    pre { padding: 1.25rem; overflow-x: auto; }
+    pre code { font-family: 'JetBrains Mono', monospace !important; font-size: 0.88rem !important; line-height: 1.7 !important; background: transparent !important; }
+
+    .tip-block { border-radius: 10px; padding: 1rem 1.25rem; margin: 1.25rem 0; display: flex; flex-direction: column; gap: 0.4rem; }
+    .tip-block.tip-info   { background: #EBF2FF; border-left: 3px solid var(--blue); }
+    .tip-block.tip-warning{ background: #FEF9C3; border-left: 3px solid var(--amber); }
+    .tip-block.tip-note   { background: #F5F3FF; border-left: 3px solid var(--purple); }
+    .tip-prefix { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+    .tip-block.tip-info    .tip-prefix { color: var(--blue); }
+    .tip-block.tip-warning .tip-prefix { color: var(--amber); }
+    .tip-block.tip-note    .tip-prefix { color: var(--purple); }
+    .tip-block p { font-family: 'Lora', serif; font-size: 0.95rem; color: var(--text); line-height: 1.65; margin: 0; }
+
+    /* Diagrama de signals */
+    .signal-diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .signal-diagram-title { font-family: 'Syne', sans-serif; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; text-align: center; }
+    .signal-flow { display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap; }
+    .signal-box { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--text); text-align: center; }
+    .signal-box.sender { border-color: var(--blue); color: var(--blue); }
+    .signal-box.signal { border-color: var(--accent); color: var(--accent); }
+    .signal-box.receiver { border-color: var(--green); color: var(--green); }
+    .signal-arrow { color: var(--text-dim); font-size: 1.2rem; }
+
+    .badge { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; background: var(--surface-2); border: 1px solid var(--border); color: var(--blue); padding: 0.15em 0.5em; border-radius: 4px; }
+    .badge-shell { color: var(--amber); }
+    .badge-new   { color: var(--green); border-color: #1a4a2a; background: var(--exercise-bg); }
+
+    .exercise-block { background: var(--exercise-bg); border: 1px solid #6EE7B7; border-radius: 16px; overflow: hidden; margin: 2rem 0; }
+    .exercise-header { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.5rem; background: #ECFDF5; border-bottom: 1px solid #A7F3D0; }
+    .exercise-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; }
+    .exercise-tag { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #057A55; background: #ECFDF5; border: 1px solid #6EE7B7; padding: 0.2rem 0.6rem; border-radius: 20px; }
+    .exercise-body { padding: 1.5rem; }
+    .exercise-title { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 1.1rem; color: var(--heading); margin-bottom: 0.75rem; }
+    .exercise-context { font-family: 'Lora', serif; color: var(--text); line-height: 1.7; margin-bottom: 1.25rem; }
+    .exercise-tasks h4 { font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
+    .exercise-tasks ol { padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .exercise-tasks li { font-family: 'Lora', serif; color: var(--text); line-height: 1.6; }
+    .exercise-tip { display: flex; gap: 0.5rem; align-items: flex-start; background: #FEF9E7; border: 1px solid #FCD34D; border-radius: 8px; padding: 0.75rem 1rem; margin: 1rem 0; font-family: 'Lora', serif; font-size: 0.95rem; color: var(--amber); }
+    .exercise-result { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px dashed #6EE7B7; }
+    .exercise-result h4 { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+    .exercise-result p { font-family: 'Lora', serif; color: var(--text-muted); font-size: 0.95rem; }
+
+    .summary-section { padding: 2.5rem 0; }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.25rem; }
+    .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; }
+    .summary-card h4 { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.6rem; }
+    .summary-card ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .summary-card li { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--blue); }
+
+    .unit-nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 4rem; border-top: 1px solid var(--border); margin-top: 3rem; }
+    .unit-nav a { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .unit-nav a:hover { color: var(--accent); }
+    .nav-home { font-size: 0.8rem !important; color: var(--text-dim) !important; border: 1px solid var(--border); padding: 0.4rem 1rem; border-radius: 20px; }
+    .nav-home:hover { border-color: var(--accent) !important; }
+
+    .solution-spoiler{margin-top:1rem;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+    .solution-spoiler summary{cursor:pointer;padding:.875rem 1.25rem;background:var(--surface-2);font-family:'Syne',sans-serif;font-size:.85rem;font-weight:600;color:var(--accent);user-select:none;list-style:none;display:flex;align-items:center;gap:.5rem;transition:background .2s;}
+    .solution-spoiler summary::marker,.solution-spoiler summary::-webkit-details-marker{display:none;}
+    .solution-spoiler summary:hover{background:#EBF2FF;}
+    .solution-spoiler[open] summary{border-bottom:1px solid var(--border);}
+    .solution-body .code-block{margin:0;border:none;border-radius:0;}
+    .deps-block{background:#FFF8EE;border:1px solid #FCD34D;border-radius:12px;overflow:hidden;margin:1.5rem 0;}
+    .deps-header{display:flex;align-items:center;gap:.5rem;padding:.75rem 1.25rem;background:#FEF3C7;border-bottom:1px solid #FCD34D;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:#92400E;text-transform:uppercase;letter-spacing:.08em;}
+    .deps-body{padding:1.25rem;}
+    .deps-body .code-block{margin:.75rem 0 0;}
+  </style>
+</head>
+<body>
+
+  <header class="unit-header">
+    <div class="page-wrapper">
+      <p class="unit-number">Unitat 15 · Curs de Django</p>
+      <h1 class="unit-title">Signals de Django</h1>
+      <p class="unit-subtitle">Desacobla components de la teva aplicació: reacciona automàticament a esdeveniments del model sense modificar-ne el codi.</p>
+      <div class="objectives">
+        <h3>En aquesta unitat aprendràs:</h3>
+        <ul>
+          <li>Entendre el patró observador que implementen els signals de Django</li>
+          <li>Usar <code>@receiver</code> amb <code>post_save</code>, <code>pre_save</code>, <code>post_delete</code> i altres signals built-in</li>
+          <li>Evitar connexions dobles amb <code>dispatch_uid</code> i saber on col·locar els signals a <code>apps.py</code></li>
+          <li>Crear signals personalitzats i emetre'ls des del codi de l'aplicació</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-wrapper">
+
+    <!-- SECCIÓ 1 -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Signals built-in: post_save, pre_save, post_delete
+      </h2>
+      <p class="theory-text">
+        Un <em>signal</em> és un mecanisme de notificació desacoblat: quan passa alguna cosa en un punt del codi (el <strong>sender</strong>), Django avisa automàticament tots els <strong>receivers</strong> que s'hi han subscrit, sense que el sender sàpiga res dels receivers. Això permet afegir comportament reactiu (crear perfils, enviar notificacions, actualitzar comptadors) sense modificar el model original.
+      </p>
+
+      <div class="signal-diagram">
+        <p class="signal-diagram-title">Flux d'un signal post_save</p>
+        <div class="signal-flow">
+          <div class="signal-box sender">Prestec.save()</div>
+          <div class="signal-arrow">→</div>
+          <div class="signal-box signal">post_save<br><small>sender=Prestec</small></div>
+          <div class="signal-arrow">→</div>
+          <div class="signal-box receiver">actualitzar_disponibilitat()</div>
+        </div>
+      </div>
+
+      <p class="theory-text">
+        El decorador <code>@receiver(signal, sender=Model)</code> és la manera més neta de subscriure una funció a un signal. El paràmetre <code>sender</code> limita les notificacions al model concret; sense ell, la funció rebria notificacions de tots els models que llancin aquell signal.
+      </p>
+      <ul class="concept-list">
+        <li><code>post_save</code> — s'emet <em>després</em> que es guarda un objecte (tant si és nou com si és una actualització). El paràmetre <code>created=True</code> indica si és una creació nova.</li>
+        <li><code>pre_save</code> — s'emet <em>abans</em> de guardar. Útil per modificar l'objecte o validar-lo (però millor usar <code>clean()</code> per a validació).</li>
+        <li><code>post_delete</code> — s'emet <em>després</em> d'esborrar. L'objecte ja no existeix a la base de dades, però l'instància Python encara és accessible.</li>
+        <li><code>pre_delete</code> — s'emet <em>abans</em> d'esborrar. Útil per alliberar recursos associats (fitxers, registres externs).</li>
+        <li><code>m2m_changed</code> — s'emet quan canvia una relació <code>ManyToManyField</code>. Té les accions <code>pre_add</code>, <code>post_add</code>, <code>pre_remove</code>, <code>post_remove</code>.</li>
+        <li><code>sender</code> — el model (classe, no instància) que emet el signal. Permet filtrar per model concret.</li>
+        <li><code>instance</code> — l'objecte concret que ha desencadenat el signal (p.ex. el <code>Prestec</code> que s'acaba de crear).</li>
+        <li><code>created</code> — paràmetre de <code>post_save</code>: <code>True</code> si l'objecte s'acaba de crear, <code>False</code> si s'ha actualitzat.</li>
+        <li><code>**kwargs</code> — captura tots els altres paràmetres que Django pot enviar en el futur. Sempre cal incloure'ls a la signatura del receiver.</li>
+      </ul>
+
+      <div class="tip-block tip-warning">
+        <span class="tip-prefix">⚠️ Atenció amb post_save</span>
+        <p>Dins d'un receiver de <code>post_save</code>, si crides <code>instance.save()</code> sense precaució, es torna a emetre el signal i caus en un bucle infinit. Usa <code>update_fields=['camp']</code> per actualitzar camps concrets, o comprova <code>created</code> per limitar l'execució.</p>
+      </div>
+    </section>
+
+    <!-- CODI 1 -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">signals.py — crear UserProfile automàticament (patró de MediNetNode)</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">from django.db.models.signals import post_save
+from django.contrib.auth import get_user_model
+from django.dispatch import receiver
+from .models import PerfilLector
+
+User = get_user_model()
+
+
+@receiver(post_save, sender=User, dispatch_uid='crear_perfil_lector')
+def crear_perfil_lector(sender, instance, created, **kwargs):
+    """
+    Cada vegada que es crea un nou User, creem automàticament el seu PerfilLector.
+    Usem dispatch_uid per garantir que el receiver es connecta una sola vegada,
+    fins i tot si el mòdul s'importa diverses vegades (problema freqüent).
+    """
+    if created:
+        # Creem el perfil només quan l'usuari és NOU (created=True)
+        PerfilLector.objects.create(
+            usuari=instance,
+            nom=instance.first_name or instance.username,
+            email=instance.email,
+        )
+
+
+@receiver(post_save, sender=User, dispatch_uid='sincronitzar_perfil_lector')
+def sincronitzar_perfil_lector(sender, instance, created, **kwargs):
+    """
+    Quan s'actualitza un User existent, sincronitzem l'email al perfil.
+    dispatch_uid diferent del receiver anterior per evitar col·lisions.
+    """
+    if not created:
+        # update_fields evita re-emetre el signal (no crida .save() complet)
+        try:
+            instance.perfillector.email = instance.email
+            instance.perfillector.save(update_fields=['email'])
+        except PerfilLector.DoesNotExist:
+            # Si per algun motiu no existeix el perfil, el creem ara
+            PerfilLector.objects.create(
+                usuari=instance,
+                nom=instance.first_name or instance.username,
+                email=instance.email,
+            )
+</code></pre>
+    </div>
+
+    <!-- SECCIÓ 2 -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        dispatch_uid, on col·locar signals i signals personalitzats
+      </h2>
+      <p class="theory-text">
+        El problema més comú amb els signals és la <em>connexió doble</em>: si el mòdul on defines el receiver s'importa dues vegades (cosa que passa fàcilment en Django), el receiver s'executa dues vegades per cada signal. La solució és el paràmetre <code>dispatch_uid</code>: una cadena única que garanteix que el receiver es registra una sola vegada, sigui quantes vegades s'importi el mòdul.
+      </p>
+      <p class="theory-text">
+        El lloc correcte per importar els signals és el mètode <code>ready()</code> de la classe <code>AppConfig</code> a <code>apps.py</code>. Django crida <code>ready()</code> un cop carregades totes les aplicacions, garantint que els models existeixen. Importar signals al nivell de mòdul (fora de <code>ready()</code>) pot causar errors d'importació circular.
+      </p>
+      <p class="theory-text">
+        Quan cap signal built-in s'ajusta al teu cas d'ús, pots crear signals personalitzats instanciant <code>Signal()</code>. Després els emets amb <code>signal.send(sender=Classe, **kwargs)</code> des del punt del codi on passa l'event, i els receivers s'hi subscriben amb <code>@receiver</code> com sempre.
+      </p>
+      <ul class="concept-list">
+        <li><code>dispatch_uid='cadena_única'</code> — paràmetre de <code>@receiver</code> (o de <code>signal.connect()</code>) que evita duplicats. La cadena ha de ser única a tot el projecte.</li>
+        <li><code>AppConfig.ready()</code> — lloc on importar els signals. S'executa un cop Django ha carregat tots els models.</li>
+        <li><code>Signal()</code> — classe per crear signals personalitzats. Importar des de <code>django.dispatch</code>.</li>
+        <li><code>signal.send(sender, **kwargs)</code> — emet el signal sincrònament. Retorna una llista de tuples <code>(receiver, return_value)</code>.</li>
+        <li><code>signal.send_robust(sender, **kwargs)</code> — com <code>send()</code> però captura excepcions dels receivers perquè no trenquin el flux principal.</li>
+        <li><code>signal.disconnect(receiver, sender)</code> — desconnecta un receiver (útil als tests per aïllar comportament).</li>
+      </ul>
+
+      <div class="tip-block tip-info">
+        <span class="tip-prefix">📌 Signals als tests</span>
+        <p>Als tests, de vegades vols desactivar els signals perquè no interfereixin. Usa <code>signal.disconnect()</code> al <code>setUp</code> i <code>signal.connect()</code> al <code>tearDown</code>, o el context manager <code>from unittest.mock import patch</code> per simular el comportament del receiver.</p>
+      </div>
+    </section>
+
+    <!-- CODI 2 -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">signals.py — signal sobre Prestec + signal personalitzat</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">from django.db.models.signals import post_save
+from django.dispatch import receiver, Signal
+from .models import Prestec, Llibre
+
+# --- Signal personalitzat ---
+# Creem un signal que s'emetrà quan un préstec es marqiu com a retornat.
+# Permet que altres mòduls reaccionin (notificació, estadística) sense acoblar-se.
+llibre_retornat = Signal()  # podria rebre: sender, prestec, llibre
+
+
+@receiver(post_save, sender=Prestec, dispatch_uid='actualitzar_disponibilitat_prestec')
+def actualitzar_disponibilitat_prestec(sender, instance, created, **kwargs):
+    """
+    Quan es guarda un Prestec:
+    - Si és NOU → el llibre passa a no disponible
+    - Si s'ACTUALITZA i retornat=True → el llibre torna a estar disponible
+      i s'emet el signal personalitzat 'llibre_retornat'
+    """
+    llibre = instance.llibre  # el Llibre associat al préstec
+
+    if created:
+        # Nou préstec: bloquejar el llibre
+        # Usem update() per evitar re-emetre signals del model Llibre
+        Llibre.objects.filter(pk=llibre.pk).update(disponible=False)
+
+    else:
+        # Actualització d'un préstec existent
+        if instance.retornat:
+            # El préstec s'ha marcat com a retornat: alliberar el llibre
+            Llibre.objects.filter(pk=llibre.pk).update(disponible=True)
+
+            # Emetre el signal personalitzat per avisar altres components
+            # send_robust captura excepcions dels receivers per no bloquejar el flux
+            llibre_retornat.send_robust(
+                sender=Prestec,
+                prestec=instance,
+                llibre=llibre,
+            )
+
+
+@receiver(llibre_retornat, dispatch_uid='log_retorn_llibre')
+def log_retorn_llibre(sender, prestec, llibre, **kwargs):
+    """
+    Receiver del signal personalitzat: registra el retorn al log.
+    En un cas real podria enviar un email de confirmació al lector.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(
+        "Llibre retornat: '%s' per %s %s",
+        llibre.titol,
+        prestec.lector.nom,
+        prestec.lector.cognom,
+    )
+</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">apps.py — carregar signals correctament</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">from django.apps import AppConfig
+
+
+class BibliaappConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'bibliapp'
+    verbose_name = 'Biblioteca'
+
+    def ready(self):
+        """
+        Django crida ready() un cop tots els models estan carregats.
+        És el lloc correcte per importar els signals i evitar:
+        - Errors d'importació circular (els models ja existeixen)
+        - Connexions duplicades (ready() s'executa una sola vegada)
+        """
+        # L'import executa els decoradors @receiver, connectant els signals
+        import bibliapp.signals  # noqa: F401
+</code></pre>
+    </div>
+
+    <div class="tip-block tip-note">
+      <span class="tip-prefix">🔮 Avançat: signals vs. save()</span>
+      <p>Els signals són potents però fan el flux de l'aplicació més difícil de seguir, ja que el comportament és implícit. Per a lògica simple i directa, sobreescriure <code>save()</code> al model és més explícit i fàcil de testar. Reserva els signals per a comportament verament desacoblat: quan el receiver pertany a una aplicació diferent del sender, o quan diversos receivers independents han de reaccionar al mateix event.</p>
+    </div>
+
+    <div class="deps-block">
+      <div class="deps-header">📦 Dependències i fitxers necessaris</div>
+      <div class="deps-body">
+        <p style="font-family:'Lora',serif;color:#1C2E45;margin-bottom:.75rem;">Els signals són built-in de Django. Cal configurar <code>apps.py</code> per connectar-los en l'arrencada.</p>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><span class="code-file">books/apps.py — registre obligatori</span></div>
+          <pre><code class="language-python">from django.apps import AppConfig
+
+class BooksConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'books'
+
+    def ready(self):
+        import books.signals  # importa el mòdul per registrar els receivers</code></pre>
+        </div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Shell</span><span class="code-file">Estructura</span></div>
+          <pre><code class="language-bash">books/
+├── apps.py      # amb ready() que importa signals
+├── signals.py   # fitxer nou amb tots els @receiver</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCICI -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Signals per gestionar la disponibilitat dels llibres</h3>
+        <p class="exercise-context">
+          A bibliapp, quan es crea un nou <code>Prestec</code>, el camp <code>disponible</code> del <code>Llibre</code> ha de passar automàticament a <code>False</code>. Quan el préstec es marca com a retornat (<code>retornat=True</code>), el camp <code>disponible</code> ha de tornar a <code>True</code>. Tot això ha de passar sense que les vistes ni el codi de creació del préstec hagin de fer res explícit.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Crea el fitxer <code>bibliapp/signals.py</code> i implementa un receiver de <code>post_save</code> per al model <code>Prestec</code>.</li>
+            <li>En la creació (<code>created=True</code>), actualitza el camp <code>disponible=False</code> del llibre associat usant <code>Llibre.objects.filter(...).update(...)</code>.</li>
+            <li>En l'actualització, comprova si <code>instance.retornat</code> és <code>True</code> i, si és el cas, actualitza <code>disponible=True</code>.</li>
+            <li>Registra els signals a <code>apps.py</code> dins del mètode <code>ready()</code>.</li>
+            <li>Verifica que <code>bibliapp</code> és a <code>INSTALLED_APPS</code> com a <code>'bibliapp.apps.BibliaappConfig'</code> (o el nom complet de la classe) perquè <code>ready()</code> s'executi.</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">bibliapp/signals.py — Codi inicial</span>
+          </div>
+          <pre><code class="language-python">from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .models import Prestec, Llibre
+
+
+# TODO 1: afegir el decorador @receiver correctament
+# - signal: post_save
+# - sender: Prestec
+# - dispatch_uid: usa una cadena única per evitar duplicats
+def gestionar_disponibilitat(sender, instance, created, **kwargs):
+    """
+    Gestiona el camp 'disponible' del Llibre associat al Prestec.
+    """
+    # TODO 2: obtenir el Llibre associat al Prestec
+    llibre = ...
+
+    if created:
+        # TODO 3: marcar el llibre com a no disponible (usa .filter().update())
+        pass
+
+    else:
+        if instance.retornat:
+            # TODO 4: marcar el llibre com a disponible (usa .filter().update())
+            pass
+</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">bibliapp/apps.py — Codi inicial</span>
+          </div>
+          <pre><code class="language-python">from django.apps import AppConfig
+
+
+class BibliaappConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'bibliapp'
+
+    def ready(self):
+        # TODO 5: importar el mòdul signals perquè els @receiver s'executin
+        pass
+</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span class="tip-icon">💡</span>
+          <span>Usa <code>Llibre.objects.filter(pk=llibre.pk).update(disponible=False)</code> en lloc de <code>llibre.disponible = False; llibre.save()</code>. El mètode <code>update()</code> fa un UPDATE directe a la base de dades sense instanciar l'objecte, evitant emetre signals addicionals del model <code>Llibre</code>.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>En crear un <code>Prestec</code> des de l'admin o des d'una vista, el camp <code>disponible</code> del <code>Llibre</code> associat hauria de canviar automàticament a <code>False</code>. En marcar el préstec com a retornat, <code>disponible</code> torna a <code>True</code>. Tot sense cap línia de codi addicional a les vistes ni al model.</p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>▶ Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa — books/signals.py + apps.py</span></div>
+              <pre><code class="language-python"># books/signals.py
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .models import Prestec, Llibre
+
+@receiver(post_save, sender=Prestec)
+def actualitzar_disponibilitat_llibre(sender, instance, created, **kwargs):
+    """Actualitza la disponibilitat del Llibre quan canvia l'estat del Prestec."""
+    llibre = instance.llibre
+    if created and instance.estat == 'actiu':
+        Llibre.objects.filter(pk=llibre.pk).update(disponible=False)
+    elif instance.estat == 'retornat':
+        Llibre.objects.filter(pk=llibre.pk).update(disponible=True)
+
+# books/apps.py
+from django.apps import AppConfig
+
+class BooksConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'books'
+
+    def ready(self):
+        import books.signals</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Segon exercici -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic 2</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Signal personalitzat 'prestec_vençut'</h3>
+        <p class="exercise-context">
+          A més dels signals built-in, Django permet crear signals propis per desacoblar components. Crearem un signal personalitzat que s'emet quan un préstec passa a estat 'vençut'.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Crea un signal personalitzat <code>prestec_vençut = Signal()</code> a <code>books/signals.py</code>.</li>
+            <li>Afegeix un receiver a <code>post_save</code> de <code>Prestec</code> que emeti <code>prestec_vençut.send(...)</code> quan <code>estat == 'vençut'</code>.</li>
+            <li>Crea un receiver de <code>prestec_vençut</code> que registri un avís per consola o log.</li>
+            <li>Verifica emetent el signal manualment des del shell de Django.</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">books/signals.py — Codi inicial</span>
+          </div>
+          <pre><code class="language-python"># books/signals.py
+from django.dispatch import Signal, receiver
+from django.db.models.signals import post_save
+
+# TODO: Defineix el signal personalitzat
+prestec_vençut = Signal()
+
+@receiver(post_save, sender='books.Prestec')
+def detectar_vençut(sender, instance, **kwargs):
+    # TODO: Si instance.estat == 'vençut', emet prestec_vençut.send(...)
+    pass
+
+# TODO: Receptor del signal personalitzat
+@receiver(prestec_vençut)
+def avisar_vençut(sender, **kwargs):
+    # TODO: Registra al log que el préstec ha vençut
+    pass</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Pista: <code>prestec_vençut.send(sender=Prestec, prestec=instance)</code>. El receptor rep <code>**kwargs</code> on pots extreure <code>kwargs['prestec']</code>.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>En canviar <code>prestec.estat = 'vençut'</code> i cridar <code>save()</code>, el log mostra el WARNING amb el títol del llibre i les dades del lector.</p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>▶ Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa</span></div>
+              <pre><code class="language-python"># books/signals.py
+import logging
+from django.dispatch import Signal, receiver
+from django.db.models.signals import post_save
+
+logger = logging.getLogger(__name__)
+
+prestec_vençut = Signal()
+
+@receiver(post_save, sender='books.Prestec')
+def detectar_vençut(sender, instance, **kwargs):
+    if instance.estat == 'vençut':
+        prestec_vençut.send(sender=sender, prestec=instance)
+
+@receiver(prestec_vençut)
+def avisar_vençut(sender, prestec, **kwargs):
+    logger.warning(
+        f"PRÉSTEC VENÇUT: '{prestec.llibre.titol}' · "
+        f"Lector: {prestec.lector} · "
+        f"Vencia: {prestec.data_retorn_prevista}"
+    )
+
+# Prova al shell:
+# from books.models import Prestec
+# p = Prestec.objects.filter(estat='actiu').first()
+# p.estat = 'vençut'
+# p.save()  # → hauria d'aparèixer el WARNING al log</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- RESUM -->
+    <section class="summary-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Resum de la unitat
+      </h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h4>Signals built-in</h4>
+          <ul>
+            <li>post_save</li>
+            <li>pre_save</li>
+            <li>post_delete</li>
+            <li>pre_delete</li>
+            <li>m2m_changed</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Paràmetres clau</h4>
+          <ul>
+            <li>sender=Model</li>
+            <li>instance</li>
+            <li>created (bool)</li>
+            <li>dispatch_uid</li>
+            <li>**kwargs</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Connexió i emissió</h4>
+          <ul>
+            <li>@receiver(signal)</li>
+            <li>signal.connect()</li>
+            <li>signal.disconnect()</li>
+            <li>signal.send()</li>
+            <li>signal.send_robust()</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Bones pràctiques</h4>
+          <ul>
+            <li>apps.py ready()</li>
+            <li>dispatch_uid únic</li>
+            <li>update() vs save()</li>
+            <li>Signal() personalitzat</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="unit-nav">
+    <a href="unitat-14.html" class="nav-prev">← <span>Unitat 14 — Middleware Personalitzat</span></a>
+    <a href="index.html" class="nav-home">Índex</a>
+    <a href="unitat-16.html" class="nav-next"><span>Unitat 16 — Sistema de Cache</span> →</a>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      hljs.highlightAll();
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const code = btn.closest('.code-block').querySelector('code').textContent;
+          navigator.clipboard.writeText(code);
+          btn.textContent = 'Copiat!';
+          setTimeout(() => btn.textContent = 'Copiar', 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

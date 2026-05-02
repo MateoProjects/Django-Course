@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unitat 17 — Django REST Framework (DRF) | Curs Django</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Highlight.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    /* === RESET === */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* === TOKENS === */
+    :root {
+      --bg:           #F4F7FB;
+      --surface:      #FFFFFF;
+      --surface-2:    #EBF0F8;
+      --code-bg:      #F1F5F9;
+      --border:       #C5D3E4;
+      --border-dim:   #DAE3EF;
+      --text:         #1C2E45;
+      --text-muted:   #4E6478;
+      --text-dim:     #96ABBE;
+      --heading:      #091929;
+      --accent:       #1755C4;
+      --accent-glow:  #1755C420;
+      --blue:         #2463EB;
+      --green:        #057A55;
+      --amber:        #92530A;
+      --purple:       #5B21B6;
+      --django-green: #E8F0FD;
+      --exercise-bg:  #F0FDF8;
+    }
+
+    /* === BASE === */
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Lora', serif;
+      min-height: 100vh;
+    }
+
+    /* === LAYOUT === */
+    .page-wrapper { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+
+    /* === CAPÇALERA === */
+    .unit-header {
+      background: linear-gradient(135deg, var(--django-green) 0%, var(--bg) 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 4rem;
+    }
+    .unit-number {
+      font-family: 'Lora', serif;
+      font-weight: 500;
+      font-size: 0.78rem;
+      color: var(--accent);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .unit-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 2.6rem;
+      color: var(--heading);
+      margin: 0.5rem 0;
+      letter-spacing: -0.01em;
+    }
+    .unit-subtitle {
+      font-family: 'Lora', serif;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+    .objectives {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .objectives h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.75rem;
+    }
+    .objectives ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .objectives li {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      padding-left: 1.25rem;
+      position: relative;
+    }
+    .objectives li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--green);
+      font-family: 'Syne', sans-serif;
+    }
+
+    /* === SECCIONS DE TEORIA === */
+    .theory-section {
+      padding: 2.5rem 0;
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      font-size: 1.3rem;
+      color: var(--heading);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .section-icon { color: var(--accent); font-size: 0.8em; }
+    .theory-text {
+      font-family: 'Lora', serif;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    .concept-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .concept-list li {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.7;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+    .concept-list li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-family: 'Syne', sans-serif;
+    }
+    .concept-list code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88em;
+      color: var(--blue);
+      background: var(--surface-2);
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+    }
+
+    /* === BLOCS DE CODI === */
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+    .code-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .code-lang {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .code-file {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .copy-btn {
+      margin-left: auto;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.7rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    pre { padding: 1.25rem; overflow-x: auto; }
+    pre code {
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 0.88rem !important;
+      line-height: 1.7 !important;
+      background: transparent !important;
+    }
+
+    /* === TIP BLOCKS === */
+    .tip-block {
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .tip-block.tip-info   { background: #EBF2FF; border-left: 3px solid var(--blue); }
+    .tip-block.tip-warning{ background: #FEF9C3; border-left: 3px solid var(--amber); }
+    .tip-block.tip-note   { background: #F5F3FF; border-left: 3px solid var(--purple); }
+    .tip-prefix {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .tip-block.tip-info    .tip-prefix { color: var(--blue); }
+    .tip-block.tip-warning .tip-prefix { color: var(--amber); }
+    .tip-block.tip-note    .tip-prefix { color: var(--purple); }
+    .tip-block p {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* === BADGES === */
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--blue);
+      padding: 0.15em 0.5em;
+      border-radius: 4px;
+    }
+    .badge-shell { color: var(--amber); }
+    .badge-new   { color: var(--green); border-color: #1a4a2a; background: var(--exercise-bg); }
+
+    /* === EXERCICI === */
+    .exercise-block {
+      background: var(--exercise-bg);
+      border: 1px solid #6EE7B7;
+      border-radius: 16px;
+      overflow: hidden;
+      margin: 2rem 0;
+    }
+    .exercise-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      background: #ECFDF5;
+      border-bottom: 1px solid #A7F3D0;
+    }
+    .exercise-label {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .exercise-tag {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #057A55;
+      background: #ECFDF5;
+      border: 1px solid #6EE7B7;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+    }
+    .exercise-body { padding: 1.5rem; }
+    .exercise-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--heading);
+      margin-bottom: 0.75rem;
+    }
+    .exercise-context {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+    .exercise-tasks h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .exercise-tasks ol {
+      padding-left: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .exercise-tasks li {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .exercise-tip {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      background: #FEF9E7;
+      border: 1px solid #FCD34D;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--amber);
+    }
+    .exercise-result {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px dashed #6EE7B7;
+    }
+    .exercise-result h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+    .exercise-result p {
+      font-family: 'Lora', serif;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* === RESUM === */
+    .summary-section {
+      padding: 2.5rem 0;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+    .summary-card h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .summary-card ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .summary-card li {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* === NAV === */
+    .unit-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 4rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+    .unit-nav a {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .unit-nav a:hover { color: var(--accent); }
+    .nav-home {
+      font-size: 0.8rem;
+      color: var(--text-dim) !important;
+      border: 1px solid var(--border);
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+    }
+    .nav-home:hover { border-color: var(--accent) !important; }
+
+    .solution-spoiler{margin-top:1rem;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+    .solution-spoiler summary{cursor:pointer;padding:.875rem 1.25rem;background:var(--surface-2);font-family:'Syne',sans-serif;font-size:.85rem;font-weight:600;color:var(--accent);user-select:none;list-style:none;display:flex;align-items:center;gap:.5rem;transition:background .2s;}
+    .solution-spoiler summary::marker,.solution-spoiler summary::-webkit-details-marker{display:none;}
+    .solution-spoiler summary:hover{background:#EBF2FF;}
+    .solution-spoiler[open] summary{border-bottom:1px solid var(--border);}
+    .solution-body .code-block{margin:0;border:none;border-radius:0;}
+    .deps-block{background:#FFF8EE;border:1px solid #FCD34D;border-radius:12px;overflow:hidden;margin:1.5rem 0;}
+    .deps-header{display:flex;align-items:center;gap:.5rem;padding:.75rem 1.25rem;background:#FEF3C7;border-bottom:1px solid #FCD34D;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:#92400E;text-transform:uppercase;letter-spacing:.08em;}
+    .deps-body{padding:1.25rem;}
+    .deps-body .code-block{margin:.75rem 0 0;}
+
+    /* === COMPARISON TABLE === */
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.25rem 0;
+      font-family: 'Lora', serif;
+      font-size: 0.92rem;
+    }
+    .comparison-table th {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      background: var(--surface);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .comparison-table td {
+      padding: 0.65rem 1rem;
+      color: var(--text);
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .comparison-table tr:hover td { background: var(--surface); }
+    .comparison-table code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      color: var(--blue);
+      background: var(--surface-2);
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CAPÇALERA DE UNITAT -->
+  <header class="unit-header">
+    <div class="page-wrapper">
+      <p class="unit-number">Unitat 17 · Curs de Django</p>
+      <h1 class="unit-title">Django REST Framework</h1>
+      <p class="unit-subtitle">Construeix APIs RESTful professionals amb serialitzadors, viewsets i autenticació basada en tokens</p>
+      <div class="objectives">
+        <h3>En aquesta unitat aprendràs:</h3>
+        <ul>
+          <li>Configurar DRF i entendre la diferència entre Serializer i ModelSerializer</li>
+          <li>Crear ViewSets i routers per exposar recursos REST amb mínim codi</li>
+          <li>Protegir endpoints amb permissions personalitzades i classes d'autenticació</li>
+          <li>Afegir accions addicionals amb @action i documentar la API amb Swagger</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTINGUT PRINCIPAL -->
+  <main class="page-wrapper">
+
+    <!-- Secció 1: Instal·lació, configuració i serialitzadors -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Instal·lació, configuració i Serialitzadors
+      </h2>
+
+      <p class="theory-text">
+        Django REST Framework (DRF) és la biblioteca estàndard per construir APIs REST amb Django. S'instal·la com qualsevol paquet pip i es registra a <code>INSTALLED_APPS</code>. La configuració global es fa a través del diccionari <code>REST_FRAMEWORK</code> al fitxer de settings, on es defineixen les classes per defecte de renderitzadors, permisos i autenticació.
+      </p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">Shell</span>
+          <span class="code-file">instal·lació</span>
+          <button class="copy-btn">Copiar</button>
+        </div>
+        <pre><code class="language-bash">pip install djangorestframework drf-yasg</code></pre>
+      </div>
+
+      <p class="theory-text">
+        Un cop instal·lat, cal afegir <code>'rest_framework'</code> i <code>'drf_yasg'</code> a <code>INSTALLED_APPS</code> i configurar les opcions globals. El bloc <code>REST_FRAMEWORK</code> controla el comportament per defecte de tota la API:
+      </p>
+
+      <ul class="concept-list">
+        <li><code>DEFAULT_RENDERER_CLASSES</code> — formats de resposta (JSON és el predeterminat; <code>BrowsableAPIRenderer</code> afegeix la interfície web navegable)</li>
+        <li><code>DEFAULT_PERMISSION_CLASSES</code> — qui pot accedir als endpoints per defecte (p. ex. <code>IsAuthenticated</code> per requerir login a tot arreu)</li>
+        <li><code>DEFAULT_AUTHENTICATION_CLASSES</code> — com s'identifiquen els usuaris (sessions Django, tokens, JWT)</li>
+        <li><code>DEFAULT_PAGINATION_CLASS</code> — paginació automàtica de llistes (<code>PageNumberPagination</code>)</li>
+        <li><code>PAGE_SIZE</code> — quants elements per pàgina retorna la API per defecte</li>
+      </ul>
+
+      <p class="theory-text">
+        Els <strong>serialitzadors</strong> fan la feina de convertir objectes Python (instàncies de models Django) en dades primitives (JSON) i viceversa. Hi ha dues classes principals:
+      </p>
+
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Classe</th>
+            <th>Quan usar-la</th>
+            <th>Diferència clau</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Serializer</code></td>
+            <td>Estructures personalitzades, no lligades a un model</td>
+            <td>Cal declarar tots els camps manualment</td>
+          </tr>
+          <tr>
+            <td><code>ModelSerializer</code></td>
+            <td>La majoria de casos: un model → un serialitzador</td>
+            <td>Genera camps i validadors automàticament des del model</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="theory-text">
+        Dins d'un <code>ModelSerializer</code>, el bloc <code>Meta</code> és obligatori i especifica el model i els camps a exposar. Amb <code>fields = '__all__'</code> s'exposen tots els camps, però a la pràctica és millor llistar-los explícitament per evitar exposar dades sensibles accidentalment. <code>SerializerMethodField</code> permet afegir camps calculats que no existeixen al model:
+      </p>
+
+      <ul class="concept-list">
+        <li><code>read_only_fields</code> — camps que la API retorna però que els clients no poden modificar (p. ex. <code>creat_a</code>, <code>id</code>)</li>
+        <li><code>SerializerMethodField</code> — camp de només lectura que crida un mètode <code>get_&lt;nom_camp&gt;</code> per calcular el valor</li>
+        <li><code>validate_&lt;camp&gt;</code> — mètode de validació a nivell de camp individual</li>
+        <li><code>validate</code> — mètode de validació a nivell de l'objecte complet (per validacions entre camps)</li>
+        <li><code>to_representation</code> — sobreescriviu-lo per personalitzar completament la sortida JSON d'un objecte</li>
+      </ul>
+
+      <div class="tip-block tip-warning">
+        <span class="tip-prefix">⚠️ Atenció</span>
+        <p>Mai useu <code>fields = '__all__'</code> en producció sense revisar primer quins camps exposa el model. Camps com <code>password</code>, claus d'API o dades personals s'exposarien per defecte. Sempre listeu els camps explícitament.</p>
+      </div>
+    </section>
+
+    <!-- BLOC DE CODI 1 -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">bibliapp/api/serializers.py + settings.py</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python"># bibliapp/api/serializers.py
+from rest_framework import serializers
+from biblioteca.models import Llibre, Autor, Prestec
+
+
+class AutorSerializer(serializers.ModelSerializer):
+    """Serialitzador bàsic per a Autor — usat com a camp imbricat."""
+    class Meta:
+        model = Autor
+        fields = ['id', 'nom', 'cognom']
+
+
+class LlibreSerializer(serializers.ModelSerializer):
+    # Camp calculat: nom complet de l'autor sense exposar tota la relació
+    autor_nom = serializers.SerializerMethodField()
+
+    # Autor imbricat en lectura; només s'envia autor_id en escriptura
+    autor = AutorSerializer(read_only=True)
+    autor_id = serializers.PrimaryKeyRelatedField(
+        queryset=Autor.objects.all(),
+        source='autor',
+        write_only=True
+    )
+
+    class Meta:
+        model = Llibre
+        fields = [
+            'id', 'titol', 'isbn', 'any_publicacio',
+            'disponible', 'autor', 'autor_id', 'autor_nom'
+        ]
+        read_only_fields = ['id', 'disponible']  # el client no toca aquests camps
+
+    def get_autor_nom(self, obj):
+        """Retorna 'Nom Cognom' de l'autor — camp calculat."""
+        return f"{obj.autor.nom} {obj.autor.cognom}"
+
+    def validate_isbn(self, value):
+        """Valida que l'ISBN tingui exactament 13 digits."""
+        digits = value.replace('-', '').replace(' ', '')
+        if not digits.isdigit() or len(digits) != 13:
+            raise serializers.ValidationError(
+                "L'ISBN ha de tenir exactament 13 digits numèrics."
+            )
+        return digits  # guardem sempre en format net
+
+    def validate(self, data):
+        """Validació cross-camp: no es pot publicar un llibre futur."""
+        from datetime import date
+        if data.get('any_publicacio') and data['any_publicacio'] > date.today().year:
+            raise serializers.ValidationError(
+                "L'any de publicació no pot ser futur."
+            )
+        return data
+
+
+class PrestecSerializer(serializers.ModelSerializer):
+    # En resposta mostrem el títol del llibre; en petició enviem llibre_id
+    llibre_titol = serializers.SerializerMethodField()
+    lector_username = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Prestec
+        fields = [
+            'id', 'llibre', 'lector', 'data_inici',
+            'data_fi_prevista', 'data_retorn', 'actiu',
+            'llibre_titol', 'lector_username'
+        ]
+        read_only_fields = ['id', 'data_retorn', 'actiu']
+
+    def get_llibre_titol(self, obj):
+        return obj.llibre.titol
+
+    def get_lector_username(self, obj):
+        return obj.lector.username
+
+    def to_representation(self, instance):
+        """Afegim l'estat del préstec a la representació JSON."""
+        data = super().to_representation(instance)
+        data['estat'] = 'retornat' if instance.data_retorn else 'actiu'
+        return data
+
+
+# ─── settings.py ───────────────────────────────────────────────────────────
+REST_FRAMEWORK = {
+    # Només JSON en producció; afegir BrowsableAPIRenderer en dev si cal
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    # Per defecte cal estar autenticat per accedir a qualsevol endpoint
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    # Autenticació per sessió Django + tokens DRF
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+    # Paginació automàtica de llistes
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+}
+</code></pre>
+    </div>
+
+    <!-- Secció 2: ViewSets, Routers, Permissions i @action -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        ViewSets, Routers, Permissions i @action
+      </h2>
+
+      <p class="theory-text">
+        DRF ofereix tres maneres d'escriure vistes d'API, de menys a més abstracció. <code>APIView</code> és la base: similar a una vista FBV però amb gestió de mètodes HTTP, negociació de contingut i respostes DRF. <code>ViewSet</code> agrupa les operacions d'un recurs (llistar, crear, recuperar, actualitzar, esborrar) en una sola classe. <code>ModelViewSet</code> implementa automàticament totes les operacions CRUD per a un model Django.
+      </p>
+
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Classe</th>
+            <th>Operacions incloses</th>
+            <th>Quan usar</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>APIView</code></td>
+            <td>Cap (cal definir <code>get</code>, <code>post</code>...)</td>
+            <td>Endpoints molt personalitzats</td>
+          </tr>
+          <tr>
+            <td><code>ViewSet</code></td>
+            <td>Cal definir <code>list</code>, <code>retrieve</code>...</td>
+            <td>Lògica no estàndard però agrupada</td>
+          </tr>
+          <tr>
+            <td><code>ModelViewSet</code></td>
+            <td>CRUD complet automàtic</td>
+            <td>La majoria de recursos REST</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="theory-text">
+        El <strong>Router</strong> (normalment <code>DefaultRouter</code>) genera automàticament totes les URLs d'un ViewSet: <code>/api/llibres/</code> per a llistar i crear, i <code>/api/llibres/{id}/</code> per a detall, actualitzar i esborrar. Estalvia escriure patrons URL manualment.
+      </p>
+
+      <p class="theory-text">
+        Les <strong>permissions</strong> controlen qui pot fer cada operació. DRF inclou <code>IsAuthenticated</code> (usuari identificat), <code>IsAdminUser</code> (staff de Django), <code>AllowAny</code> i <code>IsAuthenticatedOrReadOnly</code>. Per a lògica personalitzada, es crea una classe que hereti de <code>BasePermission</code> i s'implementa <code>has_permission</code> (a nivell de vista) i/o <code>has_object_permission</code> (a nivell d'objecte individual).
+      </p>
+
+      <ul class="concept-list">
+        <li><code>permission_classes</code> — llista de classes de permís aplicades a la vista; s'apliquen totes (AND lògic)</li>
+        <li><code>authentication_classes</code> — com identifica el sistema l'usuari de la petició</li>
+        <li><code>@action(detail=True, methods=['post'])</code> — defineix un endpoint addicional sobre un recurs concret (p. ex. <code>/api/prestecs/5/retornar/</code>)</li>
+        <li><code>@action(detail=False)</code> — acció sobre la col·lecció (p. ex. <code>/api/llibres/disponibles/</code>)</li>
+        <li><code>get_queryset</code> — sobreescriviu-lo per filtrar automàticament per usuari, paràmetres GET, etc.</li>
+        <li><code>get_serializer_class</code> — retorna serialitzadors diferents per a operacions de lectura i escriptura</li>
+      </ul>
+
+      <div class="tip-block tip-note">
+        <span class="tip-prefix">🔮 Nota avançada</span>
+        <p><strong>drf-yasg</strong> genera documentació Swagger/OpenAPI automàticament a partir dels ViewSets i serialitzadors. Afegiu les URLs de <code>get_swagger_view</code> i <code>get_schema_view</code> al fitxer d'URLs principal. En producció, protegiu la documentació amb <code>permission_classes=[IsAdminUser]</code> per no exposar l'estructura de la API públicament.</p>
+      </div>
+
+      <div class="tip-block tip-info">
+        <span class="tip-prefix">📌 Bones pràctiques</span>
+        <p>Sobreescriviu <code>perform_create</code> i <code>perform_update</code> als ViewSets per injectar dades automàticament (com l'usuari autenticat) sense exposar-les com a camps editables pel client. Per exemple, <code>serializer.save(lector=self.request.user)</code> en un <code>perform_create</code> de <code>PrestecViewSet</code>.</p>
+      </div>
+    </section>
+
+    <!-- BLOC DE CODI 2 -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">bibliapp/api/views.py + permissions.py + urls.py</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python"># bibliapp/api/permissions.py
+from rest_framework.permissions import BasePermission
+
+
+class EsPropietariDelPrestec(BasePermission):
+    """
+    Permís personalitzat: permet modificar un préstec
+    només si l'usuari autenticat és el lector que el va crear.
+    Adminstradors ho poden fer sempre.
+    """
+    message = "Només el lector propietari pot modificar aquest préstec."
+
+    def has_object_permission(self, request, view, obj):
+        # Admins sempre tenen accés
+        if request.user.is_staff:
+            return True
+        # La resta d'usuaris: cal ser el lector del préstec
+        return obj.lector == request.user
+
+
+# bibliapp/api/views.py
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+
+from biblioteca.models import Llibre, Prestec
+from .serializers import LlibreSerializer, PrestecSerializer
+from .permissions import EsPropietariDelPrestec
+
+
+class LlibreViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet de Llibre: proporciona list, create, retrieve, update, destroy.
+    El router genera automàticament /api/llibres/ i /api/llibres/{id}/.
+    """
+    serializer_class = LlibreSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Filtre dinàmic: ?disponible=true retorna
+        només els llibres disponibles per a préstec.
+        """
+        qs = Llibre.objects.select_related('autor').all()
+        disponible = self.request.query_params.get('disponible')
+        if disponible is not None:
+            # Convertim l'string 'true'/'false' a booleà
+            qs = qs.filter(disponible=(disponible.lower() == 'true'))
+        return qs
+
+    @action(detail=False, methods=['get'], url_path='disponibles')
+    def disponibles(self, request):
+        """
+        GET /api/llibres/disponibles/
+        Retorna tots els llibres disponibles per a préstec.
+        Acció addicional sobre la col·lecció (detail=False).
+        """
+        qs = self.get_queryset().filter(disponible=True)
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
+
+
+class PrestecViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet de Prestec. L'usuari normal veu només els seus préstecs;
+    l'admin veu tots.
+    """
+    serializer_class = PrestecSerializer
+    permission_classes = [IsAuthenticated, EsPropietariDelPrestec]
+
+    def get_queryset(self):
+        """Filtra els préstecs: l'admin veu tot, l'usuari només els seus."""
+        if self.request.user.is_staff:
+            return Prestec.objects.select_related('llibre', 'lector').all()
+        return Prestec.objects.select_related('llibre', 'lector').filter(
+            lector=self.request.user
+        )
+
+    def perform_create(self, serializer):
+        """
+        En crear un préstec, assignem automàticament l'usuari autenticat
+        com a lector — no cal que el client l'enviï.
+        """
+        serializer.save(lector=self.request.user)
+
+    @action(detail=True, methods=['post'], url_path='retornar')
+    def retornar(self, request, pk=None):
+        """
+        POST /api/prestecs/{id}/retornar/
+        Marca el préstec com a retornat i allibera el llibre.
+        Acció addicional sobre un objecte concret (detail=True).
+        """
+        prestec = self.get_object()  # aplica has_object_permission aquí
+
+        if prestec.data_retorn:
+            return Response(
+                {'error': 'Aquest préstec ja ha estat retornat.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        from datetime import date
+        prestec.data_retorn = date.today()
+        prestec.actiu = False
+        prestec.save()
+
+        # Alliberem el llibre perquè pugui tornar a ser prestat
+        prestec.llibre.disponible = True
+        prestec.llibre.save(update_fields=['disponible'])
+
+        serializer = self.get_serializer(prestec)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# bibliapp/api/urls.py
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from rest_framework.permissions import IsAdminUser
+from . import views
+
+# El DefaultRouter genera totes les URLs CRUD automàticament
+router = DefaultRouter()
+router.register(r'llibres', views.LlibreViewSet, basename='llibre')
+router.register(r'prestecs', views.PrestecViewSet, basename='prestec')
+
+# Documentació Swagger — accessible només per a admins
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Bibliapp API",
+        default_version='v1',
+        description="API REST per a la gestió de la biblioteca",
+    ),
+    public=False,
+    permission_classes=[IsAdminUser],
+)
+
+urlpatterns = [
+    path('', include(router.urls)),
+    path('docs/', schema_view.with_ui('swagger', cache_timeout=0), name='api-docs'),
+]
+
+# bibliapp/urls.py (afegir a l'arrel del projecte)
+# path('api/', include('bibliapp.api.urls')),
+</code></pre>
+    </div>
+
+    <div class="deps-block">
+      <div class="deps-header">📦 Dependències i fitxers necessaris</div>
+      <div class="deps-body">
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Shell</span><span class="code-file">Instal·lació</span></div>
+          <pre><code class="language-bash">pip install djangorestframework drf-yasg</code></pre>
+        </div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><span class="code-file">settings/base.py</span></div>
+          <pre><code class="language-python">INSTALLED_APPS = [
+    # ...
+    'rest_framework',
+    'drf_yasg',
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': ['rest_framework.renderers.JSONRenderer'],
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated'],
+    'DEFAULT_AUTHENTICATION_CLASSES': [],  # usem auth pròpia (API key o session)
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+}</code></pre>
+        </div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Shell</span><span class="code-file">Estructura recomanada</span></div>
+          <pre><code class="language-bash">books/
+├── api/
+│   ├── __init__.py
+│   ├── serializers.py
+│   ├── views.py
+│   └── urls.py</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCICI -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">API REST completa per a bibliapp</h3>
+        <p class="exercise-context">
+          La biblioteca vol obrir una API perquè les aplicacions mòbils i de tercers puguin consultar el catàleg i gestionar préstecs. Has de crear una API REST protegida que permeti llistar llibres amb filtre, veure i modificar un llibre concret, crear préstecs i marcar-los com a retornats.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Crea <code>LlibreSerializer</code> amb <code>ModelSerializer</code> exposant: <code>id</code>, <code>titol</code>, <code>isbn</code>, <code>any_publicacio</code>, <code>disponible</code>, <code>autor_nom</code> (SerializerMethodField). Camp <code>disponible</code> com a <code>read_only</code>.</li>
+            <li>Crea <code>LlibreViewSet</code> (ModelViewSet) amb <code>get_queryset</code> que accepti el paràmetre <code>?disponible=true/false</code>. Protegeix-lo amb <code>IsAuthenticated</code>.</li>
+            <li>Crea <code>PrestecViewSet</code> amb <code>perform_create</code> que assigni automàticament <code>self.request.user</code> com a lector, i una acció <code>@action(detail=True, methods=['post'])</code> anomenada <code>retornar</code> que marqui el préstec com a retornat.</li>
+            <li>Registra ambdós ViewSets al <code>DefaultRouter</code> i inclou les URLs sota el prefix <code>/api/</code>.</li>
+            <li>Verifica que <code>GET /api/llibres/</code> retorni 401 sense autenticació i que <code>POST /api/prestecs/{id}/retornar/</code> funcioni correctament amb un usuari autenticat.</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">Codi inicial — completa els TODO</span>
+          </div>
+          <pre><code class="language-python"># bibliapp/api/serializers.py
+from rest_framework import serializers
+from biblioteca.models import Llibre, Prestec
+
+class LlibreSerializer(serializers.ModelSerializer):
+    autor_nom = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Llibre
+        fields = ['id', 'titol', 'isbn', 'any_publicacio', 'disponible', 'autor_nom']
+        # TODO: afegir 'disponible' a read_only_fields
+
+    def get_autor_nom(self, obj):
+        # TODO: retorna "Nom Cognom" de l'autor
+        pass
+
+class PrestecSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Prestec
+        fields = ['id', 'llibre', 'lector', 'data_inici', 'data_fi_prevista', 'data_retorn', 'actiu']
+        read_only_fields = ['id', 'data_retorn', 'actiu']
+
+
+# bibliapp/api/views.py
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from biblioteca.models import Llibre, Prestec
+from .serializers import LlibreSerializer, PrestecSerializer
+
+class LlibreViewSet(viewsets.ModelViewSet):
+    serializer_class = LlibreSerializer
+    # TODO: afegir permission_classes
+
+    def get_queryset(self):
+        qs = Llibre.objects.select_related('autor').all()
+        # TODO: filtrar per ?disponible=true/false
+        return qs
+
+class PrestecViewSet(viewsets.ModelViewSet):
+    serializer_class = PrestecSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Prestec.objects.filter(lector=self.request.user)
+
+    def perform_create(self, serializer):
+        # TODO: assignar self.request.user com a lector automàticament
+        serializer.save()
+
+    @action(detail=True, methods=['post'])
+    def retornar(self, request, pk=None):
+        prestec = self.get_object()
+        # TODO: verificar que no estigui ja retornat
+        # TODO: marcar data_retorn = date.today(), actiu = False
+        # TODO: marcar llibre.disponible = True
+        # TODO: retornar Response amb el serialitzador
+        pass
+
+
+# bibliapp/api/urls.py
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from . import views
+
+router = DefaultRouter()
+# TODO: registrar LlibreViewSet amb prefix 'llibres'
+# TODO: registrar PrestecViewSet amb prefix 'prestecs'
+
+urlpatterns = [
+    path('', include(router.urls)),
+]
+</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>El <code>DefaultRouter</code> genera automàticament les URLs <code>/api/prestecs/{id}/retornar/</code> per a les accions. Comprova-ho visitant <code>/api/</code> (la root del router mostra totes les URLs disponibles). Per testar amb autenticació des de la línia de comandes, usa <code>curl -u usuari:contrasenya http://localhost:8000/api/llibres/</code>.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>
+            <code>GET /api/llibres/</code> sense autenticació retorna HTTP 401. Amb autenticació retorna un array JSON amb tots els llibres, cadascun amb el camp <code>autor_nom</code> calculat. <code>GET /api/llibres/?disponible=true</code> filtra correctament. <code>POST /api/prestecs/{id}/retornar/</code> marca el préstec com a retornat, actualitza <code>data_retorn</code> i posa <code>disponible=True</code> al llibre.
+          </p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>▶ Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa — serializers.py + views.py + urls.py</span></div>
+              <pre><code class="language-python"># books/api/serializers.py
+from rest_framework import serializers
+from books.models import Llibre, Prestec, Autor
+
+class AutorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Autor
+        fields = ['id', 'nom', 'cognoms', 'nacionalitat']
+
+class LlibreSerializer(serializers.ModelSerializer):
+    autor = AutorSerializer(read_only=True)
+    autor_id = serializers.PrimaryKeyRelatedField(
+        queryset=Autor.objects.all(), source='autor', write_only=True
+    )
+    estat = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Llibre
+        fields = ['id', 'titol', 'autor', 'autor_id', 'isbn', 'any_publicacio',
+                  'genere', 'disponible', 'num_pagines', 'estat']
+
+    def get_estat(self, obj):
+        return 'disponible' if obj.disponible else 'prestat'
+
+class PrestecSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Prestec
+        fields = ['id', 'llibre', 'lector', 'data_prestec', 'data_retorn_prevista', 'estat']
+        read_only_fields = ['data_prestec', 'estat']
+
+# books/api/views.py
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, BasePermission
+from rest_framework.response import Response
+from books.models import Llibre, Prestec
+
+class EsPropietariDelPrestec(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.lector == request.user.lector
+
+class LlibreViewSet(viewsets.ModelViewSet):
+    serializer_class = LlibreSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        qs = Llibre.objects.select_related('autor')
+        disponible = self.request.query_params.get('disponible')
+        if disponible == 'true':
+            qs = qs.filter(disponible=True)
+        elif disponible == 'false':
+            qs = qs.filter(disponible=False)
+        return qs
+
+class PrestecViewSet(viewsets.ModelViewSet):
+    serializer_class = PrestecSerializer
+    permission_classes = [IsAuthenticated, EsPropietariDelPrestec]
+
+    def get_queryset(self):
+        return Prestec.objects.filter(lector=self.request.user.lector)
+
+    @action(detail=True, methods=['post'])
+    def retornar(self, request, pk=None):
+        prestec = self.get_object()
+        if prestec.estat != 'actiu':
+            return Response({'error': 'El préstec no és actiu.'}, status=400)
+        from django.utils import timezone
+        prestec.estat = 'retornat'
+        prestec.data_retorn_real = timezone.now().date()
+        prestec.save()
+        return Response({'status': 'Préstec retornat correctament.'})
+
+# books/api/urls.py
+from rest_framework.routers import DefaultRouter
+from . import views
+
+router = DefaultRouter()
+router.register('llibres', views.LlibreViewSet, basename='llibre')
+router.register('prestecs', views.PrestecViewSet, basename='prestec')
+urlpatterns = router.urls</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Segon exercici -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic 2</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Serializer amb validació i nested write</h3>
+        <p class="exercise-context">
+          Els serializers poden validar dades complexes i gestionar la creació de models relacionats en una sola petició (nested write). Implementaràs un serializer de creació de préstecs amb validació de negoci i assignació automàtica del lector.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Crea <code>PrestecCreateSerializer</code> que permeti crear un préstec passant <code>llibre_id</code> i <code>data_retorn_prevista</code>.</li>
+            <li>Afegeix validació: el llibre ha d'estar disponible, la data ha de ser futura, el lector no pot tenir 3 o més préstecs actius.</li>
+            <li>Sobreescriu <code>create()</code> per assignar automàticament el <code>lector</code> de <code>request.user</code>.</li>
+            <li>Usa <code>get_serializer_class()</code> al ViewSet per retornar el serializer adequat segons l'acció.</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">books/api/serializers.py — Codi inicial</span>
+          </div>
+          <pre><code class="language-python">from django.utils import timezone
+
+class PrestecCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Prestec
+        fields = ['llibre', 'data_retorn_prevista']
+
+    def validate_llibre(self, value):
+        # TODO: comprova que value.disponible és True
+        pass
+
+    def validate_data_retorn_prevista(self, value):
+        # TODO: comprova que value > timezone.now().date()
+        pass
+
+    def validate(self, attrs):
+        # TODO: comprova que el lector no té >= 3 préstecs actius
+        # Pista: request = self.context['request']
+        pass
+
+    def create(self, validated_data):
+        # TODO: afegeix lector=request.user.lector als validated_data
+        pass</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Pista: <code>self.context['request']</code> dóna accés al request dins del serializer. Usa'l per obtenir l'usuari i el seu lector associat.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p><code>POST /api/prestecs/</code> amb <code>{"llibre": 1, "data_retorn_prevista": "2026-06-01"}</code> crea el préstec assignant automàticament el lector. Si el llibre no està disponible o la data és passada, retorna HTTP 400 amb el missatge d'error corresponent.</p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>▶ Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa</span></div>
+              <pre><code class="language-python">class PrestecCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Prestec
+        fields = ['llibre', 'data_retorn_prevista']
+
+    def validate_llibre(self, value):
+        if not value.disponible:
+            raise serializers.ValidationError("El llibre no està disponible.")
+        return value
+
+    def validate_data_retorn_prevista(self, value):
+        if value <= timezone.now().date():
+            raise serializers.ValidationError("La data de retorn ha de ser futura.")
+        return value
+
+    def validate(self, attrs):
+        request = self.context['request']
+        if hasattr(request.user, 'lector'):
+            actius = Prestec.objects.filter(lector=request.user.lector, estat='actiu').count()
+            if actius >= 3:
+                raise serializers.ValidationError("No es poden tenir més de 3 préstecs actius.")
+        return attrs
+
+    def create(self, validated_data):
+        request = self.context['request']
+        validated_data['lector'] = request.user.lector
+        return super().create(validated_data)
+
+# books/api/views.py — afegir a PrestecViewSet
+def get_serializer_class(self):
+    if self.action == 'create':
+        return PrestecCreateSerializer
+    return PrestecSerializer</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- RESUM -->
+    <section class="summary-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Resum
+      </h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h4>Serialitzadors</h4>
+          <ul>
+            <li>ModelSerializer</li>
+            <li>SerializerMethodField</li>
+            <li>read_only_fields</li>
+            <li>validate_&lt;camp&gt;</li>
+            <li>to_representation</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Vistes</h4>
+          <ul>
+            <li>APIView</li>
+            <li>ModelViewSet</li>
+            <li>get_queryset()</li>
+            <li>perform_create()</li>
+            <li>@action(detail=True)</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Routing</h4>
+          <ul>
+            <li>DefaultRouter</li>
+            <li>router.register()</li>
+            <li>include(router.urls)</li>
+            <li>url_path personalitzat</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Seguretat</h4>
+          <ul>
+            <li>IsAuthenticated</li>
+            <li>IsAdminUser</li>
+            <li>BasePermission</li>
+            <li>has_object_permission</li>
+            <li>drf-yasg (Swagger)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- NAV ENTRE UNITATS -->
+  <nav class="unit-nav">
+    <a href="unitat-16.html" class="nav-prev">← <span>Unitat 16 — Sistema de Cache</span></a>
+    <a href="index.html" class="nav-home">Índex</a>
+    <a href="unitat-18.html" class="nav-next"><span>Unitat 18 — Testing amb pytest-django</span> →</a>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      hljs.highlightAll();
+
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const code = btn.closest('.code-block').querySelector('code').textContent;
+          navigator.clipboard.writeText(code);
+          btn.textContent = 'Copiat!';
+          setTimeout(() => btn.textContent = 'Copiar', 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

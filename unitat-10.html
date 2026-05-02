@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unitat 10 — Context Processors | Curs Django</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Highlight.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #F4F7FB;
+      --surface:      #FFFFFF;
+      --surface-2:    #EBF0F8;
+      --code-bg:      #F1F5F9;
+      --border:       #C5D3E4;
+      --border-dim:   #DAE3EF;
+      --text:         #1C2E45;
+      --text-muted:   #4E6478;
+      --text-dim:     #96ABBE;
+      --heading:      #091929;
+      --accent:       #1755C4;
+      --accent-glow:  #1755C420;
+      --blue:         #2463EB;
+      --green:        #057A55;
+      --amber:        #92530A;
+      --purple:       #5B21B6;
+      --django-green: #E8F0FD;
+      --exercise-bg:  #F0FDF8;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Lora', serif;
+      min-height: 100vh;
+    }
+
+    .page-wrapper { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+
+    .unit-header {
+      background: linear-gradient(135deg, var(--django-green) 0%, var(--bg) 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 4rem;
+    }
+    .unit-number {
+      font-family: 'Lora', serif;
+      font-weight: 500;
+      font-size: 0.78rem;
+      color: var(--accent);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .unit-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 2.6rem;
+      color: var(--heading);
+      margin: 0.5rem 0;
+      letter-spacing: -0.01em;
+    }
+    .unit-subtitle {
+      font-family: 'Lora', serif;
+      font-style: italic;
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      margin-bottom: 1.5rem;
+    }
+    .objectives {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .objectives h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.75rem;
+    }
+    .objectives ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .objectives li {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      padding-left: 1.25rem;
+      position: relative;
+    }
+    .objectives li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-family: 'Syne', sans-serif; }
+
+    .theory-section { padding: 2.5rem 0; border-bottom: 1px solid var(--border-dim); }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      font-size: 1.3rem;
+      color: var(--heading);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .section-icon { color: var(--accent); font-size: 0.8em; }
+    .theory-text {
+      font-family: 'Lora', serif;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    .concept-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+    .concept-list li {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.7;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+    .concept-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-family: 'Syne', sans-serif; }
+    .concept-list code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88em;
+      color: var(--blue);
+      background: var(--surface-2);
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+    }
+
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+    .code-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .code-lang {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .code-file { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
+    .copy-btn {
+      margin-left: auto;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.7rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    pre { padding: 1.5rem; overflow-x: auto; }
+    pre code {
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 0.88rem !important;
+      line-height: 1.7 !important;
+      background: transparent !important;
+    }
+
+    .tip-block {
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .tip-block.tip-info   { background: #EBF2FF; border-left: 3px solid var(--blue); }
+    .tip-block.tip-warning{ background: #FEF9C3; border-left: 3px solid var(--amber); }
+    .tip-block.tip-note   { background: #F5F3FF; border-left: 3px solid var(--purple); }
+    .tip-prefix {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .tip-block.tip-info    .tip-prefix { color: var(--blue); }
+    .tip-block.tip-warning .tip-prefix { color: var(--amber); }
+    .tip-block.tip-note    .tip-prefix { color: var(--purple); }
+    .tip-block p { font-family: 'Lora', serif; font-size: 0.95rem; color: var(--text); line-height: 1.65; margin: 0; }
+
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--blue);
+      padding: 0.15em 0.5em;
+      border-radius: 4px;
+    }
+    .badge-shell { color: var(--amber); }
+    .badge-new   { color: var(--green); border-color: #6EE7B7; background: var(--exercise-bg); }
+
+    .exercise-block {
+      background: var(--exercise-bg);
+      border: 1px solid #6EE7B7;
+      border-radius: 16px;
+      overflow: hidden;
+      margin: 2rem 0;
+    }
+    .exercise-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      background: #ECFDF5;
+      border-bottom: 1px solid #A7F3D0;
+    }
+    .exercise-label {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .exercise-tag {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #057A55;
+      background: #ECFDF5;
+      border: 1px solid #6EE7B7;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+    }
+    .exercise-body { padding: 1.5rem; }
+    .exercise-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--heading);
+      margin-bottom: 0.75rem;
+    }
+    .exercise-context { font-family: 'Lora', serif; color: var(--text); line-height: 1.7; margin-bottom: 1.25rem; }
+    .exercise-tasks h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .exercise-tasks ol { padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .exercise-tasks li { font-family: 'Lora', serif; color: var(--text); line-height: 1.6; }
+    .exercise-tip {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      background: #FEF9E7;
+      border: 1px solid #FCD34D;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--amber);
+    }
+    .exercise-result { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px dashed #6EE7B7; }
+    .exercise-result h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+    .exercise-result p { font-family: 'Lora', serif; color: var(--text-muted); font-size: 0.95rem; }
+
+    /* Diagrama de flux */
+    .flow-diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .flow-box {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .flow-box.highlight {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .flow-arrow {
+      color: var(--text-dim);
+      font-size: 1.2rem;
+      font-family: 'Syne', sans-serif;
+    }
+
+    .summary-section { padding: 2.5rem 0; }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.25rem; }
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+    .summary-card h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .summary-card ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .summary-card li { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--text-muted); }
+
+    .unit-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 4rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+    .unit-nav a {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .unit-nav a:hover { color: var(--accent); }
+    .nav-home {
+      font-size: 0.8rem !important;
+      color: var(--text-dim) !important;
+      border: 1px solid var(--border);
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+    }
+    .nav-home:hover { border-color: var(--accent) !important; }
+
+    .solution-spoiler { margin-top:1rem; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    .solution-spoiler summary { cursor:pointer; padding:0.875rem 1.25rem; background:var(--surface-2); font-family:'Syne',sans-serif; font-size:0.85rem; font-weight:600; color:var(--accent); user-select:none; list-style:none; display:flex; align-items:center; gap:0.5rem; transition:background 0.2s; }
+    .solution-spoiler summary::marker,.solution-spoiler summary::-webkit-details-marker{display:none;}
+    .solution-spoiler summary:hover{background:#EBF2FF;}
+    .solution-spoiler[open] summary{border-bottom:1px solid var(--border);}
+    .solution-body .code-block{margin:0;border:none;border-radius:0;}
+  </style>
+</head>
+<body>
+
+  <header class="unit-header">
+    <div class="page-wrapper">
+      <p class="unit-number">Unitat 10 · Curs de Django</p>
+      <h1 class="unit-title">Context Processors</h1>
+      <p class="unit-subtitle">Injecta dades globals a tots els templates sense repetir codi a cada vista</p>
+      <div class="objectives">
+        <h3>En aquesta unitat aprendràs:</h3>
+        <ul>
+          <li>Entendre quin problema resolen els context processors</li>
+          <li>Crear un context processor propi a <code>books/context_processors.py</code></li>
+          <li>Registrar-lo a <code>TEMPLATES['OPTIONS']['context_processors']</code> de settings</li>
+          <li>Conèixer els context processors built-in de Django i les seves variables</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-wrapper">
+
+    <!-- Secció 1 -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Què és un context processor i per a què serveix
+      </h2>
+      <p class="theory-text">
+        Quan renderitzem un template amb <code>render(request, 'template.html', context)</code>,
+        el diccionari <code>context</code> que passem només és disponible per a aquell template
+        concret. Si volem que una variable (per exemple, el nombre de notificacions pendents de
+        l'usuari) sigui disponible a <em>tots</em> els templates de l'aplicació, hauríem de
+        repetir el mateix codi a cada vista. Això és exactament el problema que solucionen els
+        <strong>context processors</strong>.
+      </p>
+      <p class="theory-text">
+        Un context processor és simplement una <strong>funció Python que rep la petició
+        (<code>request</code>) i retorna un diccionari</strong>. Django crida automàticament
+        tots els context processors registrats en cada renderització de template i combina
+        els seus diccionaris amb el context que la vista ha passat explícitament.
+        El resultat final és el context complet disponible al template.
+      </p>
+
+      <div class="flow-diagram">
+        <div class="flow-box">Vista<br><small>render(request, ...)</small></div>
+        <div class="flow-arrow">+</div>
+        <div class="flow-box highlight">Context Processors<br><small>→ dicts combinats</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">Context final<br><small>disponible al template</small></div>
+      </div>
+
+      <ul class="concept-list">
+        <li><code>def nom_processor(request):</code> — signatura obligatòria: rep <code>request</code>, retorna <code>dict</code></li>
+        <li><code>return {'clau': valor}</code> — les claus del diccionari es converteixen en variables de template</li>
+        <li><code>TEMPLATES['OPTIONS']['context_processors']</code> — llista a <code>settings.py</code> on es registren</li>
+        <li>S'executen en <strong>cada petició</strong> que renderitza un template, de forma automàtica</li>
+        <li>Si una clau existeix tant al context del processor com al de la vista, la de la vista guanya</li>
+      </ul>
+
+      <div class="tip-block tip-warning">
+        <span class="tip-prefix">⚠️ Rendiment</span>
+        <p>Els context processors s'executen en <em>cada</em> petició, incloent les pàgines d'error. Evita fer consultes a la base de dades costoses sense cache. Per a dades que canvien poc, usa <code>cache.get_or_set()</code> (veure Unitat 16). Un context processor lent alentirà tota l'aplicació.</p>
+      </div>
+    </section>
+
+    <!-- Codi 1 -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">books/context_processors.py</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">from books.models import Prestec
+
+
+def prestecs_actius_lector(request):
+    """
+    Injecta el nombre de préstecs actius de l'usuari autenticat.
+    Disponible a tots els templates com: {{ prestecs_actius_count }}
+
+    Retornem 0 si l'usuari no està autenticat per evitar errors
+    de consulta contra un usuari anònim.
+    """
+    if not request.user.is_authenticated:
+        return {'prestecs_actius_count': 0}
+
+    # Comptem en comptes de carregar tots els objectes:
+    # count() fa un COUNT(*) SQL, molt més eficient que len(queryset)
+    count = Prestec.objects.filter(
+        lector__usuari=request.user,
+        retornat=False
+    ).count()
+
+    return {'prestecs_actius_count': count}
+
+
+def configuracio_biblioteca(request):
+    """
+    Injecta la configuració global de la biblioteca.
+    Útil per mostrar el nom o el logotip a la capçalera sense
+    haver-lo de passar des de cada vista.
+    """
+    from django.conf import settings
+
+    return {
+        'biblioteca_nom':  getattr(settings, 'BIBLIOTECA_NOM', 'Biblioteca'),
+        'biblioteca_email': getattr(settings, 'BIBLIOTECA_EMAIL', ''),
+        'max_prestecs':    getattr(settings, 'MAX_PRESTECS_PER_LECTOR', 3),
+    }</code></pre>
+    </div>
+
+    <!-- Secció 2 -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Registre a settings i context processors built-in
+      </h2>
+      <p class="theory-text">
+        Per activar un context processor hem d'afegir el seu <em>path Python complet</em>
+        (com a string) a la clau <code>'context_processors'</code> dins de
+        <code>TEMPLATES[0]['OPTIONS']</code> a <code>settings.py</code>. Django ve amb
+        quatre context processors activats per defecte en un projecte nou, cadascun
+        aportant un conjunt de variables útils a tots els templates.
+      </p>
+      <ul class="concept-list">
+        <li><code>django.template.context_processors.request</code> — aporta <code>request</code> (accés a la petició, cookies, sessió)</li>
+        <li><code>django.contrib.auth.context_processors.auth</code> — aporta <code>user</code> i <code>perms</code> (permisos)</li>
+        <li><code>django.contrib.messages.context_processors.messages</code> — aporta <code>messages</code> (missatges flash)</li>
+        <li><code>django.template.context_processors.debug</code> — aporta <code>debug</code> (True/False) i <code>sql_queries</code></li>
+      </ul>
+      <p class="theory-text">
+        Gràcies al processor <code>auth</code>, en qualsevol template pots usar directament
+        <code>{{ user.username }}</code> o <code>{% if user.is_authenticated %}</code>
+        sense haver de passar l'usuari explícitament des de la vista.
+        Gràcies al processor <code>messages</code>, pots mostrar missatges flash amb
+        <code>{% for message in messages %}</code>.
+      </p>
+
+      <div class="tip-block tip-info">
+        <span class="tip-prefix">📌 Bones pràctiques</span>
+        <p>Organitza els context processors propis al fitxer <code>nom_app/context_processors.py</code>. Si l'aplicació creix, pots crear un fitxer per cada processador. Nomenals de forma descriptiva: <code>prestecs_actius_lector</code> és millor que <code>dades_globals</code>.</p>
+      </div>
+    </section>
+
+    <!-- Codi 2 -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">bibliapp/settings.py — registre del context processor</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                # --- Built-in de Django (no eliminar) ---
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+
+                # --- Context processors propis de bibliapp ---
+                'books.context_processors.prestecs_actius_lector',
+                'books.context_processors.configuracio_biblioteca',
+            ],
+        },
+    },
+]
+
+# Configuració de la biblioteca (llegida pels context processors)
+BIBLIOTECA_NOM = 'Biblioteca Municipal de Girona'
+BIBLIOTECA_EMAIL = 'biblioteca@ajuntament.gi'
+MAX_PRESTECS_PER_LECTOR = 3</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">HTML</span>
+        <span class="code-file">templates/base.html — ús al template</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-html"><!DOCTYPE html>
+&lt;html lang="ca"&gt;
+&lt;head&gt;
+  &lt;title&gt;{{ biblioteca_nom }}&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;nav&gt;
+  &lt;span&gt;{{ biblioteca_nom }}&lt;/span&gt;
+
+  {% if user.is_authenticated %}
+    {# prestecs_actius_count ve del nostre context processor #}
+    &lt;span&gt;
+      Hola, {{ user.first_name }}!
+      {% if prestecs_actius_count %}
+        &lt;span class="badge"&gt;{{ prestecs_actius_count }} préstec{{ prestecs_actius_count|pluralize:"s" }}&lt;/span&gt;
+      {% endif %}
+    &lt;/span&gt;
+    &lt;a href="{% url 'logout' %}"&gt;Sortir&lt;/a&gt;
+  {% else %}
+    &lt;a href="{% url 'login' %}"&gt;Entrar&lt;/a&gt;
+  {% endif %}
+&lt;/nav&gt;
+
+{# Missatges flash — via context processor built-in 'messages' #}
+{% if messages %}
+  {% for message in messages %}
+    &lt;div class="alert alert-{{ message.tags }}"&gt;{{ message }}&lt;/div&gt;
+  {% endfor %}
+{% endif %}
+
+{% block content %}{% endblock %}
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+    </div>
+
+    <div class="tip-block tip-note">
+      <span class="tip-prefix">🔮 Avançat</span>
+      <p>Per a aplicacions grans on el context processor fa una consulta a la BD, pots usar el sistema de cache de Django per evitar consultes repetides: <code>count = cache.get_or_set(f'prestecs_actius_{request.user.pk}', lambda: Prestec.objects.filter(...).count(), timeout=60)</code>. Amb un timeout d'1 minut el badge pot estar lleugerament desfasat, però la càrrega de la base de dades es redueix dràsticament.</p>
+    </div>
+
+    <!-- EXERCICI -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Context processor de resum de biblioteca</h3>
+        <p class="exercise-context">
+          El navegador principal de <em>bibliapp</em> ha de mostrar dos comptadors en temps real:
+          el nombre total de llibres disponibles per prestar i el nombre de préstecs actius de
+          l'usuari actual. En lloc de passar-los des de cada vista, crearem un context processor
+          que els injecti globalment a tots els templates.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Crea el fitxer <code>books/context_processors.py</code> i implementa la funció <code>resum_biblioteca(request)</code>.</li>
+            <li>La funció ha de retornar <code>{'llibres_disponibles': N, 'meus_prestecs_actius': M}</code>. Per als usuaris no autenticats, <code>meus_prestecs_actius</code> ha de ser <code>0</code>.</li>
+            <li>Registra el context processor a <code>settings.py</code> dins de <code>TEMPLATES['OPTIONS']['context_processors']</code>.</li>
+            <li>Afegeix al <code>base.html</code> una barra d'informació que mostri: <em>"X llibres disponibles | Y préstecs actius teus"</em> usant les variables injectades.</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">Codi inicial — books/context_processors.py</span>
+          </div>
+          <pre><code class="language-python">from books.models import Llibre, Prestec
+
+
+def resum_biblioteca(request):
+    """
+    Injecta el resum de la biblioteca a tots els templates:
+    - llibres_disponibles: nombre de llibres amb exemplars_disponibles > 0
+    - meus_prestecs_actius: préstecs actius de l'usuari actual (0 si no autenticat)
+    """
+    # TODO: Compta els llibres disponibles (exemplars_disponibles > 0)
+    # Suggeriment: Llibre.objects.filter(exemplars_disponibles__gt=0).count()
+    llibres_disponibles = 0  # substitueix per la consulta real
+
+    # TODO: Compta els préstecs actius de l'usuari actual
+    # Recorda: comprova request.user.is_authenticated primer!
+    meus_prestecs_actius = 0  # substitueix per la consulta real
+
+    # TODO: Retorna el diccionari amb les dues variables
+    return {}</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Pista: Usa <code>.count()</code> al final del QuerySet en comptes de <code>len()</code>. El primer fa un COUNT SQL eficient; el segon carrega tots els objectes a memòria. Per a <code>meus_prestecs_actius</code>, filtra per <code>lector__usuari=request.user</code> i <code>retornat=False</code>.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>A qualsevol pàgina de l'aplicació (llista de llibres, detall, perfil, etc.) la barra d'informació mostra el nombre actual de llibres disponibles i, per als usuaris autenticats, els seus préstecs actius, sense cap codi addicional a les vistes individuals.</p>
+        </div>
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa</span><button class="copy-btn">Copiar</button></div>
+              <pre><code class="language-python"># books/context_processors.py
+from books.models import Llibre, Prestec
+
+def resum_biblioteca(request):
+    """Injecta estadístiques globals a tots els templates."""
+    return {
+        'llibres_disponibles': Llibre.objects.filter(disponible=True).count(),
+        'meus_prestecs_actius': (
+            Prestec.objects.filter(
+                lector=request.user.lector,
+                estat='actiu'
+            ).count()
+            if request.user.is_authenticated and hasattr(request.user, 'lector')
+            else 0
+        ),
+    }
+
+# bibliapp/settings/base.py — afegir a TEMPLATES OPTIONS context_processors:
+# 'books.context_processors.resum_biblioteca',
+
+# Ús al template (disponible automàticament):
+# &lt;p&gt;{{ llibres_disponibles }} llibres disponibles&lt;/p&gt;
+# &lt;p&gt;Tens {{ meus_prestecs_actius }} préstecs actius&lt;/p&gt;</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- EXERCICI 2 -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic 2</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Context processor amb cache</h3>
+        <p class="exercise-context">
+          Si un context processor fa una consulta costosa a la base de dades, s'executa en cada petició. La cache evita repetir la consulta innecessàriament.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Modifica el context processor <code>resum_biblioteca</code> per cachejar el recompte de <code>llibres_disponibles</code> durant 60 segons.</li>
+            <li>Usa <code>cache.get_or_set('clau', callable, timeout)</code> per la implementació.</li>
+            <li>Afegeix una tercera clau: <code>prestecs_vençuts_total</code> (recompte global, també cachejat).</li>
+            <li>Invalida la cache quan es crea o modifica un Llibre (usa signal).</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">Codi inicial — books/context_processors.py + books/signals.py</span>
+          </div>
+          <pre><code class="language-python"># books/context_processors.py
+from django.core.cache import cache
+from books.models import Llibre, Prestec
+
+def resum_biblioteca(request):
+    # TODO: usa cache.get_or_set per llibres_disponibles (60s TTL)
+    llibres_disponibles = None  # TODO
+
+    # TODO: usa cache.get_or_set per prestecs_vençuts_total (60s TTL)
+    prestecs_vençuts = None  # TODO
+
+    return {
+        'llibres_disponibles': llibres_disponibles,
+        'prestecs_vençuts_total': prestecs_vençuts,
+        'meus_prestecs_actius': 0,  # mantenir existent
+    }
+
+# books/signals.py — afegir invalidació de cache
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.core.cache import cache
+
+@receiver(post_save, sender=Llibre)
+def invalidar_cache_biblioteca(sender, **kwargs):
+    # TODO: elimina les claus de cache afectades
+    pass</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Pista: <code>cache.delete('llibres_disponibles_count')</code> elimina la clau. <code>cache.get_or_set('key', lambda: Llibre.objects.filter(...).count(), 60)</code>.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>La primera petició consulta la BD. Les 59 peticions següents usen la cache. En crear un Llibre, la cache s'invalida.</p>
+        </div>
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa</span><button class="copy-btn">Copiar</button></div>
+              <pre><code class="language-python"># books/context_processors.py
+from django.core.cache import cache
+from books.models import Llibre, Prestec
+
+def resum_biblioteca(request):
+    llibres_disponibles = cache.get_or_set(
+        'biblio:llibres_disponibles',
+        lambda: Llibre.objects.filter(disponible=True).count(),
+        60
+    )
+    prestecs_vençuts = cache.get_or_set(
+        'biblio:prestecs_vençuts',
+        lambda: Prestec.objects.filter(estat='vençut').count(),
+        60
+    )
+    meus_prestecs = 0
+    if request.user.is_authenticated and hasattr(request.user, 'lector'):
+        meus_prestecs = Prestec.objects.filter(lector=request.user.lector, estat='actiu').count()
+    return {
+        'llibres_disponibles': llibres_disponibles,
+        'prestecs_vençuts_total': prestecs_vençuts,
+        'meus_prestecs_actius': meus_prestecs,
+    }
+
+# books/signals.py
+@receiver(post_save, sender=Llibre)
+def invalidar_cache_biblioteca(sender, **kwargs):
+    cache.delete('biblio:llibres_disponibles')
+    cache.delete('biblio:prestecs_vençuts')</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Resum -->
+    <section class="summary-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Resum
+      </h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h4>Signatura obligatòria</h4>
+          <ul>
+            <li>def nom(request):</li>
+            <li>    return {'clau': valor}</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Built-in Django</h4>
+          <ul>
+            <li>auth → user, perms</li>
+            <li>request → request</li>
+            <li>messages → messages</li>
+            <li>debug → debug, sql_queries</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Registre a settings</h4>
+          <ul>
+            <li>TEMPLATES[0]</li>
+            <li>  ['OPTIONS']</li>
+            <li>  ['context_processors']</li>
+            <li>  → 'app.context_processors.fn'</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Bones pràctiques</h4>
+          <ul>
+            <li>Lleugers i ràpids</li>
+            <li>Usar .count() no len()</li>
+            <li>Cache per dades pesades</li>
+            <li>Comprova is_authenticated</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="unit-nav">
+    <a href="unitat-09.html" class="nav-prev">← <span>Unitat 09 — Tags i Filtres Personalitzats</span></a>
+    <a href="index.html" class="nav-home">Índex</a>
+    <a href="unitat-11.html" class="nav-next"><span>Unitat 11 — Formularis</span> →</a>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      hljs.highlightAll();
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const code = btn.closest('.code-block').querySelector('code').textContent;
+          navigator.clipboard.writeText(code);
+          btn.textContent = 'Copiat!';
+          setTimeout(() => btn.textContent = 'Copiar', 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Curs de Django — Del Model al Deploy</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* === RESET === */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* === TOKENS === */
+    :root {
+      --bg:           #F4F7FB;
+      --surface:      #FFFFFF;
+      --surface-2:    #EBF0F8;
+      --code-bg:      #F1F5F9;
+      --border:       #C5D3E4;
+      --border-dim:   #DAE3EF;
+      --text:         #1C2E45;
+      --text-muted:   #4E6478;
+      --text-dim:     #96ABBE;
+      --heading:      #091929;
+      --accent:       #1755C4;
+      --accent-glow:  #1755C420;
+      --blue:         #2463EB;
+      --green:        #057A55;
+      --amber:        #92530A;
+      --purple:       #5B21B6;
+      --django-green: #E8F0FD;
+      --exercise-bg:  #F0FDF8;
+
+      /* Colors dels grups temàtics */
+      --grup-a: #1755C4;   /* Fonaments — blau */
+      --grup-b: #2463EB;   /* Capa de Presentació — blau clar */
+      --grup-c: #5B21B6;   /* Django Avançat — lila */
+      --grup-d: #057A55;   /* Producció i Qualitat — verd */
+
+      --grup-a-bg: #EBF2FF;
+      --grup-b-bg: #EEF4FF;
+      --grup-c-bg: #F5F3FF;
+      --grup-d-bg: #F0FDF8;
+
+      --grup-a-border: #C5D3E4;
+      --grup-b-border: #BFDBFE;
+      --grup-c-border: #DDD6FE;
+      --grup-d-border: #A7F3D0;
+    }
+
+    /* === BASE === */
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Lora', serif;
+      min-height: 100vh;
+    }
+
+    /* === HERO === */
+    .hero {
+      background: linear-gradient(135deg, var(--django-green) 0%, #0B0C10 55%);
+      border-bottom: 1px solid var(--border);
+      padding: 4rem 2rem 3.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 0%, #FF6B3510 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-label {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--accent);
+      background: var(--accent-glow);
+      border: 1px solid #FF6B3540;
+      padding: 0.3rem 0.9rem;
+      border-radius: 20px;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.08em;
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      color: var(--heading);
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero p {
+      font-family: 'Lora', serif;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 560px;
+      margin: 0 auto 2rem;
+      line-height: 1.7;
+      font-style: italic;
+    }
+
+    /* === STATS STRIP === */
+    .stats-strip {
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+    .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+    }
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.8rem;
+      color: var(--heading);
+    }
+    .stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* === LAYOUT PRINCIPAL === */
+    .page-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* === GRUPS TEMÀTICS === */
+    .grups-nav {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 2.5rem 2rem 0;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .grup-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 1rem;
+      border-radius: 20px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: 1px solid;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .grup-pill:hover { opacity: 0.8; }
+    .grup-pill .pill-range {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      opacity: 0.7;
+    }
+    .pill-a { color: var(--grup-a); background: var(--grup-a-bg); border-color: var(--grup-a-border); }
+    .pill-b { color: var(--grup-b); background: var(--grup-b-bg); border-color: var(--grup-b-border); }
+    .pill-c { color: var(--grup-c); background: var(--grup-c-bg); border-color: var(--grup-c-border); }
+    .pill-d { color: var(--grup-d); background: var(--grup-d-bg); border-color: var(--grup-d-border); }
+
+    /* === SECCIONS DE GRUP === */
+    .grup-section {
+      margin: 3rem 0 1rem;
+    }
+    .grup-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .grup-header-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .grup-header h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--heading);
+    }
+    .grup-header .grup-range {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-left: auto;
+    }
+
+    /* === GRID DE TARGETES === */
+    .units-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    /* === TARGETA D'UNITAT === */
+    .unit-card {
+      display: block;
+      text-decoration: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
+      position: relative;
+      overflow: hidden;
+    }
+    .unit-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      border-radius: 14px 14px 0 0;
+      opacity: 0;
+      transition: opacity 0.18s;
+    }
+    .unit-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .unit-card:hover::before { opacity: 1; }
+
+    /* Colors de la barra superior per grup */
+    .card-a::before { background: var(--grup-a); }
+    .card-b::before { background: var(--grup-b); }
+    .card-c::before { background: var(--grup-c); }
+    .card-d::before { background: var(--grup-d); }
+
+    .card-a:hover { border-color: var(--grup-a-border); }
+    .card-b:hover { border-color: var(--grup-b-border); }
+    .card-c:hover { border-color: var(--grup-c-border); }
+    .card-d:hover { border-color: var(--grup-d-border); }
+
+    .card-num {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.9rem;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    .card-a .card-num { color: var(--grup-a); }
+    .card-b .card-num { color: var(--grup-b); }
+    .card-c .card-num { color: var(--grup-c); }
+    .card-d .card-num { color: var(--grup-d); }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--heading);
+      line-height: 1.3;
+      margin-bottom: 0.75rem;
+      min-height: 2.4em;
+    }
+    .card-concepts {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .card-concept {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-concept::before {
+      content: '· ';
+      color: var(--text-dim);
+    }
+
+    /* === BARRA DE PROGRÉS VISUAL === */
+    .progress-bar-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin: 2.5rem 0 0;
+    }
+    .progress-bar-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .progress-track {
+      display: flex;
+      height: 8px;
+      border-radius: 8px;
+      overflow: hidden;
+      gap: 2px;
+    }
+    .progress-seg {
+      border-radius: 4px;
+      transition: opacity 0.2s;
+    }
+    .progress-seg:hover { opacity: 0.8; }
+    .progress-seg-a { background: var(--grup-a); flex: 5; }
+    .progress-seg-b { background: var(--grup-b); flex: 6; }
+    .progress-seg-c { background: var(--grup-c); flex: 5; }
+    .progress-seg-d { background: var(--grup-d); flex: 6; }
+    .progress-legend {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* === FOOTER === */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      margin-top: 4rem;
+    }
+    .site-footer p {
+      font-family: 'Lora', serif;
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+    .site-footer code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82em;
+      color: var(--text-muted);
+      background: var(--surface-2);
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+    }
+    .site-footer .footer-accent {
+      color: var(--accent);
+      font-style: normal;
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 640px) {
+      .hero { padding: 3rem 1.5rem 2.5rem; }
+      .units-grid { grid-template-columns: 1fr 1fr; }
+      .stats-strip { gap: 1.5rem; }
+      .unit-nav-pills { flex-wrap: wrap; }
+    }
+    @media (max-width: 400px) {
+      .units-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-label">22 unitats · En català · bibliapp com a fil conductor</div>
+    <h1>Curs de Django<br><span>Del Model al Deploy</span></h1>
+    <p>Aprèn Django de manera progressiva: des de la configuració inicial fins a la seguretat, el testing i el monitoratge en producció.</p>
+    <div class="stats-strip">
+      <div class="stat">
+        <span class="stat-num">22</span>
+        <span class="stat-label">Unitats</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">4</span>
+        <span class="stat-label">Blocs temàtics</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">22</span>
+        <span class="stat-label">Exercicis pràctics</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">100%</span>
+        <span class="stat-label">En català</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-wrapper">
+
+    <!-- PILLS DE NAVEGACIÓ PER GRUP -->
+    <div class="grups-nav">
+      <a href="#fonaments" class="grup-pill pill-a">
+        ◆ Fonaments <span class="pill-range">01–05</span>
+      </a>
+      <a href="#presentacio" class="grup-pill pill-b">
+        ◆ Capa de Presentació <span class="pill-range">06–11</span>
+      </a>
+      <a href="#avançat" class="grup-pill pill-c">
+        ◆ Django Avançat <span class="pill-range">12–16</span>
+      </a>
+      <a href="#produccio" class="grup-pill pill-d">
+        ◆ Producció i Qualitat <span class="pill-range">17–22</span>
+      </a>
+    </div>
+
+    <!-- BARRA DE PROGRÉS VISUAL -->
+    <div class="progress-bar-container">
+      <div class="progress-bar-label">Distribució del curs</div>
+      <div class="progress-track">
+        <div class="progress-seg progress-seg-a" title="Fonaments (01–05)"></div>
+        <div class="progress-seg progress-seg-b" title="Capa de Presentació (06–11)"></div>
+        <div class="progress-seg progress-seg-c" title="Django Avançat (12–16)"></div>
+        <div class="progress-seg progress-seg-d" title="Producció i Qualitat (17–22)"></div>
+      </div>
+      <div class="progress-legend">
+        <div class="legend-item">
+          <span class="legend-dot" style="background:var(--grup-a)"></span>
+          Fonaments (5 unitats)
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background:var(--grup-b)"></span>
+          Capa de Presentació (6 unitats)
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background:var(--grup-c)"></span>
+          Django Avançat (5 unitats)
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background:var(--grup-d)"></span>
+          Producció i Qualitat (6 unitats)
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- GRUP A: FONAMENTS -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <section class="grup-section" id="fonaments">
+      <div class="grup-header">
+        <span class="grup-header-dot" style="background:var(--grup-a)"></span>
+        <h2>Fonaments</h2>
+        <span class="grup-range">Unitats 01 – 05</span>
+      </div>
+      <div class="units-grid">
+
+        <a href="unitat-01.html" class="unit-card card-a">
+          <div class="card-num">01</div>
+          <div class="card-title">Introducció a Django i MVT</div>
+          <div class="card-concepts">
+            <span class="card-concept">Instal·lació i estructura</span>
+            <span class="card-concept">MVT vs MVC</span>
+            <span class="card-concept">manage.py · runserver</span>
+          </div>
+        </a>
+
+        <a href="unitat-02.html" class="unit-card card-a">
+          <div class="card-num">02</div>
+          <div class="card-title">Configuració i Settings</div>
+          <div class="card-concepts">
+            <span class="card-concept">settings.py · python-decouple</span>
+            <span class="card-concept">base / dev / prod / test</span>
+            <span class="card-concept">dj-database-url</span>
+          </div>
+        </a>
+
+        <a href="unitat-03.html" class="unit-card card-a">
+          <div class="card-num">03</div>
+          <div class="card-title">Models — Camps i Relacions</div>
+          <div class="card-concepts">
+            <span class="card-concept">CharField · TextField · JSONField</span>
+            <span class="card-concept">ForeignKey · ManyToManyField</span>
+            <span class="card-concept">Meta · __str__</span>
+          </div>
+        </a>
+
+        <a href="unitat-04.html" class="unit-card card-a">
+          <div class="card-num">04</div>
+          <div class="card-title">L'ORM — QuerySets i Consultes</div>
+          <div class="card-concepts">
+            <span class="card-concept">filter · exclude · get</span>
+            <span class="card-concept">annotate · aggregate · Q · F</span>
+            <span class="card-concept">select_related · prefetch_related</span>
+          </div>
+        </a>
+
+        <a href="unitat-05.html" class="unit-card card-a">
+          <div class="card-num">05</div>
+          <div class="card-title">Migracions</div>
+          <div class="card-concepts">
+            <span class="card-concept">makemigrations · migrate</span>
+            <span class="card-concept">RunPython · data migrations</span>
+            <span class="card-concept">squashmigrations · --fake</span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- GRUP B: CAPA DE PRESENTACIÓ -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <section class="grup-section" id="presentacio">
+      <div class="grup-header">
+        <span class="grup-header-dot" style="background:var(--grup-b)"></span>
+        <h2>Capa de Presentació</h2>
+        <span class="grup-range">Unitats 06 – 11</span>
+      </div>
+      <div class="units-grid">
+
+        <a href="unitat-06.html" class="unit-card card-b">
+          <div class="card-num">06</div>
+          <div class="card-title">Vistes Basades en Funcions</div>
+          <div class="card-concepts">
+            <span class="card-concept">render · redirect · HttpResponse</span>
+            <span class="card-concept">request.method · GET · POST</span>
+            <span class="card-concept">@login_required · JsonResponse</span>
+          </div>
+        </a>
+
+        <a href="unitat-07.html" class="unit-card card-b">
+          <div class="card-num">07</div>
+          <div class="card-title">URLs i Routing</div>
+          <div class="card-concepts">
+            <span class="card-concept">path · include · re_path</span>
+            <span class="card-concept">&lt;int:pk&gt; · &lt;slug:slug&gt;</span>
+            <span class="card-concept">reverse · {% url %} · namespace</span>
+          </div>
+        </a>
+
+        <a href="unitat-08.html" class="unit-card card-b">
+          <div class="card-num">08</div>
+          <div class="card-title">El Sistema de Templates</div>
+          <div class="card-concepts">
+            <span class="card-concept">extends · block · include</span>
+            <span class="card-concept">if · for · csrf_token</span>
+            <span class="card-concept">filtres: date · truncatechars</span>
+          </div>
+        </a>
+
+        <a href="unitat-09.html" class="unit-card card-b">
+          <div class="card-num">09</div>
+          <div class="card-title">Tags i Filtres Personalitzats</div>
+          <div class="card-concepts">
+            <span class="card-concept">templatetags/ · {% load %}</span>
+            <span class="card-concept">@register.filter</span>
+            <span class="card-concept">simple_tag · inclusion_tag</span>
+          </div>
+        </a>
+
+        <a href="unitat-10.html" class="unit-card card-b">
+          <div class="card-num">10</div>
+          <div class="card-title">Context Processors</div>
+          <div class="card-concepts">
+            <span class="card-concept">Dades globals als templates</span>
+            <span class="card-concept">context_processors a TEMPLATES</span>
+            <span class="card-concept">notificacions · permisos globals</span>
+          </div>
+        </a>
+
+        <a href="unitat-11.html" class="unit-card card-b">
+          <div class="card-num">11</div>
+          <div class="card-title">Formularis (Forms i ModelForms)</div>
+          <div class="card-concepts">
+            <span class="card-concept">Form · ModelForm · widgets</span>
+            <span class="card-concept">cleaned_data · is_valid · save</span>
+            <span class="card-concept">clean_field · validators</span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- GRUP C: DJANGO AVANÇAT -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <section class="grup-section" id="avançat">
+      <div class="grup-header">
+        <span class="grup-header-dot" style="background:var(--grup-c)"></span>
+        <h2>Django Avançat</h2>
+        <span class="grup-range">Unitats 12 – 16</span>
+      </div>
+      <div class="units-grid">
+
+        <a href="unitat-12.html" class="unit-card card-c">
+          <div class="card-num">12</div>
+          <div class="card-title">Autenticació i Sessions</div>
+          <div class="card-concepts">
+            <span class="card-concept">User · AUTH_USER_MODEL</span>
+            <span class="card-concept">login · logout · authenticate</span>
+            <span class="card-concept">AUTHENTICATION_BACKENDS</span>
+          </div>
+        </a>
+
+        <a href="unitat-13.html" class="unit-card card-c">
+          <div class="card-num">13</div>
+          <div class="card-title">L'Admin de Django</div>
+          <div class="card-concepts">
+            <span class="card-concept">ModelAdmin · list_display</span>
+            <span class="card-concept">fieldsets · actions · inlines</span>
+            <span class="card-concept">@admin.register</span>
+          </div>
+        </a>
+
+        <a href="unitat-14.html" class="unit-card card-c">
+          <div class="card-num">14</div>
+          <div class="card-title">Middleware Personalitzat</div>
+          <div class="card-concepts">
+            <span class="card-concept">__init__ · __call__ · process_exception</span>
+            <span class="card-concept">Cicle request/response</span>
+            <span class="card-concept">Logging · headers · rate limit</span>
+          </div>
+        </a>
+
+        <a href="unitat-15.html" class="unit-card card-c">
+          <div class="card-num">15</div>
+          <div class="card-title">Signals de Django</div>
+          <div class="card-concepts">
+            <span class="card-concept">post_save · pre_delete</span>
+            <span class="card-concept">@receiver · sender · dispatch_uid</span>
+            <span class="card-concept">Signals personalitzats</span>
+          </div>
+        </a>
+
+        <a href="unitat-16.html" class="unit-card card-c">
+          <div class="card-num">16</div>
+          <div class="card-title">Sistema de Cache</div>
+          <div class="card-concepts">
+            <span class="card-concept">cache.get · set · delete</span>
+            <span class="card-concept">LocMem · Database · Redis</span>
+            <span class="card-concept">@cache_page · get_or_set</span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- GRUP D: PRODUCCIÓ I QUALITAT -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <section class="grup-section" id="produccio">
+      <div class="grup-header">
+        <span class="grup-header-dot" style="background:var(--grup-d)"></span>
+        <h2>Producció i Qualitat</h2>
+        <span class="grup-range">Unitats 17 – 22</span>
+      </div>
+      <div class="units-grid">
+
+        <a href="unitat-17.html" class="unit-card card-d">
+          <div class="card-num">17</div>
+          <div class="card-title">Django REST Framework</div>
+          <div class="card-concepts">
+            <span class="card-concept">Serializer · ModelSerializer</span>
+            <span class="card-concept">ViewSet · Router · permissions</span>
+            <span class="card-concept">drf-yasg (Swagger)</span>
+          </div>
+        </a>
+
+        <a href="unitat-18.html" class="unit-card card-d">
+          <div class="card-num">18</div>
+          <div class="card-title">Testing amb pytest-django</div>
+          <div class="card-concepts">
+            <span class="card-concept">pytest-django · conftest.py</span>
+            <span class="card-concept">@pytest.mark.django_db</span>
+            <span class="card-concept">APIClient · fixtures · factories</span>
+          </div>
+        </a>
+
+        <a href="unitat-19.html" class="unit-card card-d">
+          <div class="card-num">19</div>
+          <div class="card-title">Seguretat en Django</div>
+          <div class="card-concepts">
+            <span class="card-concept">CSRF · XSS · SQL injection</span>
+            <span class="card-concept">CSP · @ratelimit</span>
+            <span class="card-concept">SECURE_* · HSTS · HTTPS</span>
+          </div>
+        </a>
+
+        <a href="unitat-20.html" class="unit-card card-d">
+          <div class="card-num">20</div>
+          <div class="card-title">Fitxers Estàtics i Multimedia</div>
+          <div class="card-concepts">
+            <span class="card-concept">STATIC_URL · collectstatic</span>
+            <span class="card-concept">MEDIA_ROOT · ImageField</span>
+            <span class="card-concept">upload_to callable</span>
+          </div>
+        </a>
+
+        <a href="unitat-21.html" class="unit-card card-d">
+          <div class="card-num">21</div>
+          <div class="card-title">Management Commands</div>
+          <div class="card-concepts">
+            <span class="card-concept">BaseCommand · handle()</span>
+            <span class="card-concept">add_arguments · --dry-run</span>
+            <span class="card-concept">call_command()</span>
+          </div>
+        </a>
+
+        <a href="unitat-22.html" class="unit-card card-d">
+          <div class="card-num">22</div>
+          <div class="card-title">Logging i Monitoratge</div>
+          <div class="card-concepts">
+            <span class="card-concept">LOGGING · formatters · handlers</span>
+            <span class="card-concept">RotatingFileHandler</span>
+            <span class="card-concept">getLogger(__name__)</span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+  </div><!-- /page-wrapper -->
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <p>
+      Curs basat en conceptes de projectes Django reals ·
+      <code>bibliapp</code> com a exemple transversal ·
+      <em class="footer-accent">Django 4.2+</em>
+    </p>
+    <p style="margin-top:0.4rem;">
+      Totes les unitats en català · Codi funcional i executable · Design system coherent
+    </p>
+  </footer>
+
+</body>
+</html>

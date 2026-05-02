@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unitat 04 — L'ORM: QuerySets i Consultes | Curs Django</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #F4F7FB;
+      --surface:      #FFFFFF;
+      --surface-2:    #EBF0F8;
+      --code-bg:      #F1F5F9;
+      --border:       #C5D3E4;
+      --border-dim:   #DAE3EF;
+      --text:         #1C2E45;
+      --text-muted:   #4E6478;
+      --text-dim:     #96ABBE;
+      --heading:      #091929;
+      --accent:       #1755C4;
+      --accent-glow:  #1755C420;
+      --blue:         #2463EB;
+      --green:        #057A55;
+      --amber:        #92530A;
+      --purple:       #5B21B6;
+      --django-green: #E8F0FD;
+      --exercise-bg:  #F0FDF8;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'Lora', serif; min-height: 100vh; }
+    .page-wrapper { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+
+    .unit-header {
+      background: linear-gradient(135deg, var(--django-green) 0%, var(--bg) 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 4rem;
+    }
+    .unit-number { font-family: 'Lora', serif; font-weight: 500; font-size: 0.78rem; color: var(--accent); letter-spacing: 0.14em; text-transform: uppercase; }
+    .unit-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 2.6rem; color: var(--heading); margin: 0.5rem 0; line-height: 1.2; letter-spacing: -0.01em; }
+    .unit-subtitle { font-family: 'Lora', serif; font-size: 1.05rem; color: var(--text-muted); margin-bottom: 2rem; font-style: italic; }
+    .objectives { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-top: 1.5rem; }
+    .objectives h3 { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.75rem; }
+    .objectives ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .objectives li { font-family: 'Lora', serif; font-size: 0.95rem; color: var(--text); padding-left: 1.25rem; position: relative; }
+    .objectives li::before { content: '✓'; position: absolute; left: 0; color: var(--green); }
+
+    .theory-section { padding: 2.5rem 0; border-bottom: 1px solid var(--border-dim); }
+    .section-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 1.3rem; color: var(--heading); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; }
+    .section-icon { color: var(--accent); font-size: 0.8em; }
+    .theory-text { font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.8; color: var(--text); margin-bottom: 1rem; }
+    .concept-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+    .concept-list li { font-family: 'Lora', serif; color: var(--text); line-height: 1.7; padding-left: 1.5rem; position: relative; }
+    .concept-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-family: 'Syne', sans-serif; }
+    .concept-list code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; color: var(--blue); background: var(--surface-2); padding: 0.1em 0.4em; border-radius: 4px; }
+
+    .code-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 1.5rem 0; }
+    .code-header { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .code-lang { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent); font-weight: 600; text-transform: uppercase; }
+    .code-file { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
+    .copy-btn { margin-left: auto; background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-family: 'Syne', sans-serif; font-size: 0.7rem; padding: 0.3rem 0.75rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    pre { padding: 1.25rem; overflow-x: auto; }
+    pre code { font-family: 'JetBrains Mono', monospace !important; font-size: 0.88rem !important; line-height: 1.7 !important; background: transparent !important; }
+
+    .tip-block { border-radius: 10px; padding: 1rem 1.25rem; margin: 1.25rem 0; display: flex; flex-direction: column; gap: 0.4rem; }
+    .tip-block.tip-info    { background:#EBF2FF; border-left: 3px solid var(--blue); }
+    .tip-block.tip-warning { background:#FEF9C3; border-left: 3px solid var(--amber); }
+    .tip-block.tip-note    { background:#F5F3FF; border-left: 3px solid var(--purple); }
+    .tip-prefix { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+    .tip-block.tip-info    .tip-prefix { color: var(--blue); }
+    .tip-block.tip-warning .tip-prefix { color: var(--amber); }
+    .tip-block.tip-note    .tip-prefix { color: var(--purple); }
+    .tip-block p { font-family: 'Lora', serif; font-size: 0.95rem; color: var(--text); line-height: 1.65; margin: 0; }
+    .tip-block code { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; color: var(--blue); background: var(--surface-2); padding: 0.1em 0.35em; border-radius: 3px; }
+
+    .badge { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; background: var(--surface-2); border: 1px solid var(--border); color: var(--blue); padding: 0.15em 0.5em; border-radius: 4px; }
+    .badge-shell { color: var(--amber); }
+    .badge-new   { color: var(--green); border-color: #6EE7B7; background: var(--exercise-bg); }
+
+    /* Taula de lookups */
+    .lookup-table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.86rem; }
+    .lookup-table th { font-family: 'Syne', sans-serif; font-size: 0.72rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; padding: 0.55rem 0.85rem; background: var(--surface); border-bottom: 1px solid var(--border); text-align: left; }
+    .lookup-table td { font-family: 'JetBrains Mono', monospace; font-size: 0.81rem; color: var(--text-muted); padding: 0.5rem 0.85rem; border-bottom: 1px solid var(--border-dim); vertical-align: top; }
+    .lookup-table td:first-child { color: var(--blue); white-space: nowrap; }
+    .lookup-table td:last-child { font-family: 'Lora', serif; font-size: 0.88rem; }
+    .lookup-table tr:hover td { background: var(--surface); }
+
+    /* Pipeline visual */
+    .pipeline { display: flex; flex-direction: column; gap: 0; margin: 1.25rem 0; }
+    .pipeline-step { display: flex; align-items: stretch; gap: 0; }
+    .pipeline-step-num { font-family: 'Syne', sans-serif; font-size: 0.75rem; font-weight: 800; color: var(--accent); background: var(--surface-2); border: 1px solid var(--border); min-width: 36px; display: flex; align-items: center; justify-content: center; border-bottom: none; }
+    .pipeline-step:last-child .pipeline-step-num { border-bottom: 1px solid var(--border); border-radius: 0 0 0 8px; }
+    .pipeline-step:first-child .pipeline-step-num { border-radius: 8px 0 0 0; }
+    .pipeline-step-content { flex: 1; border: 1px solid var(--border); border-left: none; border-bottom: none; padding: 0.65rem 1rem; background: var(--surface); }
+    .pipeline-step:last-child .pipeline-step-content { border-bottom: 1px solid var(--border); border-radius: 0 0 8px 0; }
+    .pipeline-step:first-child .pipeline-step-content { border-radius: 0 8px 0 0; }
+    .pipeline-step-title { font-family: 'Syne', sans-serif; font-size: 0.82rem; font-weight: 600; color: var(--heading); }
+    .pipeline-step-desc { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+    .exercise-block { background: var(--exercise-bg); border: 1px solid #6EE7B7; border-radius: 16px; overflow: hidden; margin: 2rem 0; }
+    .exercise-header { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.5rem; background: #ECFDF5; border-bottom: 1px solid #A7F3D0; }
+    .exercise-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; }
+    .exercise-tag { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #057A55; background: #ECFDF5; border: 1px solid #6EE7B7; padding: 0.2rem 0.6rem; border-radius: 20px; }
+    .exercise-body { padding: 1.5rem; }
+    .exercise-title { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 1.1rem; color: var(--heading); margin-bottom: 0.75rem; }
+    .exercise-context { font-family: 'Lora', serif; color: var(--text); line-height: 1.7; margin-bottom: 1.25rem; }
+    .exercise-tasks h4 { font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
+    .exercise-tasks ol { padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .exercise-tasks li { font-family: 'Lora', serif; color: var(--text); line-height: 1.6; }
+    .exercise-tip { display: flex; gap: 0.5rem; align-items: flex-start; background: #FEF9E7; border: 1px solid #FCD34D; border-radius: 8px; padding: 0.75rem 1rem; margin: 1rem 0; font-family: 'Lora', serif; font-size: 0.95rem; color: var(--amber); }
+    .exercise-result { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px dashed #6EE7B7; }
+    .exercise-result h4 { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+    .exercise-result p { font-family: 'Lora', serif; color: var(--text-muted); font-size: 0.95rem; }
+
+    .summary-section { padding: 2.5rem 0; }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.25rem; }
+    .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+    .summary-card h4 { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
+    .summary-card ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .summary-card li { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--text-muted); }
+
+    .unit-nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 4rem; border-top: 1px solid var(--border); margin-top: 3rem; }
+    .unit-nav a { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .unit-nav a:hover { color: var(--accent); }
+    .nav-home { font-size: 0.8rem !important; color: var(--text-dim) !important; border: 1px solid var(--border); padding: 0.4rem 1rem; border-radius: 20px; }
+    .nav-home:hover { border-color: var(--accent) !important; }
+
+    /* === SPOILER DE SOLUCIÓ === */
+    .solution-spoiler {
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .solution-spoiler summary {
+      cursor: pointer;
+      padding: 0.875rem 1.25rem;
+      background: var(--surface-2);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent);
+      user-select: none;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.2s;
+    }
+    .solution-spoiler summary::marker,
+    .solution-spoiler summary::-webkit-details-marker { display: none; }
+    .solution-spoiler summary:hover { background: #EBF2FF; }
+    .solution-spoiler[open] summary { border-bottom: 1px solid var(--border); }
+    .solution-body .code-block { margin: 0; border: none; border-radius: 0; }
+  </style>
+</head>
+<body>
+
+  <header class="unit-header">
+    <div class="page-wrapper">
+      <p class="unit-number">Unitat 04 · Curs de Django</p>
+      <h1 class="unit-title">L'ORM — QuerySets i Consultes</h1>
+      <p class="unit-subtitle">Consulta la base de dades amb Python pur: sense SQL, amb tot el poder.</p>
+      <div class="objectives">
+        <h3>En aquesta unitat aprendràs:</h3>
+        <ul>
+          <li>Usar el manager <code>objects</code> i els mètodes bàsics: all, filter, exclude, get</li>
+          <li>Aplicar lookups de camp: contains, gt, in, range, isnull i molts més</li>
+          <li>Encadenar QuerySets i entendre la seva avaluació lazy</li>
+          <li>Consultes avançades amb <code>Q()</code> per OR/AND i <code>F()</code> per comparar camps</li>
+          <li>Agregar i anotar: <code>annotate()</code>, <code>aggregate()</code></li>
+          <li>Optimitzar amb <code>select_related()</code> i <code>prefetch_related()</code></li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-wrapper">
+
+    <!-- SECCIÓ 1: Manager i mètodes bàsics -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        El Manager i els mètodes bàsics
+      </h2>
+      <p class="theory-text">
+        Cada model Django porta un <strong>Manager</strong> per defecte accessible com a
+        <code>NomModel.objects</code>. El Manager és la porta d'entrada a totes les consultes:
+        retorna <strong>QuerySets</strong>, que són objectes lazy (no executen cap SQL fins que
+        realment es necessiten les dades). Això permet encadenar filtres, ordenacions i anotacions
+        sense fer múltiples viatges a la base de dades.
+      </p>
+
+      <div class="pipeline">
+        <div class="pipeline-step">
+          <div class="pipeline-step-num">1</div>
+          <div class="pipeline-step-content">
+            <div class="pipeline-step-title">Construcció del QuerySet</div>
+            <div class="pipeline-step-desc">Llibre.objects.filter(estat='disponible').order_by('titol')</div>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pipeline-step-num">2</div>
+          <div class="pipeline-step-content">
+            <div class="pipeline-step-title">Avaluació lazy — el SQL no s'executa fins aquí</div>
+            <div class="pipeline-step-desc">for ll in qs:  /  list(qs)  /  qs[0]  /  bool(qs)</div>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pipeline-step-num">3</div>
+          <div class="pipeline-step-content">
+            <div class="pipeline-step-title">Cache del QuerySet</div>
+            <div class="pipeline-step-desc">Segona iteració usa la cache interna — sense nou SQL</div>
+          </div>
+        </div>
+      </div>
+
+      <ul class="concept-list">
+        <li><code>Model.objects.all()</code> — retorna tots els registres (QuerySet avaluat lazily)</li>
+        <li><code>.filter(**kwargs)</code> — filtra per condicions; retorna un QuerySet nou (encadenable)</li>
+        <li><code>.exclude(**kwargs)</code> — exclou els registres que compleixen la condició</li>
+        <li><code>.get(**kwargs)</code> — retorna exactament un objecte; llança <code>DoesNotExist</code> o <code>MultipleObjectsReturned</code></li>
+        <li><code>.first()</code> / <code>.last()</code> — primer o últim registre; retorna <code>None</code> si el QuerySet és buit (mai llança excepció)</li>
+        <li><code>.count()</code> — executa <code>SELECT COUNT(*)</code>; molt eficient, no carrega objectes</li>
+        <li><code>.exists()</code> — executa <code>SELECT 1 LIMIT 1</code>; el més eficient per comprovar existència</li>
+        <li><code>.order_by('camp')</code> — ordena ascendent; <code>'-camp'</code> descendent; <code>'?'</code> aleatori</li>
+        <li><code>.values('c1', 'c2')</code> — retorna diccionaris en lloc d'objectes (millor rendiment per a seleccions parcials)</li>
+        <li><code>.values_list('camp', flat=True)</code> — retorna una llista plana de valors d'un camp</li>
+        <li><code>.distinct()</code> — elimina duplicats (<code>SELECT DISTINCT</code>)</li>
+        <li><code>.none()</code> — QuerySet buit sense consulta SQL; útil en lògica de permisos</li>
+      </ul>
+
+      <div class="tip-block tip-info">
+        <span class="tip-prefix">📌 Lazy evaluation</span>
+        <p>Un QuerySet no executa cap SQL fins que no es força la seva avaluació: iteració amb <code>for</code>,
+        conversió a llista (<code>list(qs)</code>), accés per índex (<code>qs[0]</code>), comprovació booleana
+        (<code>bool(qs)</code>) o representació (<code>repr(qs)</code>). Gràcies a això pots construir
+        consultes complexes encadenades sense penalització de rendiment fins al moment necessari.</p>
+      </div>
+    </section>
+
+    <!-- SECCIÓ 2: Lookups de camp -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Lookups de camp — filtres avançats
+      </h2>
+      <p class="theory-text">
+        Els lookups s'especifiquen com a keyword arguments als mètodes <code>filter()</code>,
+        <code>exclude()</code> i <code>get()</code> usant la convenció
+        <code>nom_camp__lookup=valor</code> (doble guió baix). Cada lookup es mapeja a un
+        operador SQL diferent.
+      </p>
+
+      <table class="lookup-table">
+        <thead>
+          <tr><th>Lookup</th><th>SQL equivalent</th><th>Exemple</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>exact / =</td><td>= valor</td><td>filter(estat='disponible')</td></tr>
+          <tr><td>iexact</td><td>ILIKE 'valor'</td><td>filter(titol__iexact='el quixot')</td></tr>
+          <tr><td>contains</td><td>LIKE '%valor%'</td><td>filter(titol__contains='Django')</td></tr>
+          <tr><td>icontains</td><td>ILIKE '%valor%'</td><td>filter(titol__icontains='django')</td></tr>
+          <tr><td>startswith</td><td>LIKE 'valor%'</td><td>filter(cognoms__startswith='Rod')</td></tr>
+          <tr><td>endswith</td><td>LIKE '%valor'</td><td>filter(isbn__endswith='7')</td></tr>
+          <tr><td>gt / gte</td><td>&gt; / &gt;=</td><td>filter(any_publ__gte=2000)</td></tr>
+          <tr><td>lt / lte</td><td>&lt; / &lt;=</td><td>filter(pagines__lt=300)</td></tr>
+          <tr><td>in</td><td>IN (v1, v2…)</td><td>filter(estat__in=['disponible','reservat'])</td></tr>
+          <tr><td>range</td><td>BETWEEN a AND b</td><td>filter(any_publ__range=(1900, 2000))</td></tr>
+          <tr><td>isnull</td><td>IS NULL / IS NOT NULL</td><td>filter(data_devolucio__isnull=True)</td></tr>
+          <tr><td>date</td><td>DATE(camp)</td><td>filter(creat_el__date=date.today())</td></tr>
+          <tr><td>year / month / day</td><td>YEAR(camp)…</td><td>filter(data_naix__year=1980)</td></tr>
+          <tr><td>week_day</td><td>DAYOFWEEK()</td><td>filter(data_prestec__week_day=2)</td></tr>
+        </tbody>
+      </table>
+
+      <p class="theory-text">
+        Les relacions es travessen amb el doble guió baix seguint el nom de la relació:
+        <code>filter(autor__cognoms__icontains='rodoreda')</code> busca llibres de la Mercè Rodoreda.
+        Django genera automàticament el <code>JOIN</code> necessari.
+      </p>
+    </section>
+
+    <!-- CODI 1: 10 consultes sobre bibliapp -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">shell Django — 10 consultes sobre bibliapp</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">from django.utils import timezone
+from datetime import timedelta
+from books.models import Autor, Llibre, Lector, Prestec
+
+# ── 1. Tots els llibres ordenats per títol ────────────────────────────
+tots_els_llibres = Llibre.objects.all()
+# Equivalent a: SELECT * FROM books_llibre ORDER BY titol (pel Meta.ordering)
+
+# ── 2. Llibres disponibles ────────────────────────────────────────────
+disponibles = Llibre.objects.filter(estat='disponible')
+
+# ── 3. Llibres d'un autor específic (travessant la relació) ───────────
+rodoreda = Llibre.objects.filter(
+    autor__cognoms__icontains='rodoreda'
+)
+
+# ── 4. Llibres de més de 300 pàgines publicats al s. XX ───────────────
+llargs_s20 = Llibre.objects.filter(
+    pagines__gt=300,
+    any_publ__range=(1900, 1999),
+)
+
+# ── 5. Préstecs actius (sense data de devolució) ──────────────────────
+prestecs_actius = Prestec.objects.filter(
+    data_devolucio__isnull=True
+)
+
+# ── 6. Préstecs en retard (actius que han superat la data límit) ───────
+avui = timezone.now().date()
+en_retard = Prestec.objects.filter(
+    data_devolucio__isnull=True,
+    data_limit__lt=avui,
+)
+
+# ── 7. Compta préstecs actius per lector (sense annotate, el més simple)
+per_lector = {}
+for lector in Lector.objects.filter(actiu=True):
+    per_lector[lector] = lector.prestecs.filter(
+        data_devolucio__isnull=True
+    ).count()
+
+# ── 8. Cerca si existeix algun llibre amb un ISBN concret ─────────────
+existeix = Llibre.objects.filter(isbn='9788476601051').exists()
+# exists() és més eficient que count() > 0 o get() en un try/except
+
+# ── 9. Obtenir un únic objecte de forma segura ────────────────────────
+from django.shortcuts import get_object_or_404  # per a vistes
+
+try:
+    autor = Autor.objects.get(pk=1)
+except Autor.DoesNotExist:
+    autor = None
+except Autor.MultipleObjectsReturned:
+    # get() amb camps no únics pot retornar múltiples resultats
+    autor = Autor.objects.filter(pk=1).first()
+
+# ── 10. Valors parcials (sense carregar l'objecte complet) ────────────
+titols_isbn = Llibre.objects.filter(
+    estat='disponible'
+).values('titol', 'isbn', 'autor__cognoms')
+# Retorna dicts: [{'titol': '...', 'isbn': '...', 'autor__cognoms': '...'}]
+
+# Llista plana d'ISBNs de tots els llibres disponibles
+isbn_list = Llibre.objects.filter(
+    estat='disponible'
+).values_list('isbn', flat=True)
+# Retorna: QuerySet['9788476601051', '9788429753295', ...]</code></pre>
+    </div>
+
+    <!-- SECCIÓ 3: Q, F, annotate, select_related -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Q(), F(), annotate() i optimitzacions
+      </h2>
+      <p class="theory-text">
+        Per a consultes més complexes, Django ofereix tres eines fonamentals:
+        <code>Q()</code> per a condicions OR i AND combinades, <code>F()</code> per a comparar
+        o operar entre camps del mateix model sense carregar-los a Python, i les funcions
+        d'agregació (<code>Count</code>, <code>Sum</code>, <code>Avg</code>…) per a
+        <code>annotate()</code> i <code>aggregate()</code>.
+      </p>
+      <ul class="concept-list">
+        <li><code>Q(condicio1) | Q(condicio2)</code> — OR lògic entre condicions</li>
+        <li><code>Q(condicio1) &amp; Q(condicio2)</code> — AND explícit (equivalent a arguments separats per coma)</li>
+        <li><code>~Q(condicio)</code> — NOT lògic</li>
+        <li><code>F('camp')</code> — referència a un camp de la BD; evita race conditions en actualitzacions concurrents</li>
+        <li><code>F('preu') * 1.21</code> — operacions aritmètiques entre camps directament a la BD</li>
+        <li><code>annotate(alias=Func(...))</code> — afegeix una columna calculada a cada objecte del QuerySet</li>
+        <li><code>aggregate(nom=Func(...))</code> — retorna un diccionari amb el valor agregat de tot el QuerySet</li>
+        <li><code>select_related('rel')</code> — JOIN SQL per a ForeignKey i OneToOne; carrega relacions en una sola consulta</li>
+        <li><code>prefetch_related('rel')</code> — consultes separades + join en Python; per a ManyToMany i reversos de ForeignKey</li>
+      </ul>
+
+      <div class="tip-block tip-warning">
+        <span class="tip-prefix">⚠️ El problema N+1</span>
+        <p>Sense <code>select_related</code> o <code>prefetch_related</code>, accedir a una relació
+        dins d'un bucle genera una consulta SQL per a cada objecte (problema N+1). Per exemple,
+        iterar 100 llibres i accedir a <code>ll.autor.nom</code> genera 101 consultes.
+        Amb <code>Llibre.objects.select_related('autor')</code> se'n genera només una.</p>
+      </div>
+    </section>
+
+    <!-- CODI 2: Consultes complexes -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">consultes_avancades.py — Q, F, annotate, select_related</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">from django.db.models import Q, F, Count, Sum, Avg, Max, Min
+from django.utils import timezone
+from datetime import timedelta
+from books.models import Autor, Llibre, Lector, Prestec
+
+
+# ── Q(): condicions OR ────────────────────────────────────────────────
+# Llibres disponibles O reservats (dos estats vàlids per a mostrar al catàleg)
+al_cataleg = Llibre.objects.filter(
+    Q(estat='disponible') | Q(estat='reservat')
+)
+
+# Autors nascuts als anys 40 O catalans
+autors_especials = Autor.objects.filter(
+    Q(data_naix__year__range=(1940, 1949)) | Q(nacionalitat='CAT')
+)
+
+# Llibres que NO estan de baixa (NOT amb ~Q)
+actius = Llibre.objects.filter(~Q(estat='baixa'))
+
+# Combinació complex: (disponible I >200 pàgines) O (reservat I autor català)
+combinat = Llibre.objects.filter(
+    (Q(estat='disponible') & Q(pagines__gt=200)) |
+    (Q(estat='reservat') & Q(autor__nacionalitat='CAT'))
+)
+
+
+# ── F(): operacions a nivell de base de dades ─────────────────────────
+# Préstecs on la data límit és anterior a la data de préstec + 14 dies
+# (detecta límits inusualment curts)
+curts = Prestec.objects.filter(
+    data_limit__lt=F('data_prestec') + timedelta(days=14)
+)
+
+# Actualitzar en bulk: ampliar tots els préstecs actius 7 dies
+# F() evita la race condition que tindríem si llegim i escrivim en Python
+Prestec.objects.filter(
+    data_devolucio__isnull=True
+).update(data_limit=F('data_limit') + timedelta(days=7))
+
+
+# ── annotate(): afegir columna calculada a cada objecte ───────────────
+# Quants llibres té cada autor? (annotate afegeix 'total_llibres' a cada Autor)
+autors_amb_total = Autor.objects.annotate(
+    total_llibres=Count('llibres')
+).order_by('-total_llibres')
+
+for autor in autors_amb_total:
+    print(f"{autor} — {autor.total_llibres} llibres")
+
+# Lectors amb el nombre de préstecs actius
+lectors_prestecs = Lector.objects.annotate(
+    prestecs_actius=Count(
+        'prestecs',
+        filter=Q(prestecs__data_devolucio__isnull=True)
+    )
+).filter(prestecs_actius__gt=0)
+
+# Autors amb el nombre de pàgines total dels seus llibres
+autors_pagines = Autor.objects.annotate(
+    total_pagines=Sum('llibres__pagines')
+).filter(total_pagines__isnull=False)
+
+
+# ── aggregate(): valor únic per a tot el QuerySet ─────────────────────
+# Estadístiques de la biblioteca
+stats = Llibre.objects.aggregate(
+    total=Count('id'),
+    disponibles=Count('id', filter=Q(estat='disponible')),
+    max_pagines=Max('pagines'),
+    avg_pagines=Avg('pagines'),
+)
+# Retorna: {'total': 150, 'disponibles': 87, 'max_pagines': 1200, 'avg_pagines': 312.5}
+
+print(f"Total: {stats['total']}, Disponibles: {stats['disponibles']}")
+
+
+# ── select_related(): JOIN per a ForeignKey i OneToOne ────────────────
+# SENSE select_related: 1 + N consultes (problema N+1)
+# for ll in Llibre.objects.all():
+#     print(ll.autor.nom)   # <-- nova consulta per a cada llibre!
+
+# AMB select_related: 1 sola consulta amb JOIN
+llibres_autor = Llibre.objects.select_related(
+    'autor'       # join amb la taula d'autors
+).filter(estat='disponible')
+
+for ll in llibres_autor:
+    print(f"{ll.titol} — {ll.autor.nom_complet()}")  # cap consulta addicional
+
+
+# ── prefetch_related(): per a ManyToMany i reversos ───────────────────
+# SENSE prefetch: 1 consulta per als autors + 1 per als gèneres de cada llibre
+# AMB prefetch: 1 consulta per als llibres + 1 per a tots els gèneres
+llibres_generes = Llibre.objects.prefetch_related(
+    'generes'     # M2M: genera 2 consultes totals, no N+1
+).filter(estat='disponible')
+
+for ll in llibres_generes:
+    gens = ', '.join(g.nom for g in ll.generes.all())  # usa la cache de prefetch
+    print(f"{ll.titol}: {gens}")
+
+
+# ── Encadenament complet: filtre + annotate + select_related ──────────
+# Els 10 autors més actius dels darrers 6 mesos, amb el nom complet
+sis_mesos_enrere = timezone.now() - timedelta(days=180)
+
+top_autors = (
+    Autor.objects
+    .annotate(
+        prestecs_recents=Count(
+            'llibres__prestecs',
+            filter=Q(llibres__prestecs__data_prestec__gte=sis_mesos_enrere.date())
+        )
+    )
+    .filter(prestecs_recents__gt=0)
+    .order_by('-prestecs_recents')
+    [:10]   # LIMIT 10 — s'aplica a la BD, no en Python
+)</code></pre>
+    </div>
+
+    <div class="tip-block tip-note">
+      <span class="tip-prefix">🔮 update() i delete() en bulk</span>
+      <p>Per a actualitzar o esborrar molts registres d'una vegada sense carregar-los a memòria,
+      usa <code>QuerySet.update(**kwargs)</code> i <code>QuerySet.delete()</code>. Generen un sol
+      <code>UPDATE</code> o <code>DELETE</code> SQL. Atenció: <code>delete()</code> en bulk
+      no crida el mètode <code>delete()</code> de cada instància ni dispara signals <code>post_delete</code>.</p>
+    </div>
+
+    <!-- EXERCICI -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">6 Consultes ORM sobre bibliapp</h3>
+        <p class="exercise-context">
+          Ara que tenim els models de <em>bibliapp</em> definits i migrats, posem a prova l'ORM
+          amb consultes reals. Obre el shell de Django (<code>python manage.py shell</code>) i
+          implementa les 6 consultes que trobaràs al codi inicial. Primer crea dades de prova amb
+          el mètode <code>setup_dades()</code> proporcionat.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques — implementa cada consulta:</h4>
+          <ol>
+            <li>Troba tots els llibres prestats als darrers 7 dies</li>
+            <li>Compta el total de préstecs per autor (ordena per més préstecs primer)</li>
+            <li>Troba els lectors que han superat el seu límit de préstecs simultanis</li>
+            <li>Llista els préstecs en retard amb les dades del lector i el llibre en una sola consulta SQL</li>
+            <li>Troba el llibre més prestat de tots els temps</li>
+            <li>Calcula estadístiques globals: total de llibres, % disponibles, pàgines promig</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">Codi inicial — completa els TODO al shell de Django</span>
+          </div>
+          <pre><code class="language-python"># Executa primer: python manage.py shell
+# Després enganxa aquest codi bloc per bloc
+
+from django.db.models import Q, F, Count, Avg, Max
+from django.utils import timezone
+from datetime import timedelta, date
+from books.models import Autor, Llibre, Lector, Prestec
+from django.contrib.auth.models import User
+
+
+# ── Creació de dades de prova ─────────────────────────────────────────
+def setup_dades():
+    """Crea dades de prova per als exercicis. Executa una vegada."""
+    # Autors
+    rodoreda = Autor.objects.create(nom='Mercè', cognoms='Rodoreda', nacionalitat='CAT')
+    martorell = Autor.objects.create(nom='Joanot', cognoms='Martorell', nacionalitat='CAT')
+    orwell = Autor.objects.create(nom='George', cognoms='Orwell', nacionalitat='GBR')
+
+    # Llibres
+    placa = Llibre.objects.create(
+        titol='La Plaça del Diamant', autor=rodoreda,
+        isbn='9788429753295', estat='disponible', pagines=208, any_publ=1962
+    )
+    tirant = Llibre.objects.create(
+        titol='Tirant lo Blanc', autor=martorell,
+        isbn='9788484370567', estat='prestat', pagines=1138, any_publ=1490
+    )
+    n1984 = Llibre.objects.create(
+        titol='1984', autor=orwell,
+        isbn='9780141036144', estat='prestat', pagines=328, any_publ=1949
+    )
+
+    # Lectors
+    u1 = User.objects.create_user('anna', password='test123', first_name='Anna', last_name='Puig')
+    u2 = User.objects.create_user('marc', password='test123', first_name='Marc', last_name='Valls')
+    lector1 = Lector.objects.create(usuari=u1, max_prestecs=2)
+    lector2 = Lector.objects.create(usuari=u2, max_prestecs=3)
+
+    # Préstecs
+    avui = date.today()
+    Prestec.objects.create(lector=lector1, llibre=tirant,
+                           data_limit=avui + timedelta(days=14))
+    Prestec.objects.create(lector=lector2, llibre=n1984,
+                           data_limit=avui - timedelta(days=3))  # en retard!
+    # Préstec antic ja retornat
+    p_retornat = Prestec.objects.create(lector=lector1, llibre=placa,
+                                         data_limit=avui - timedelta(days=20))
+    p_retornat.data_devolucio = avui - timedelta(days=18)
+    p_retornat.save()
+
+    print("✓ Dades creades correctament")
+
+# Executa: setup_dades()
+
+
+# ── CONSULTA 1: Llibres prestats als darrers 7 dies ───────────────────
+set_dies_enrere = date.today() - timedelta(days=7)
+
+prestecs_recents = Prestec.objects.filter(
+    # TODO: Filtra per data_prestec >= set_dies_enrere
+    # PISTA: usa el lookup __gte
+)
+print(f"Préstecs dels darrers 7 dies: {prestecs_recents.count()}")
+
+
+# ── CONSULTA 2: Préstecs per autor ────────────────────────────────────
+prestecs_per_autor = Autor.objects.annotate(
+    # TODO: Afegeix annotate amb Count per comptar préstecs
+    # PISTA: la relació és autor → llibres → prestecs
+    # El path és: 'llibres__prestecs'
+).order_by(
+    # TODO: Ordena per total_prestecs descendent
+)
+
+for autor in prestecs_per_autor:
+    print(f"{autor}: {autor.total_prestecs} préstecs")
+
+
+# ── CONSULTA 3: Lectors que han superat el límit ──────────────────────
+lectors_sobrepassats = Lector.objects.annotate(
+    actuals=Count(
+        'prestecs',
+        filter=Q(prestecs__data_devolucio__isnull=True)
+    )
+).filter(
+    # TODO: Filtra els que tenen actuals > max_prestecs
+    # PISTA: usa F() per comparar camps del mateix model
+)
+
+for l in lectors_sobrepassats:
+    print(f"{l.usuari.username}: {l.actuals}/{l.max_prestecs} préstecs")
+
+
+# ── CONSULTA 4: Préstecs en retard amb dades relacionades ─────────────
+avui = date.today()
+en_retard = Prestec.objects.filter(
+    data_devolucio__isnull=True,
+    data_limit__lt=avui,
+).select_related(
+    # TODO: Afegeix select_related per a 'lector' i 'lector__usuari' i 'llibre'
+    # Això evita consultes addicionals en el bucle
+)
+
+for p in en_retard:
+    dies = (avui - p.data_limit).days
+    # Gràcies al select_related, aquestes accessions no fan noves consultes:
+    print(f"{p.llibre.titol} — {p.lector.usuari.get_full_name()} — {dies} dies de retard")
+
+
+# ── CONSULTA 5: Llibre més prestat ────────────────────────────────────
+llibre_mes_prestat = Llibre.objects.annotate(
+    # TODO: Afegeix total_prestecs=Count('prestecs')
+).order_by(
+    # TODO: Ordena per total_prestecs descendent
+).first()   # .first() retorna None si no hi ha dades (mai llança excepció)
+
+if llibre_mes_prestat:
+    print(f"Llibre més prestat: {llibre_mes_prestat.titol} ({llibre_mes_prestat.total_prestecs}x)")
+
+
+# ── CONSULTA 6: Estadístiques globals ────────────────────────────────
+from django.db.models import Count, Avg, ExpressionWrapper, FloatField
+
+stats = Llibre.objects.aggregate(
+    total=Count('id'),
+    disponibles=Count('id', filter=Q(estat='disponible')),
+    avg_pagines=Avg('pagines'),
+    max_pagines=Max('pagines'),
+)
+
+pct_disponibles = (stats['disponibles'] / stats['total'] * 100) if stats['total'] else 0
+print(f"Total: {stats['total']} | Disponibles: {pct_disponibles:.1f}%")
+print(f"Pàgines: avg={stats['avg_pagines']:.0f}, max={stats['max_pagines']}")</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Per a la consulta 3, la clau és usar <code>F('max_prestecs')</code> dins del <code>filter()</code>: <code>filter(actuals__gt=F('max_prestecs'))</code>. Sense <code>F()</code> hauries de carregar cada lector a Python i comparar manualment.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>Totes les consultes s'executen sense errors. La consulta 4 (préstecs en retard)
+          mostra el préstec de Marc Valls sobre <em>1984</em> amb 3 dies de retard.
+          La consulta 6 mostra estadístiques coherents amb les dades creades per <code>setup_dades()</code>.
+          Comprova amb <code>django-debug-toolbar</code> o el log de Django que la consulta 4
+          genera exactament 1 SQL (no N+1).</p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-lang">Python</span>
+                <span class="code-file">Solució completa</span>
+                <button class="copy-btn">Copiar</button>
+              </div>
+              <pre><code class="language-python">from django.db import models
+from django.db.models import Count, Q, F, Avg
+from django.utils import timezone
+from datetime import timedelta
+from books.models import Llibre, Autor, Prestec, Lector
+
+# 1. Tots els llibres disponibles ordenats per títol
+llibres_disponibles = Llibre.objects.filter(disponible=True).order_by('titol')
+
+# 2. Llibres prestats els darrers 7 dies
+data_limit = timezone.now().date() - timedelta(days=7)
+prestecs_recents = Prestec.objects.filter(data_prestec__gte=data_limit).select_related('llibre', 'lector')
+
+# 3. Nombre de prestecs per autor (annotate)
+autors_amb_prestecs = Autor.objects.annotate(
+    total_prestecs=Count('llibres__prestecs')
+).order_by('-total_prestecs')
+
+# 4. Llibres sense cap prestec mai
+llibres_sense_prestec = Llibre.objects.filter(prestecs__isnull=True)
+
+# 5. Lectors amb prestecs vençuts O més de 3 actius (Q)
+lectors_problemes = Lector.objects.filter(
+    Q(prestecs__estat='vençut') |
+    Q(prestecs__estat='actiu', prestecs__data_retorn_prevista__lt=timezone.now().date())
+).distinct()
+
+# 6. Marcar com a vençuts tots els prestecs actius passats de data (bulk update)
+vençuts = Prestec.objects.filter(
+    estat='actiu',
+    data_retorn_prevista__lt=timezone.now().date()
+).update(estat='vençut')
+print(f"Marcats com a vençuts: {vençuts} prestecs")</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- EXERCICI 2 -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Consultes amb F(), aggregate() i valors únics</h3>
+        <p class="exercise-context">
+          <code>F()</code> permet comparar camps del mateix model entre si sense carregar-los a Python.
+          <code>aggregate()</code> retorna valors calculats de tot el QuerySet com un diccionari.
+          <code>values()</code> i <code>annotate()</code> junts permeten agrupar com un <code>GROUP BY</code> de SQL.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Usa <code>F()</code> per trobar els préstecs on <code>data_retorn_real</code> és anterior a <code>data_retorn_prevista</code> (retornats amb avançament)</li>
+            <li>Usa <code>aggregate()</code> per calcular el nombre total de pàgines de tots els llibres disponibles</li>
+            <li>Usa <code>values('autor').annotate(Count('id'))</code> per saber quants llibres té cada autor</li>
+            <li>Usa <code>values_list('titol', flat=True)</code> per obtenir només els títols com a llista</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">Codi inicial — completa els TODO</span>
+          </div>
+          <pre><code class="language-python">from django.db.models import Count, Sum, F
+from books.models import Llibre, Prestec
+
+# TODO 1: Prestecs retornats abans de la data prevista
+retornats_aviat = Prestec.objects.filter(
+    estat='retornat',
+    # TODO: data_retorn_real &lt; data_retorn_prevista amb F()
+)
+
+# TODO 2: Total de pàgines disponibles
+total_pagines = Llibre.objects.filter(disponible=True).aggregate(
+    # TODO: suma de num_pagines
+)
+
+# TODO 3: Nombre de llibres per autor (com a GROUP BY)
+llibres_per_autor = Llibre.objects.values('autor__cognoms').annotate(
+    # TODO: count
+).order_by('-total')
+
+# TODO 4: Llista plana de títols
+titols = list(Llibre.objects.values_list(
+    # TODO: flat=True
+))</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span><code>data_retorn_real__lt=F('data_retorn_prevista')</code> és la sintaxi correcta per comparar dos camps de la mateixa fila directament a la base de dades.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>Cada consulta retorna el tipus esperat: QuerySet d'objectes, diccionari <code>{'total': N}</code>, QuerySet de diccionaris agrupats, i llista plana de strings.</p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-lang">Python</span>
+                <span class="code-file">Solució completa</span>
+                <button class="copy-btn">Copiar</button>
+              </div>
+              <pre><code class="language-python">from django.db.models import Count, Sum, F
+from books.models import Llibre, Prestec
+
+# 1. Prestecs retornats abans de la data prevista
+retornats_aviat = Prestec.objects.filter(
+    estat='retornat',
+    data_retorn_real__lt=F('data_retorn_prevista')
+)
+
+# 2. Total de pàgines disponibles
+total_pagines = Llibre.objects.filter(disponible=True).aggregate(
+    total=Sum('num_pagines')
+)
+# Resultat: {'total': 12450}
+
+# 3. Nombre de llibres per autor
+llibres_per_autor = Llibre.objects.values('autor__cognoms').annotate(
+    total=Count('id')
+).order_by('-total')
+
+# 4. Llista plana de títols
+titols = list(Llibre.objects.values_list('titol', flat=True))
+# Resultat: ['El nom de la rosa', 'Tirant lo Blanc', ...]</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- RESUM -->
+    <section class="summary-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Resum de la Unitat
+      </h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h4>Mètodes bàsics</h4>
+          <ul>
+            <li>all(), filter(), exclude()</li>
+            <li>get(), first(), last()</li>
+            <li>count(), exists()</li>
+            <li>order_by(), values(), distinct()</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Lookups principals</h4>
+          <ul>
+            <li>icontains, startswith</li>
+            <li>gt, gte, lt, lte, range</li>
+            <li>in, isnull</li>
+            <li>date, year, month</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Consultes avançades</h4>
+          <ul>
+            <li>Q() per a OR / NOT</li>
+            <li>F() per a camps BD</li>
+            <li>annotate() + Count/Sum/Avg</li>
+            <li>aggregate() per a totals</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Optimitzacions</h4>
+          <ul>
+            <li>select_related (FK, O2O)</li>
+            <li>prefetch_related (M2M)</li>
+            <li>update() i delete() bulk</li>
+            <li>values() per selecció parcial</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="unit-nav">
+    <a href="unitat-03.html" class="nav-prev">
+      ← <span>Unitat 03 — Models: Camps i Relacions</span>
+    </a>
+    <a href="index.html" class="nav-home">Índex</a>
+    <a href="unitat-05.html" class="nav-next">
+      <span>Unitat 05 — Migracions</span> →
+    </a>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      hljs.highlightAll();
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const code = btn.closest('.code-block').querySelector('code').textContent;
+          navigator.clipboard.writeText(code);
+          btn.textContent = 'Copiat!';
+          setTimeout(() => btn.textContent = 'Copiar', 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

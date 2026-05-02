@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unitat 13 — L'Admin de Django | Curs Django</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Highlight.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #F4F7FB;
+      --surface:      #FFFFFF;
+      --surface-2:    #EBF0F8;
+      --code-bg:      #F1F5F9;
+      --border:       #C5D3E4;
+      --border-dim:   #DAE3EF;
+      --text:         #1C2E45;
+      --text-muted:   #4E6478;
+      --text-dim:     #96ABBE;
+      --heading:      #091929;
+      --accent:       #1755C4;
+      --accent-glow:  #1755C420;
+      --blue:         #2463EB;
+      --green:        #057A55;
+      --amber:        #92530A;
+      --purple:       #5B21B6;
+      --django-green: #E8F0FD;
+      --exercise-bg:  #F0FDF8;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Lora', serif;
+      min-height: 100vh;
+    }
+
+    .page-wrapper { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+
+    /* CAPÇALERA */
+    .unit-header {
+      background: linear-gradient(135deg, var(--django-green) 0%, var(--bg) 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 4rem;
+    }
+    .unit-number {
+      font-family: 'Lora', serif;
+      font-weight: 500;
+      font-size: 0.78rem;
+      color: var(--accent);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .unit-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 2.6rem;
+      color: var(--heading);
+      margin: 0.5rem 0;
+      letter-spacing: -0.01em;
+    }
+    .unit-subtitle {
+      font-family: 'Lora', serif;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+    .objectives {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .objectives h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.75rem;
+    }
+    .objectives ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .objectives li {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      padding-left: 1.25rem;
+      position: relative;
+    }
+    .objectives li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--green);
+      font-family: 'Syne', sans-serif;
+    }
+
+    /* SECCIONS DE TEORIA */
+    .theory-section {
+      padding: 2.5rem 0;
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      font-size: 1.3rem;
+      color: var(--heading);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .section-icon { color: var(--accent); font-size: 0.8em; }
+    .theory-text {
+      font-family: 'Lora', serif;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    .concept-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .concept-list li {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.7;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+    .concept-list li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-family: 'Syne', sans-serif;
+    }
+    .concept-list code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88em;
+      color: var(--blue);
+      background: var(--surface-2);
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+    }
+
+    /* BLOCS DE CODI */
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+    .code-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .code-lang {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .code-file {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .copy-btn {
+      margin-left: auto;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.7rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    pre { padding: 1.25rem; overflow-x: auto; }
+    pre code {
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 0.88rem !important;
+      line-height: 1.7 !important;
+      background: transparent !important;
+    }
+
+    /* TIPS */
+    .tip-block {
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .tip-block.tip-info   { background: #EBF2FF; border-left: 3px solid var(--blue); }
+    .tip-block.tip-warning{ background: #FEF9C3; border-left: 3px solid var(--amber); }
+    .tip-block.tip-note   { background: #F5F3FF; border-left: 3px solid var(--purple); }
+    .tip-prefix {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .tip-block.tip-info    .tip-prefix { color: var(--blue); }
+    .tip-block.tip-warning .tip-prefix { color: var(--amber); }
+    .tip-block.tip-note    .tip-prefix { color: var(--purple); }
+    .tip-block p {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* BADGES */
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--blue);
+      padding: 0.15em 0.5em;
+      border-radius: 4px;
+    }
+    .badge-shell { color: var(--amber); }
+    .badge-new   { color: var(--green); border-color: #1a4a2a; background: var(--exercise-bg); }
+
+    /* EXERCICI */
+    .exercise-block {
+      background: var(--exercise-bg);
+      border: 1px solid #6EE7B7;
+      border-radius: 16px;
+      overflow: hidden;
+      margin: 2rem 0;
+    }
+    .exercise-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      background: #ECFDF5;
+      border-bottom: 1px solid #A7F3D0;
+    }
+    .exercise-label {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .exercise-tag {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #057A55;
+      background: #ECFDF5;
+      border: 1px solid #6EE7B7;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+    }
+    .exercise-body { padding: 1.5rem; }
+    .exercise-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--heading);
+      margin-bottom: 0.75rem;
+    }
+    .exercise-context {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+    .exercise-tasks h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .exercise-tasks ol {
+      padding-left: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .exercise-tasks li {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .exercise-tip {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      background: #FEF9E7;
+      border: 1px solid #FCD34D;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--amber);
+    }
+    .exercise-result {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px dashed #6EE7B7;
+    }
+    .exercise-result h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+    .exercise-result p {
+      font-family: 'Lora', serif;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* RESUM */
+    .summary-section {
+      padding: 2.5rem 0;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+    }
+    .summary-card h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.6rem;
+    }
+    .summary-card ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .summary-card li {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--blue);
+    }
+
+    /* NAV */
+    .unit-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 4rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+    .unit-nav a {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .unit-nav a:hover { color: var(--accent); }
+    .nav-home {
+      font-size: 0.8rem !important;
+      color: var(--text-dim) !important;
+      border: 1px solid var(--border);
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+    }
+    .nav-home:hover { border-color: var(--accent) !important; }
+
+    .solution-spoiler{margin-top:1rem;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+    .solution-spoiler summary{cursor:pointer;padding:.875rem 1.25rem;background:var(--surface-2);font-family:'Syne',sans-serif;font-size:.85rem;font-weight:600;color:var(--accent);user-select:none;list-style:none;display:flex;align-items:center;gap:.5rem;transition:background .2s;}
+    .solution-spoiler summary::marker,.solution-spoiler summary::-webkit-details-marker{display:none;}
+    .solution-spoiler summary:hover{background:#EBF2FF;}
+    .solution-spoiler[open] summary{border-bottom:1px solid var(--border);}
+    .solution-body .code-block{margin:0;border:none;border-radius:0;}
+    .deps-block{background:#FFF8EE;border:1px solid #FCD34D;border-radius:12px;overflow:hidden;margin:1.5rem 0;}
+    .deps-header{display:flex;align-items:center;gap:.5rem;padding:.75rem 1.25rem;background:#FEF3C7;border-bottom:1px solid #FCD34D;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:#92400E;text-transform:uppercase;letter-spacing:.08em;}
+    .deps-body{padding:1.25rem;}
+    .deps-body .code-block{margin:.75rem 0 0;}
+  </style>
+</head>
+<body>
+
+  <header class="unit-header">
+    <div class="page-wrapper">
+      <p class="unit-number">Unitat 13 · Curs de Django</p>
+      <h1 class="unit-title">L'Admin de Django</h1>
+      <p class="unit-subtitle">El panell d'administració integrat: configura, personalitza i potencia la interfície per gestionar dades sense esforç.</p>
+      <div class="objectives">
+        <h3>En aquesta unitat aprendràs:</h3>
+        <ul>
+          <li>Registrar models amb <code>admin.site.register()</code> i el decorador <code>@admin.register</code></li>
+          <li>Personalitzar llistes amb <code>list_display</code>, <code>list_filter</code>, <code>search_fields</code> i <code>date_hierarchy</code></li>
+          <li>Organitzar formularis d'edició amb <code>fieldsets</code> i afegir models relacionats amb <code>TabularInline</code></li>
+          <li>Crear accions personalitzades per operar sobre múltiples registres a la vegada</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-wrapper">
+
+    <!-- SECCIÓ 1 -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Registrar models i configurar la vista de llista
+      </h2>
+      <p class="theory-text">
+        L'admin de Django és una de les funcionalitats més potents del framework: amb molt poc codi tens una interfície d'administració completa i funcional. El punt d'entrada és el fitxer <code>admin.py</code> de cada aplicació, on indiques quins models vols exposar i com.
+      </p>
+      <p class="theory-text">
+        La forma bàsica és <code>admin.site.register(Model)</code>, però el decorador <code>@admin.register(Model)</code> és la manera moderna i preferida: manté el model i la seva configuració junts en una sola classe. La classe <code>ModelAdmin</code> conté tots els atributs de configuració.
+      </p>
+      <ul class="concept-list">
+        <li><code>list_display</code> — tupla de camps (o mètodes) que apareixen com a columnes a la llista. Pot incloure mètodes del model o de la classe <code>ModelAdmin</code>.</li>
+        <li><code>list_filter</code> — camps per als quals es genera una barra de filtres lateral (booleants, dates, <code>ForeignKey</code>). Genera consultes automàtiques.</li>
+        <li><code>search_fields</code> — camps on es fa la cerca de text lliure. Suporta <code>__</code> per travessar relacions (p.ex. <code>autor__nom</code>).</li>
+        <li><code>readonly_fields</code> — camps que es mostren en el formulari d'edició però no es poden modificar (útil per a dates automàtiques o camps calculats).</li>
+        <li><code>date_hierarchy</code> — afegeix una navegació per dates a la part superior de la llista (any → mes → dia).</li>
+        <li><code>ordering</code> — ordenació per defecte de la llista (sobreescriu el <code>Meta.ordering</code> del model).</li>
+        <li><code>list_per_page</code> — nombre de registres per pàgina (per defecte 100). Redueix-lo si la pàgina carrega lent.</li>
+      </ul>
+
+      <div class="tip-block tip-info">
+        <span class="tip-prefix">📌 Nota</span>
+        <p>Els mètodes usats a <code>list_display</code> poden tenir un atribut <code>.short_description</code> per canviar el títol de la columna, i <code>.boolean = True</code> per mostrar icones de check/creu en lloc de <code>True</code>/<code>False</code>.</p>
+      </div>
+    </section>
+
+    <!-- CODI 1 -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">admin.py — bibliapp complet</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">from django.contrib import admin
+from django.utils.html import format_html
+from .models import Autor, Llibre, Lector, Prestec
+
+
+@admin.register(Autor)
+class AutorAdmin(admin.ModelAdmin):
+    # Columnes visibles a la llista d'autors
+    list_display  = ('nom', 'cognom', 'nacionalitat', 'num_llibres')
+    list_filter   = ('nacionalitat',)
+    search_fields = ('nom', 'cognom')
+    ordering      = ('cognom', 'nom')
+
+    def num_llibres(self, obj):
+        """Mostra quants llibres té l'autor — mètode calculat."""
+        return obj.llibres.count()
+    num_llibres.short_description = 'Nre. de llibres'
+
+
+@admin.register(Llibre)
+class LlibreAdmin(admin.ModelAdmin):
+    list_display    = ('titol', 'autor', 'any_publicacio', 'disponible_badge', 'idioma')
+    list_filter     = ('disponible', 'idioma', 'any_publicacio')
+    search_fields   = ('titol', 'autor__nom', 'autor__cognom', 'isbn')
+    readonly_fields = ('data_creacio', 'data_modificacio')
+    date_hierarchy  = 'data_creacio'
+    ordering        = ('-any_publicacio',)
+    list_per_page   = 25
+
+    def disponible_badge(self, obj):
+        """Mostra la disponibilitat com a badge de color."""
+        if obj.disponible:
+            return format_html(
+                '&lt;span style="color:#2ECC71;font-weight:bold"&gt;✓ Disponible&lt;/span&gt;'
+            )
+        return format_html(
+            '&lt;span style="color:#FF6B35;font-weight:bold"&gt;✗ Prestat&lt;/span&gt;'
+        )
+    disponible_badge.short_description = 'Estat'
+    disponible_badge.allow_tags = True  # necessari per a HTML
+
+
+@admin.register(Lector)
+class LectorAdmin(admin.ModelAdmin):
+    list_display  = ('nom_complet', 'email', 'data_registre', 'prestecs_actius')
+    list_filter   = ('data_registre',)
+    search_fields = ('nom', 'cognom', 'email')
+    readonly_fields = ('data_registre',)
+
+    def nom_complet(self, obj):
+        return f"{obj.nom} {obj.cognom}"
+    nom_complet.short_description = 'Nom complet'
+
+    def prestecs_actius(self, obj):
+        return obj.prestecs.filter(retornat=False).count()
+    prestecs_actius.short_description = 'Préstecs actius'
+
+
+@admin.register(Prestec)
+class PrestecAdmin(admin.ModelAdmin):
+    list_display  = ('llibre', 'lector', 'data_prestec', 'data_retorn_prevista', 'retornat')
+    list_filter   = ('retornat', 'data_prestec')
+    search_fields = ('llibre__titol', 'lector__nom', 'lector__cognom')
+    readonly_fields = ('data_prestec',)
+    date_hierarchy = 'data_prestec'
+</code></pre>
+    </div>
+
+    <!-- SECCIÓ 2 -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Fieldsets, Inlines i Accions personalitzades
+      </h2>
+      <p class="theory-text">
+        Quan edites un registre, per defecte tots els camps apareixen en un formulari pla. Amb <code>fieldsets</code> pots agrupar-los en seccions amb títol i descripció, millorant moltíssim la usabilitat per a administradors. Cada element del tuple és <code>(nom_seccio, {opcions})</code>, on les opcions inclouen <code>'fields'</code>, <code>'classes'</code> (p.ex. <code>'collapse'</code> per plegar la secció) i <code>'description'</code>.
+      </p>
+      <p class="theory-text">
+        Les <em>inlines</em> permeten editar models relacionats directament des del formulari del model pare. <code>TabularInline</code> mostra cada registre en una fila d'una taula (compacte), mentre que <code>StackedInline</code> mostra cada registre en forma de formulari vertical (més espai, millor per a molts camps). Afegeix la classe inline a l'atribut <code>inlines</code> del <code>ModelAdmin</code> pare.
+      </p>
+      <p class="theory-text">
+        Les <em>accions</em> permeten operar sobre múltiples registres seleccionats a la llista. Es defineixen com a mètodes de la classe <code>ModelAdmin</code> (o funcions independents) i es registren a l'atribut <code>actions</code>. Reben <code>(self, request, queryset)</code> i la propietat <code>.short_description</code> defineix el nom que apareix al selector d'accions.
+      </p>
+      <ul class="concept-list">
+        <li><code>fieldsets</code> — llista de tuples <code>(títol, dict)</code> per agrupar camps al formulari d'edició.</li>
+        <li><code>TabularInline</code> — inline en format taula, ideal per a llistes de registres simples.</li>
+        <li><code>StackedInline</code> — inline en format formulari, millor quan cada registre relacionat té molts camps.</li>
+        <li><code>extra</code> — nombre de formularis buits extra que mostra l'inline (per defecte 3; posa'l a 0 per evitar formularis buits).</li>
+        <li><code>actions</code> — llista de noms de mètodes (o funcions) que apareixeran al desplegable d'accions de la llista.</li>
+        <li><code>save_model(request, obj, form, change)</code> — sobreescriu per afegir lògica extra en guardar (p.ex. registrar qui ha fet el canvi).</li>
+        <li><code>get_queryset(request)</code> — sobreescriu per filtrar els registres visibles (útil per a admins amb accés limitat).</li>
+      </ul>
+
+      <div class="tip-block tip-warning">
+        <span class="tip-prefix">⚠️ Atenció</span>
+        <p>Les accions personalitzades han de tenir un atribut <code>short_description</code> o Django usarà el nom del mètode com a etiqueta, que normalment no és el que vols mostrar a l'usuari.</p>
+      </div>
+    </section>
+
+    <!-- CODI 2 -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">admin.py — Inlines i accions personalitzades</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">from django.contrib import admin
+from django.utils import timezone
+from django.contrib import messages
+from .models import Llibre, Prestec
+
+
+class PrestecInline(admin.TabularInline):
+    """Mostra els préstecs actius directament al formulari del Llibre."""
+    model   = Prestec
+    extra   = 0          # no mostrar files buides addicionals
+    fields  = ('lector', 'data_prestec', 'data_retorn_prevista', 'retornat')
+    readonly_fields = ('data_prestec',)
+
+    def get_queryset(self, request):
+        """Mostrar només els préstecs actuals (no retornats) a l'inline."""
+        qs = super().get_queryset(request)
+        return qs.filter(retornat=False)
+
+
+def marcar_retornat(modeladmin, request, queryset):
+    """Acció per marcar com a retornats tots els préstecs seleccionats."""
+    actualitzats = 0
+    for prestec in queryset.filter(retornat=False):
+        prestec.retornat = True
+        prestec.data_retorn_real = timezone.now().date()
+        prestec.save()  # guardem un a un per activar signals si n'hi ha
+        # restaurar disponibilitat del llibre associat
+        prestec.llibre.disponible = True
+        prestec.llibre.save()
+        actualitzats += 1
+
+    modeladmin.message_user(
+        request,
+        f"{actualitzats} préstec(s) marcats com a retornats correctament.",
+        messages.SUCCESS
+    )
+
+marcar_retornat.short_description = "Marcar préstecs seleccionats com a retornats"
+
+
+@admin.register(Llibre)
+class LlibreAdmin(admin.ModelAdmin):
+    list_display  = ('titol', 'autor', 'any_publicacio', 'disponible')
+    list_filter   = ('disponible', 'idioma')
+    search_fields = ('titol', 'autor__nom')
+    inlines       = [PrestecInline]
+
+    # Agrupem els camps en seccions al formulari d'edició
+    fieldsets = (
+        ('Informació bàsica', {
+            'fields': ('titol', 'autor', 'isbn', 'any_publicacio', 'idioma')
+        }),
+        ('Disponibilitat', {
+            'fields': ('disponible',),
+            'description': 'Controla manualment si el llibre pot ser prestat.'
+        }),
+        ('Metadades', {
+            'fields': ('data_creacio', 'data_modificacio'),
+            'classes': ('collapse',),  # secció plegable per defecte
+        }),
+    )
+    readonly_fields = ('data_creacio', 'data_modificacio')
+
+
+@admin.register(Prestec)
+class PrestecAdmin(admin.ModelAdmin):
+    list_display  = ('llibre', 'lector', 'data_prestec', 'retornat')
+    list_filter   = ('retornat',)
+    actions       = [marcar_retornat]  # registrem l'acció aquí
+
+    def save_model(self, request, obj, form, change):
+        """Quan es guarda un préstec des de l'admin, marcar el llibre com no disponible."""
+        super().save_model(request, obj, form, change)
+        if not obj.retornat:
+            obj.llibre.disponible = False
+            obj.llibre.save()
+</code></pre>
+    </div>
+
+    <div class="tip-block tip-note">
+      <span class="tip-prefix">🔮 Avançat</span>
+      <p>Pots tenir múltiples sites d'admin registrant instàncies de <code>AdminSite</code> separades. Això permet crear un admin per a superusuaris i un altre per a gestors amb menys permisos, cadascun amb els seus models i estils.</p>
+    </div>
+
+    <!-- EXERCICI -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Configurar l'admin complet de bibliapp</h3>
+        <p class="exercise-context">
+          La biblioteca necessita que el personal administratiu pugui gestionar tots els models des del panell d'admin. Cal que la llista de Llibres mostri les columnes útils, que el formulari d'edició d'un Llibre mostri directament els seus préstecs actius, i que es pugui marcar en massa préstecs com a retornats.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Configura <code>LlibreAdmin</code> perquè la llista mostri: títol, autor, any de publicació i disponibilitat com a badge de color.</li>
+            <li>Afegeix <code>list_filter</code> per disponibilitat i idioma, i <code>search_fields</code> per títol i nom de l'autor (amb <code>__</code>).</li>
+            <li>Afegeix un <code>PrestecInline</code> (TabularInline) a <code>LlibreAdmin</code> que mostri només els préstecs no retornats.</li>
+            <li>Crea l'acció <code>marcar_retornat</code> per a <code>PrestecAdmin</code> que actualitzi <code>retornat=True</code> i <code>disponible=True</code> del llibre associat.</li>
+            <li>Usa <code>fieldsets</code> a <code>LlibreAdmin</code> per separar la informació bàsica de les metadades (dates en secció plegable).</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">admin.py — Codi inicial</span>
+          </div>
+          <pre><code class="language-python">from django.contrib import admin
+from django.utils.html import format_html
+from django.contrib import messages
+from .models import Autor, Llibre, Lector, Prestec
+
+
+# TODO 1: Crea PrestecInline (TabularInline) que mostri només préstecs actius
+# class PrestecInline(admin.TabularInline):
+#     ...
+
+
+# TODO 2: Crea l'acció marcar_retornat per a PrestecAdmin
+# def marcar_retornat(modeladmin, request, queryset):
+#     ...
+# marcar_retornat.short_description = "..."
+
+
+@admin.register(Autor)
+class AutorAdmin(admin.ModelAdmin):
+    list_display  = ('nom', 'cognom')
+    # TODO: afegir search_fields, ordering
+
+
+@admin.register(Llibre)
+class LlibreAdmin(admin.ModelAdmin):
+    # TODO 3: afegir list_display amb disponible_badge
+    # TODO 4: afegir list_filter, search_fields, readonly_fields, date_hierarchy
+    # TODO 5: afegir fieldsets amb seccions
+    # TODO 6: afegir inlines = [PrestecInline]
+
+    def disponible_badge(self, obj):
+        # TODO: retornar HTML amb color verd si disponible, taronja si no
+        pass
+    disponible_badge.short_description = 'Estat'
+
+
+@admin.register(Lector)
+class LectorAdmin(admin.ModelAdmin):
+    list_display = ('nom', 'cognom', 'email')
+
+
+@admin.register(Prestec)
+class PrestecAdmin(admin.ModelAdmin):
+    list_display = ('llibre', 'lector', 'data_prestec', 'retornat')
+    # TODO 7: afegir actions = [marcar_retornat]
+</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span class="tip-icon">💡</span>
+          <span>Per al badge de disponibilitat, usa <code>format_html()</code> de <code>django.utils.html</code> per generar HTML segur. Recorda que als camps calculats a <code>list_display</code> has de definir <code>.short_description</code>.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>En accedir a <code>/admin/bibliapp/llibre/</code>, la llista ha de mostrar les columnes configurades amb el badge de disponibilitat en color. En editar un Llibre, el formulari ha de mostrar la secció de préstecs actius com a inline. Des de la llista de Préstecs, el selector d'accions ha de permetre marcar múltiples préstecs com a retornats.</p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>▶ Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa — books/admin.py</span></div>
+              <pre><code class="language-python"># books/admin.py
+from django.contrib import admin
+from django.utils.html import format_html
+from .models import Autor, Llibre, Prestec, Lector
+
+class PrestecInline(admin.TabularInline):
+    model = Prestec
+    extra = 0
+    readonly_fields = ['data_prestec', 'estat']
+    fields = ['lector', 'data_prestec', 'data_retorn_prevista', 'estat']
+    can_delete = False
+
+@admin.register(Llibre)
+class LlibreAdmin(admin.ModelAdmin):
+    list_display = ['titol', 'autor', 'any_publicacio', 'genere', 'badge_disponible', 'num_pagines']
+    list_filter = ['disponible', 'genere', 'any_publicacio']
+    search_fields = ['titol', 'autor__cognoms', 'isbn']
+    readonly_fields = ['created_at', 'slug']
+    date_hierarchy = 'created_at'
+    list_per_page = 25
+    inlines = [PrestecInline]
+    actions = ['marcar_disponibles', 'marcar_no_disponibles']
+
+    @admin.display(description='Disponible', boolean=False)
+    def badge_disponible(self, obj):
+        if obj.disponible:
+            return format_html('&lt;span style="color:green"&gt;✓ Sí&lt;/span&gt;')
+        return format_html('&lt;span style="color:red"&gt;✗ No&lt;/span&gt;')
+
+    @admin.action(description='Marcar com a disponibles')
+    def marcar_disponibles(self, request, queryset):
+        count = queryset.update(disponible=True)
+        self.message_user(request, f'{count} llibre(s) marcats com a disponibles.')
+
+    @admin.action(description='Marcar com a no disponibles')
+    def marcar_no_disponibles(self, request, queryset):
+        count = queryset.update(disponible=False)
+        self.message_user(request, f'{count} llibre(s) marcats com a no disponibles.')
+
+@admin.register(Prestec)
+class PrestecAdmin(admin.ModelAdmin):
+    list_display = ['llibre', 'lector', 'data_prestec', 'data_retorn_prevista', 'estat']
+    list_filter = ['estat']
+    actions = ['marcar_retornats']
+
+    @admin.action(description='Marcar com a retornats')
+    def marcar_retornats(self, request, queryset):
+        from django.utils import timezone
+        count = queryset.filter(estat='actiu').update(
+            estat='retornat', data_retorn_real=timezone.now().date()
+        )
+        self.message_user(request, f'{count} préstec(s) marcat(s) com a retornats.')</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Segon exercici -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic 2</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Admin personalitzat amb save_model i fieldsets</h3>
+        <p class="exercise-context">
+          <code>save_model()</code> permet executar lògica addicional en guardar des de l'admin. <code>fieldsets</code> organitza el formulari d'edició en seccions amb títols. Combinaràs ambdues tècniques per millorar l'experiència de l'admin i afegir observabilitat.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Afegeix <code>fieldsets</code> a <code>LlibreAdmin</code> que organitzi: "Informació bàsica" (títol, autor, isbn), "Detalls" (any, gènere, pàgines, disponible), "Contingut" (descripcio), "Metadades" (slug, created_at).</li>
+            <li>Sobreescriu <code>save_model()</code> a <code>LlibreAdmin</code> per registrar un log quan es crea un nou llibre.</li>
+            <li>Afegeix <code>get_queryset()</code> que faci <code>select_related('autor')</code> per evitar N+1.</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">admin.py — Codi inicial</span>
+          </div>
+          <pre><code class="language-python">@admin.register(Llibre)
+class LlibreAdmin(admin.ModelAdmin):
+    # ... configuració existent ...
+    fieldsets = (
+        # TODO: secció "Informació bàsica" amb titol, autor, isbn
+        # TODO: secció "Detalls" amb any_publicacio, genere, num_pagines, disponible
+        # TODO: secció "Contingut" (col·lapsable) amb descripcio
+        # TODO: secció "Metadades" (col·lapsable) amb slug i created_at
+    )
+
+    def save_model(self, request, obj, form, change):
+        if not change:  # és una creació nova
+            # TODO: registra al log "Nou llibre creat: {titol} per {usuari}"
+            import logging
+            logger = logging.getLogger(__name__)
+            pass
+        super().save_model(request, obj, form, change)
+
+    def get_queryset(self, request):
+        # TODO: afegeix select_related('autor') al queryset base
+        pass</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Pista: <code>fieldsets = (('Títol secció', {'fields': [...], 'classes': ['collapse']}), ...)</code>.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>El formulari de l'admin mostra les seccions organitzades i col·lapsables. En crear un nou llibre, apareix un missatge de log al servidor.</p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>▶ Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa</span></div>
+              <pre><code class="language-python">import logging
+logger = logging.getLogger(__name__)
+
+@admin.register(Llibre)
+class LlibreAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ('Informació bàsica', {'fields': ('titol', 'autor', 'isbn')}),
+        ('Detalls', {'fields': ('any_publicacio', 'genere', 'num_pagines', 'disponible')}),
+        ('Contingut', {'fields': ('descripcio',), 'classes': ['collapse']}),
+        ('Metadades', {'fields': ('slug', 'created_at'), 'classes': ['collapse']}),
+    )
+    readonly_fields = ['created_at', 'slug']
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            logger.info(f"Nou llibre creat: '{obj.titol}' per {request.user.username}")
+        super().save_model(request, obj, form, change)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('autor')</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- RESUM -->
+    <section class="summary-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Resum de la unitat
+      </h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h4>Atributs de llista</h4>
+          <ul>
+            <li>list_display</li>
+            <li>list_filter</li>
+            <li>search_fields</li>
+            <li>date_hierarchy</li>
+            <li>ordering</li>
+            <li>list_per_page</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Formulari i relacions</h4>
+          <ul>
+            <li>fieldsets</li>
+            <li>readonly_fields</li>
+            <li>TabularInline</li>
+            <li>StackedInline</li>
+            <li>inlines = [...]</li>
+            <li>extra = 0</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Personalització</h4>
+          <ul>
+            <li>@admin.register</li>
+            <li>actions = [...]</li>
+            <li>save_model()</li>
+            <li>get_queryset()</li>
+            <li>format_html()</li>
+            <li>short_description</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Mètodes de ModelAdmin</h4>
+          <ul>
+            <li>message_user()</li>
+            <li>get_queryset()</li>
+            <li>save_model()</li>
+            <li>has_delete_permission()</li>
+            <li>has_add_permission()</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="unit-nav">
+    <a href="unitat-12.html" class="nav-prev">← <span>Unitat 12 — Autenticació i Sessions</span></a>
+    <a href="index.html" class="nav-home">Índex</a>
+    <a href="unitat-14.html" class="nav-next"><span>Unitat 14 — Middleware Personalitzat</span> →</a>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      hljs.highlightAll();
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const code = btn.closest('.code-block').querySelector('code').textContent;
+          navigator.clipboard.writeText(code);
+          btn.textContent = 'Copiat!';
+          setTimeout(() => btn.textContent = 'Copiar', 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

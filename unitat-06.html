@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unitat 06 — Vistes Basades en Funcions (FBV) | Curs Django</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Highlight.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #F4F7FB;
+      --surface:      #FFFFFF;
+      --surface-2:    #EBF0F8;
+      --code-bg:      #F1F5F9;
+      --border:       #C5D3E4;
+      --border-dim:   #DAE3EF;
+      --text:         #1C2E45;
+      --text-muted:   #4E6478;
+      --text-dim:     #96ABBE;
+      --heading:      #091929;
+      --accent:       #1755C4;
+      --accent-glow:  #1755C420;
+      --blue:         #2463EB;
+      --green:        #057A55;
+      --amber:        #92530A;
+      --purple:       #5B21B6;
+      --django-green: #E8F0FD;
+      --exercise-bg:  #F0FDF8;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Lora', serif;
+      min-height: 100vh;
+    }
+
+    .page-wrapper { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+
+    .unit-header {
+      background: linear-gradient(135deg, var(--django-green) 0%, var(--bg) 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 4rem;
+    }
+    .unit-number {
+      font-family: 'Lora', serif;
+      font-weight: 500;
+      font-size: 0.78rem;
+      color: var(--accent);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .unit-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 2.6rem;
+      color: var(--heading);
+      margin: 0.5rem 0;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+    }
+    .unit-subtitle {
+      font-family: 'Lora', serif;
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+    .objectives {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .objectives h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.75rem;
+    }
+    .objectives ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .objectives li {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      padding-left: 1.25rem;
+      position: relative;
+    }
+    .objectives li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-family: 'Syne', sans-serif; }
+
+    .theory-section { padding: 2.5rem 0; border-bottom: 1px solid var(--border-dim); }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      font-size: 1.3rem;
+      color: var(--heading);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .section-icon { color: var(--accent); font-size: 0.8em; }
+    .theory-text { font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.8; color: var(--text); margin-bottom: 1rem; }
+    .concept-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+    .concept-list li { font-family: 'Lora', serif; color: var(--text); line-height: 1.7; padding-left: 1.5rem; position: relative; }
+    .concept-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-family: 'Syne', sans-serif; }
+    .concept-list code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; color: var(--blue); background: var(--surface-2); padding: 0.1em 0.4em; border-radius: 4px; }
+
+    .code-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 1.5rem 0; }
+    .code-header { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .code-lang { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent); font-weight: 600; text-transform: uppercase; }
+    .code-file { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
+    .copy-btn { margin-left: auto; background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-family: 'Syne', sans-serif; font-size: 0.7rem; padding: 0.3rem 0.75rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    pre { padding: 1.25rem; overflow-x: auto; }
+    pre code { font-family: 'JetBrains Mono', monospace !important; font-size: 0.88rem !important; line-height: 1.7 !important; background: transparent !important; }
+
+    .tip-block { border-radius: 10px; padding: 1rem 1.25rem; margin: 1.25rem 0; display: flex; flex-direction: column; gap: 0.4rem; }
+    .tip-block.tip-info   { background:#EBF2FF; border-left: 3px solid var(--blue); }
+    .tip-block.tip-warning{ background:#FEF9C3; border-left: 3px solid var(--amber); }
+    .tip-block.tip-note   { background:#F5F3FF; border-left: 3px solid var(--purple); }
+    .tip-prefix { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+    .tip-block.tip-info    .tip-prefix { color: var(--blue); }
+    .tip-block.tip-warning .tip-prefix { color: var(--amber); }
+    .tip-block.tip-note    .tip-prefix { color: var(--purple); }
+    .tip-block p { font-family: 'Lora', serif; font-size: 0.95rem; color: var(--text); line-height: 1.65; margin: 0; }
+
+    .badge { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; background: var(--surface-2); border: 1px solid var(--border); color: var(--blue); padding: 0.15em 0.5em; border-radius: 4px; }
+    .badge-shell { color: var(--amber); }
+    .badge-new   { color: var(--green); border-color: #6EE7B7; background: var(--exercise-bg); }
+
+    .exercise-block { background: var(--exercise-bg); border: 1px solid #6EE7B7; border-radius: 16px; overflow: hidden; margin: 2rem 0; }
+    .exercise-header { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.5rem; background: #ECFDF5; border-bottom: 1px solid #A7F3D0; }
+    .exercise-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; }
+    .exercise-tag { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #057A55; background: #ECFDF5; border: 1px solid #6EE7B7; padding: 0.2rem 0.6rem; border-radius: 20px; }
+    .exercise-body { padding: 1.5rem; }
+    .exercise-title { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 1.1rem; color: var(--heading); margin-bottom: 0.75rem; }
+    .exercise-context { font-family: 'Lora', serif; color: var(--text); line-height: 1.7; margin-bottom: 1.25rem; }
+    .exercise-tasks h4 { font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
+    .exercise-tasks ol { padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .exercise-tasks li { font-family: 'Lora', serif; color: var(--text); line-height: 1.6; }
+    .exercise-tip { display: flex; gap: 0.5rem; align-items: flex-start; background: #FEF9E7; border: 1px solid #FCD34D; border-radius: 8px; padding: 0.75rem 1rem; margin: 1rem 0; font-family: 'Lora', serif; font-size: 0.95rem; color: var(--amber); }
+    .exercise-result { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px dashed #6EE7B7; }
+    .exercise-result h4 { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+    .exercise-result p { font-family: 'Lora', serif; color: var(--text-muted); font-size: 0.95rem; }
+
+    .summary-section { padding: 2.5rem 0; }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.25rem; }
+    .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; }
+    .summary-card h4 { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
+    .summary-card ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .summary-card li { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--text-muted); }
+    .summary-card li span { color: var(--blue); }
+
+    .unit-nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 4rem; border-top: 1px solid var(--border); margin-top: 3rem; }
+    .unit-nav a { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .unit-nav a:hover { color: var(--accent); }
+    .nav-home { font-size: 0.8rem !important; color: var(--text-dim) !important; border: 1px solid var(--border); padding: 0.4rem 1rem; border-radius: 20px; }
+    .nav-home:hover { border-color: var(--accent) !important; }
+
+    .solution-spoiler { margin-top:1rem; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    .solution-spoiler summary { cursor:pointer; padding:0.875rem 1.25rem; background:var(--surface-2); font-family:'Syne',sans-serif; font-size:0.85rem; font-weight:600; color:var(--accent); user-select:none; list-style:none; display:flex; align-items:center; gap:0.5rem; transition:background 0.2s; }
+    .solution-spoiler summary::marker,.solution-spoiler summary::-webkit-details-marker{display:none;}
+    .solution-spoiler summary:hover{background:#EBF2FF;}
+    .solution-spoiler[open] summary{border-bottom:1px solid var(--border);}
+    .solution-body .code-block{margin:0;border:none;border-radius:0;}
+  </style>
+</head>
+<body>
+
+  <header class="unit-header">
+    <div class="page-wrapper">
+      <p class="unit-number">Unitat 06 · Curs de Django</p>
+      <h1 class="unit-title">Vistes Basades en Funcions</h1>
+      <p class="unit-subtitle">La forma més directa de respondre a peticions HTTP: una funció Python que rep un request i retorna una response.</p>
+      <div class="objectives">
+        <h3>En aquesta unitat aprendràs:</h3>
+        <ul>
+          <li>Entendre l'objecte request i tots els seus atributs útils</li>
+          <li>Usar render(), redirect() i get_object_or_404() correctament</li>
+          <li>Implementar un CRUD complet amb FBV per al model Llibre</li>
+          <li>Protegir vistes amb decoradors i retornar respostes JSON</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-wrapper">
+
+    <!-- SECCIÓ 1 -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        La funció vista i l'objecte request
+      </h2>
+      <p class="theory-text">
+        Tota vista Django és, en essència, un callable que rep un objecte <code>HttpRequest</code> i retorna un objecte <code>HttpResponse</code>. En les vistes basades en funcions (FBV), aquest callable és literalment una funció Python. La simplicitat és el seu major avantatge: és fàcil llegir-les, depurar-les i testejar-les.
+      </p>
+      <p class="theory-text">
+        L'objecte <code>request</code> conté tota la informació de la petició entrant. Saber quins atributs ofereix és fonamental per escriure vistes correctes:
+      </p>
+      <ul class="concept-list">
+        <li><code>request.method</code> — cadena amb el mètode HTTP: <code>'GET'</code>, <code>'POST'</code>, <code>'PUT'</code>, <code>'DELETE'</code></li>
+        <li><code>request.GET</code> — diccionari amb els paràmetres de la query string (<code>?cerca=django</code>)</li>
+        <li><code>request.POST</code> — diccionari amb les dades del formulari enviat per POST</li>
+        <li><code>request.FILES</code> — fitxers pujats via formulari multipart</li>
+        <li><code>request.user</code> — l'usuari autenticat (o <code>AnonymousUser</code> si no ho està)</li>
+        <li><code>request.session</code> — diccionari persistent per a la sessió de l'usuari</li>
+        <li><code>request.META</code> — capçaleres HTTP i variables d'entorn del servidor</li>
+        <li><code>request.body</code> — cos de la petició en bytes (útil per JSON via <code>json.loads(request.body)</code>)</li>
+        <li><code>request.path</code> — la ruta URL de la petició actual (p.ex. <code>/books/3/</code>)</li>
+      </ul>
+
+      <p class="theory-text">
+        Les tres funcions d'ajuda que usaràs en el 90% de les vistes:
+      </p>
+      <ul class="concept-list">
+        <li><code>render(request, template, context)</code> — renderitza un template amb el context donat i retorna un <code>HttpResponse</code></li>
+        <li><code>redirect(url_o_vista)</code> — retorna un <code>HttpResponseRedirect</code> (codi 302); accepta URL, nom de vista o objecte amb <code>get_absolute_url()</code></li>
+        <li><code>get_object_or_404(Model, **kwargs)</code> — com <code>.get()</code> però llança un 404 automàtic si no existeix; evita blocs try/except repetitius</li>
+      </ul>
+
+      <div class="tip-block tip-info">
+        <span class="tip-prefix">📌 Nota</span>
+        <p>El patró <code>if request.method == 'POST':</code> dins d'una única funció és la manera idiomàtica Django d'unificar la vista de GET (mostrar formulari) i POST (processar formulari) en un sol lloc.</p>
+      </div>
+    </section>
+
+    <!-- CODI 1: CRUD COMPLET -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">books/views.py — CRUD complet amb FBV</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.views.decorators.http import require_http_methods
+
+from .models import Llibre, Autor
+from .forms import LlibreForm
+
+
+def llistar_llibres(request):
+    """Mostra tots els llibres; permet filtrar per títol via query string."""
+    cerca = request.GET.get('cerca', '')  # ?cerca=quijote → 'quijote' o ''
+
+    llibres = Llibre.objects.select_related('autor').order_by('titol')
+    if cerca:
+        llibres = llibres.filter(titol__icontains=cerca)
+
+    return render(request, 'books/llista.html', {
+        'llibres': llibres,
+        'cerca': cerca,
+    })
+
+
+def detall_llibre(request, pk):
+    """Mostra el detall d'un llibre o retorna 404 si no existeix."""
+    # get_object_or_404 és equivalent a Llibre.objects.get(pk=pk)
+    # però retorna automàticament una pàgina 404 si no es troba.
+    llibre = get_object_or_404(Llibre, pk=pk)
+    return render(request, 'books/detall.html', {'llibre': llibre})
+
+
+@login_required  # Redirigeix a /accounts/login/ si no estàs autenticat
+def crear_llibre(request):
+    """Mostra el formulari (GET) o processa la creació (POST)."""
+    if request.method == 'POST':
+        form = LlibreForm(request.POST)
+        if form.is_valid():
+            llibre = form.save()
+            # Missatge flash que es mostra a la propera pàgina
+            messages.success(request, f'Llibre "{llibre.titol}" creat correctament.')
+            return redirect('books:detall', pk=llibre.pk)
+    else:
+        # GET: mostrem el formulari buit
+        form = LlibreForm()
+
+    return render(request, 'books/formulari.html', {'form': form, 'accio': 'Crear'})
+
+
+@login_required
+def actualitzar_llibre(request, pk):
+    """Actualitza un llibre existent."""
+    llibre = get_object_or_404(Llibre, pk=pk)
+
+    if request.method == 'POST':
+        # instance=llibre fa que form.save() actualitzi, no creï
+        form = LlibreForm(request.POST, instance=llibre)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Llibre actualitzat.')
+            return redirect('books:detall', pk=pk)
+    else:
+        # GET: formulari pre-emplenat amb les dades actuals
+        form = LlibreForm(instance=llibre)
+
+    return render(request, 'books/formulari.html', {
+        'form': form,
+        'llibre': llibre,
+        'accio': 'Actualitzar',
+    })
+
+
+@login_required
+@require_http_methods(['POST'])  # Rebutja GET, PUT, etc. amb 405 Method Not Allowed
+def esborrar_llibre(request, pk):
+    """Esborra un llibre. Només accepta POST per seguretat."""
+    llibre = get_object_or_404(Llibre, pk=pk)
+    titol = llibre.titol
+    llibre.delete()
+    messages.warning(request, f'Llibre "{titol}" esborrat.')
+    return redirect('books:llista')
+</code></pre>
+    </div>
+
+    <!-- SECCIÓ 2 -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Decoradors, sessions i respostes JSON
+      </h2>
+      <p class="theory-text">
+        Els decoradors permeten afegir comportament a les vistes sense modificar-ne el cos. Django inclou una col·lecció de decoradors molt útils al mòdul <code>django.contrib.auth.decorators</code> i <code>django.views.decorators.http</code>.
+      </p>
+      <ul class="concept-list">
+        <li><code>@login_required</code> — redirigeix a <code>settings.LOGIN_URL</code> si l'usuari no està autenticat; accepta <code>login_url='/acces/'</code> per personalitzar-ho</li>
+        <li><code>@require_http_methods(['GET', 'POST'])</code> — llença 405 si el mètode no és als permesos; alternativa: <code>@require_GET</code>, <code>@require_POST</code></li>
+        <li><code>@permission_required('books.add_llibre')</code> — comprova si l'usuari té el permís indicat</li>
+        <li><code>@cache_page(60 * 15)</code> — desa la resposta en memòria cau durant 15 minuts</li>
+      </ul>
+
+      <p class="theory-text">
+        Per a APIs lleugeres sense DRF, <code>JsonResponse</code> és tot el que necessites. Hereta d'<code>HttpResponse</code> però serialitza automàticament un diccionari a JSON i estableix el <code>Content-Type: application/json</code>.
+      </p>
+      <ul class="concept-list">
+        <li><code>JsonResponse({'ok': True})</code> — resposta JSON simple</li>
+        <li><code>JsonResponse({'error': 'No trobat'}, status=404)</code> — amb codi d'estat personalitzat</li>
+        <li><code>JsonResponse(list(qs.values()), safe=False)</code> — per serialitzar llistes (cal <code>safe=False</code>)</li>
+        <li><code>request.session['clau'] = valor</code> — desa dades a la sessió de l'usuari</li>
+        <li><code>request.session.get('clau', default)</code> — llegeix de la sessió (com un diccionari)</li>
+      </ul>
+
+      <div class="tip-block tip-warning">
+        <span class="tip-prefix">⚠️ Seguretat</span>
+        <p>Quan parseges <code>request.body</code> com a JSON, envolta-ho sempre en un bloc <code>try/except json.JSONDecodeError</code>. Un cos mal format pot causar un 500 si no ho gestiones.</p>
+      </div>
+    </section>
+
+    <!-- CODI 2: JSON + SESSIÓ -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">books/views.py — API JSON i ús de sessió</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">import json
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+
+from .models import Llibre
+
+
+def api_llibres(request):
+    """Endpoint que retorna la llista de llibres en format JSON."""
+    # values() retorna QuerySet de dicts, que JsonResponse pot serialitzar
+    llibres = list(
+        Llibre.objects.select_related('autor')
+        .values('id', 'titol', 'isbn', 'disponible', 'autor__nom')
+    )
+    # safe=False és obligatori quan el valor arrel és una llista
+    return JsonResponse({'count': len(llibres), 'results': llibres}, safe=False)
+
+
+@require_http_methods(['POST'])
+def api_cerca(request):
+    """Cerca llibres a partir d'un JSON al cos de la petició.
+
+    Espera: {"terme": "django"}
+    Retorna: {"count": N, "results": [...]}
+    """
+    try:
+        dades = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'JSON invàlid al cos de la petició'}, status=400)
+
+    terme = dades.get('terme', '').strip()
+    if not terme:
+        return JsonResponse({'error': 'Cal enviar el camp "terme"'}, status=422)
+
+    resultats = list(
+        Llibre.objects.filter(titol__icontains=terme).values('id', 'titol')
+    )
+    return JsonResponse({'count': len(resultats), 'results': resultats})
+
+
+def afegir_a_llista_desitjos(request, pk):
+    """Guarda l'id d'un llibre a la sessió de l'usuari."""
+    # La sessió és persistent entre peticions del mateix navegador
+    llista = request.session.get('desitjos', [])
+
+    if pk not in llista:
+        llista.append(pk)
+        # Hem de reassignar la llista perquè Django detecti el canvi
+        request.session['desitjos'] = llista
+        return JsonResponse({'afegit': True, 'total': len(llista)})
+
+    return JsonResponse({'afegit': False, 'total': len(llista)})
+
+
+def mostrar_llista_desitjos(request):
+    """Mostra els llibres desats a la sessió."""
+    ids = request.session.get('desitjos', [])
+    llibres = Llibre.objects.filter(pk__in=ids)
+    return render(request, 'books/desitjos.html', {'llibres': llibres})
+</code></pre>
+    </div>
+
+    <div class="tip-block tip-note">
+      <span class="tip-prefix">🔮 Nota avançada</span>
+      <p>La sessió de Django per defecte es desa a la base de dades (taula <code>django_session</code>). Pots canviar el backend a Redis o a cookies signades ajustant <code>SESSION_ENGINE</code> a <code>settings.py</code>. Per a producció, Redis és l'opció recomanada.</p>
+    </div>
+
+    <!-- EXERCICI -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Implementar 4 vistes FBV per a bibliapp</h3>
+        <p class="exercise-context">
+          Ara que la biblioteca té models i migracions, cal que els lectors puguin veure els llibres disponibles i que els bibliotecaris puguin registrar i esborrar préstecs. Implementaràs quatre vistes FBV completes.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Implementar <code>llistar_llibres(request)</code>: mostra tots els llibres, permet filtrar per <code>?cerca=</code> i <code>?disponible=1</code>.</li>
+            <li>Implementar <code>detall_llibre(request, pk)</code>: mostra el detall amb l'historial de préstecs associats.</li>
+            <li>Implementar <code>crear_prestec(request, pk)</code> decorada amb <code>@login_required</code>: registra un nou préstec per al llibre indicat i el marca com a no disponible.</li>
+            <li>Implementar <code>esborrar_prestec(request, pk)</code> decorada amb <code>@login_required @require_http_methods(['POST'])</code>: esborra el préstec i torna a marcar el llibre com a disponible.</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">Codi inicial — loans/views.py</span>
+          </div>
+          <pre><code class="language-python">from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
+from django.contrib import messages
+
+from books.models import Llibre
+from .models import Prestec
+
+
+def llistar_llibres(request):
+    # TODO: Obtenir paràmetres 'cerca' i 'disponible' de request.GET
+    # TODO: Filtrar el QuerySet de Llibre segons els paràmetres
+    # TODO: Retornar render amb context {'llibres': ..., 'cerca': ..., 'filtrat': ...}
+    pass
+
+
+def detall_llibre(request, pk):
+    # TODO: Usar get_object_or_404 per obtenir el Llibre
+    # TODO: Obtenir els préstecs relacionats (prestecs.all())
+    # TODO: Retornar render amb context {'llibre': ..., 'prestecs': ...}
+    pass
+
+
+@login_required
+def crear_prestec(request, pk):
+    # TODO: Obtenir el Llibre amb get_object_or_404
+    # TODO: Si és POST:
+    #   - Comprovar que el llibre està disponible
+    #   - Crear Prestec(llibre=llibre, lector=request.user, ...)
+    #   - Actualitzar llibre.disponible = False i desar
+    #   - Afegir missatge d'èxit i redirigir
+    # TODO: Si és GET, mostrar formulari de confirmació
+    pass
+
+
+@login_required
+@require_http_methods(['POST'])
+def esborrar_prestec(request, pk):
+    # TODO: Obtenir el Prestec amb get_object_or_404
+    # TODO: Guardar referència al llibre associat
+    # TODO: Esborrar el préstec
+    # TODO: Marcar el llibre com a disponible i desar
+    # TODO: Afegir missatge i redirigir a la llista
+    pass
+</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Pista: Per marcar el llibre com a no disponible eficientment, usa <code>Llibre.objects.filter(pk=pk).update(disponible=False)</code> en lloc de <code>llibre.save()</code> per evitar race conditions.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>
+            La llista de llibres filtra correctament per cerca i disponibilitat. Accedir a <code>/books/1/</code> mostra el detall amb préstecs. Intentar crear un préstec sense autenticar redirigeix al login. Enviar POST a <code>/prestecs/1/esborrar/</code> esborra el préstec i torna a marcar el llibre com a disponible. Un GET a l'URL d'esborrar retorna 405.
+          </p>
+        </div>
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa</span><button class="copy-btn">Copiar</button></div>
+              <pre><code class="language-python"># books/views.py
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.views.decorators.http import require_http_methods
+from .models import Llibre, Prestec
+from .forms import PrestecForm
+
+@login_required
+def llistar_llibres(request):
+    disponible = request.GET.get('disponible')
+    qs = Llibre.objects.select_related('autor')
+    if disponible == 'si':
+        qs = qs.filter(disponible=True)
+    elif disponible == 'no':
+        qs = qs.filter(disponible=False)
+    return render(request, 'books/llistar_llibres.html', {'llibres': qs})
+
+@login_required
+def detall_llibre(request, pk):
+    llibre = get_object_or_404(Llibre, pk=pk)
+    return render(request, 'books/detall_llibre.html', {'llibre': llibre})
+
+@login_required
+def crear_prestec(request, llibre_pk):
+    llibre = get_object_or_404(Llibre, pk=llibre_pk, disponible=True)
+    if request.method == 'POST':
+        form = PrestecForm(request.POST)
+        if form.is_valid():
+            prestec = form.save(commit=False)
+            prestec.llibre = llibre
+            prestec.lector = request.user.lector
+            prestec.save()
+            messages.success(request, f'Préstec creat per "{llibre.titol}"')
+            return redirect('books:detall_llibre', pk=llibre.pk)
+    else:
+        form = PrestecForm()
+    return render(request, 'books/crear_prestec.html', {'form': form, 'llibre': llibre})
+
+@login_required
+@require_http_methods(["POST"])
+def esborrar_prestec(request, pk):
+    prestec = get_object_or_404(Prestec, pk=pk, lector=request.user.lector)
+    titol = prestec.llibre.titol
+    prestec.delete()
+    messages.warning(request, f'Préstec de "{titol}" eliminat.')
+    return redirect('books:llistar_llibres')</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- EXERCICI 2 -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic 2</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Endpoint JSON d'estadístiques</h3>
+        <p class="exercise-context">
+          Les vistes Django poden retornar JSON en lloc d'HTML. Crearem un endpoint que retorni estadístiques de la biblioteca en format JSON per a ús d'una API interna.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Crea la vista <code>estadistiques_json</code> decorada amb <code>@login_required</code>.</li>
+            <li>Retorna <code>JsonResponse</code> amb: <code>total_llibres</code>, <code>llibres_disponibles</code>, <code>total_prestecs_actius</code>, <code>top_3_autors</code>.</li>
+            <li>Afegeix la URL <code>/api/estadistiques/</code>.</li>
+            <li>Testa-la amb el navegador o curl.</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">Codi inicial — books/views.py</span>
+          </div>
+          <pre><code class="language-python">from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count
+from .models import Llibre, Prestec, Autor
+
+@login_required
+def estadistiques_json(request):
+    # TODO: Calcula total_llibres (int)
+    # TODO: Calcula llibres_disponibles (int)
+    # TODO: Calcula prestecs_actius (int)
+    # TODO: Obté top 3 autors per nombre de llibres
+    # TODO: Retorna JsonResponse amb les dades
+    pass</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Pista: Usa <code>.count()</code> per totals i <code>.annotate(Count('llibres')).order_by('-total')[:3]</code> per al top.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>GET <code>/api/estadistiques/</code> retorna JSON amb les 4 claus indicades.</p>
+        </div>
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa</span><button class="copy-btn">Copiar</button></div>
+              <pre><code class="language-python">from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count
+from .models import Llibre, Prestec, Autor
+
+@login_required
+def estadistiques_json(request):
+    top_autors = list(
+        Autor.objects.annotate(total=Count('llibres'))
+        .order_by('-total')[:3]
+        .values('nom', 'cognoms', 'total')
+    )
+    dades = {
+        'total_llibres': Llibre.objects.count(),
+        'llibres_disponibles': Llibre.objects.filter(disponible=True).count(),
+        'prestecs_actius': Prestec.objects.filter(estat='actiu').count(),
+        'top_autors': top_autors,
+    }
+    return JsonResponse(dades)
+
+# books/urls.py — afegir:
+path('api/estadistiques/', views.estadistiques_json, name='estadistiques_json'),</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- RESUM -->
+    <section class="summary-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Resum de la unitat
+      </h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h4>Funcions d'ajuda</h4>
+          <ul>
+            <li><span>render()</span> — template → HttpResponse</li>
+            <li><span>redirect()</span> — 302 a URL o vista</li>
+            <li><span>get_object_or_404()</span> — get() + 404</li>
+            <li><span>JsonResponse()</span> — dict → JSON</li>
+            <li><span>HttpResponse()</span> — resposta bàsica</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Decoradors clau</h4>
+          <ul>
+            <li><span>@login_required</span> — autenticació</li>
+            <li><span>@require_http_methods</span> — mètodes</li>
+            <li><span>@require_POST</span> — només POST</li>
+            <li><span>@permission_required</span> — permisos</li>
+            <li><span>@cache_page</span> — memòria cau</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="unit-nav">
+    <a href="unitat-05.html" class="nav-prev">← <span>Unitat 05 — Migracions</span></a>
+    <a href="index.html" class="nav-home">Índex</a>
+    <a href="unitat-07.html" class="nav-next"><span>Unitat 07 — URLs i Routing</span> →</a>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      hljs.highlightAll();
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const code = btn.closest('.code-block').querySelector('code').textContent;
+          navigator.clipboard.writeText(code);
+          btn.textContent = 'Copiat!';
+          setTimeout(() => btn.textContent = 'Copiar', 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

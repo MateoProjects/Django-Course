@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unitat 03 — Models: Camps i Relacions | Curs Django</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #F4F7FB;
+      --surface:      #FFFFFF;
+      --surface-2:    #EBF0F8;
+      --code-bg:      #F1F5F9;
+      --border:       #C5D3E4;
+      --border-dim:   #DAE3EF;
+      --text:         #1C2E45;
+      --text-muted:   #4E6478;
+      --text-dim:     #96ABBE;
+      --heading:      #091929;
+      --accent:       #1755C4;
+      --accent-glow:  #1755C420;
+      --blue:         #2463EB;
+      --green:        #057A55;
+      --amber:        #92530A;
+      --purple:       #5B21B6;
+      --django-green: #E8F0FD;
+      --exercise-bg:  #F0FDF8;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'Lora', serif; min-height: 100vh; }
+    .page-wrapper { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+
+    .unit-header {
+      background: linear-gradient(135deg, var(--django-green) 0%, var(--bg) 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 4rem;
+    }
+    .unit-number { font-family: 'Lora', serif; font-weight: 500; font-size: 0.78rem; color: var(--accent); letter-spacing: 0.14em; text-transform: uppercase; }
+    .unit-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 2.6rem; color: var(--heading); margin: 0.5rem 0; line-height: 1.2; letter-spacing: -0.01em; }
+    .unit-subtitle { font-family: 'Lora', serif; font-size: 1.05rem; color: var(--text-muted); margin-bottom: 2rem; font-style: italic; }
+    .objectives { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-top: 1.5rem; }
+    .objectives h3 { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.75rem; }
+    .objectives ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .objectives li { font-family: 'Lora', serif; font-size: 0.95rem; color: var(--text); padding-left: 1.25rem; position: relative; }
+    .objectives li::before { content: '✓'; position: absolute; left: 0; color: var(--green); }
+
+    .theory-section { padding: 2.5rem 0; border-bottom: 1px solid var(--border-dim); }
+    .section-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 1.3rem; color: var(--heading); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; }
+    .section-icon { color: var(--accent); font-size: 0.8em; }
+    .theory-text { font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.8; color: var(--text); margin-bottom: 1rem; }
+    .concept-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+    .concept-list li { font-family: 'Lora', serif; color: var(--text); line-height: 1.7; padding-left: 1.5rem; position: relative; }
+    .concept-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-family: 'Syne', sans-serif; }
+    .concept-list code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; color: var(--blue); background: var(--surface-2); padding: 0.1em 0.4em; border-radius: 4px; }
+
+    .code-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 1.5rem 0; }
+    .code-header { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .code-lang { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent); font-weight: 600; text-transform: uppercase; }
+    .code-file { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
+    .copy-btn { margin-left: auto; background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-family: 'Syne', sans-serif; font-size: 0.7rem; padding: 0.3rem 0.75rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    pre { padding: 1.25rem; overflow-x: auto; }
+    pre code { font-family: 'JetBrains Mono', monospace !important; font-size: 0.88rem !important; line-height: 1.7 !important; background: transparent !important; }
+
+    .tip-block { border-radius: 10px; padding: 1rem 1.25rem; margin: 1.25rem 0; display: flex; flex-direction: column; gap: 0.4rem; }
+    .tip-block.tip-info    { background:#EBF2FF; border-left: 3px solid var(--blue); }
+    .tip-block.tip-warning { background:#FEF9C3; border-left: 3px solid var(--amber); }
+    .tip-block.tip-note    { background:#F5F3FF; border-left: 3px solid var(--purple); }
+    .tip-prefix { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+    .tip-block.tip-info    .tip-prefix { color: var(--blue); }
+    .tip-block.tip-warning .tip-prefix { color: var(--amber); }
+    .tip-block.tip-note    .tip-prefix { color: var(--purple); }
+    .tip-block p { font-family: 'Lora', serif; font-size: 0.95rem; color: var(--text); line-height: 1.65; margin: 0; }
+    .tip-block code { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; color: var(--blue); background: var(--surface-2); padding: 0.1em 0.35em; border-radius: 3px; }
+
+    .badge { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; background: var(--surface-2); border: 1px solid var(--border); color: var(--blue); padding: 0.15em 0.5em; border-radius: 4px; }
+    .badge-shell { color: var(--amber); }
+    .badge-new   { color: var(--green); border-color: #6EE7B7; background: var(--exercise-bg); }
+
+    /* Taula de camps */
+    .fields-table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.88rem; }
+    .fields-table th { font-family: 'Syne', sans-serif; font-size: 0.75rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; padding: 0.6rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border); text-align: left; }
+    .fields-table td { font-family: 'JetBrains Mono', monospace; color: var(--text-muted); padding: 0.55rem 1rem; border-bottom: 1px solid var(--border-dim); vertical-align: top; }
+    .fields-table td:first-child { color: var(--blue); }
+    .fields-table tr:last-child td { border-bottom: none; }
+    .fields-table tr:hover td { background: var(--surface); }
+
+    /* Diagrama de relacions */
+    .relation-diagram { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin: 1.25rem 0; }
+    .rel-model { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; }
+    .rel-model-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--heading); margin-bottom: 0.4rem; }
+    .rel-model-field { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-muted); display: block; }
+    .rel-connector { text-align: center; padding: 0 1rem; }
+    .rel-type { font-family: 'Syne', sans-serif; font-size: 0.7rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.25rem; }
+    .rel-arrow { font-size: 1.5rem; color: var(--border); }
+
+    .exercise-block { background: var(--exercise-bg); border: 1px solid #6EE7B7; border-radius: 16px; overflow: hidden; margin: 2rem 0; }
+    .exercise-header { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.5rem; background: #ECFDF5; border-bottom: 1px solid #A7F3D0; }
+    .exercise-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; }
+    .exercise-tag { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #057A55; background: #ECFDF5; border: 1px solid #6EE7B7; padding: 0.2rem 0.6rem; border-radius: 20px; }
+    .exercise-body { padding: 1.5rem; }
+    .exercise-title { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 1.1rem; color: var(--heading); margin-bottom: 0.75rem; }
+    .exercise-context { font-family: 'Lora', serif; color: var(--text); line-height: 1.7; margin-bottom: 1.25rem; }
+    .exercise-tasks h4 { font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
+    .exercise-tasks ol { padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .exercise-tasks li { font-family: 'Lora', serif; color: var(--text); line-height: 1.6; }
+    .exercise-tip { display: flex; gap: 0.5rem; align-items: flex-start; background: #FEF9E7; border: 1px solid #FCD34D; border-radius: 8px; padding: 0.75rem 1rem; margin: 1rem 0; font-family: 'Lora', serif; font-size: 0.95rem; color: var(--amber); }
+    .exercise-result { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px dashed #6EE7B7; }
+    .exercise-result h4 { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+    .exercise-result p { font-family: 'Lora', serif; color: var(--text-muted); font-size: 0.95rem; }
+
+    .summary-section { padding: 2.5rem 0; }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.25rem; }
+    .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+    .summary-card h4 { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
+    .summary-card ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .summary-card li { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--text-muted); }
+
+    .unit-nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 4rem; border-top: 1px solid var(--border); margin-top: 3rem; }
+    .unit-nav a { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .unit-nav a:hover { color: var(--accent); }
+    .nav-home { font-size: 0.8rem !important; color: var(--text-dim) !important; border: 1px solid var(--border); padding: 0.4rem 1rem; border-radius: 20px; }
+    .nav-home:hover { border-color: var(--accent) !important; }
+
+    /* === SPOILER DE SOLUCIÓ === */
+    .solution-spoiler {
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .solution-spoiler summary {
+      cursor: pointer;
+      padding: 0.875rem 1.25rem;
+      background: var(--surface-2);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent);
+      user-select: none;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.2s;
+    }
+    .solution-spoiler summary::marker,
+    .solution-spoiler summary::-webkit-details-marker { display: none; }
+    .solution-spoiler summary:hover { background: #EBF2FF; }
+    .solution-spoiler[open] summary { border-bottom: 1px solid var(--border); }
+    .solution-body .code-block { margin: 0; border: none; border-radius: 0; }
+  </style>
+</head>
+<body>
+
+  <header class="unit-header">
+    <div class="page-wrapper">
+      <p class="unit-number">Unitat 03 · Curs de Django</p>
+      <h1 class="unit-title">Models — Camps i Relacions</h1>
+      <p class="unit-subtitle">La capa de dades de Django: com definir l'estructura del món real en classes Python.</p>
+      <div class="objectives">
+        <h3>En aquesta unitat aprendràs:</h3>
+        <ul>
+          <li>Definir models amb <code>models.Model</code> i els camps principals</li>
+          <li>Opcions de camp: blank, null, default, choices, auto_now_add</li>
+          <li>Relacions entre models: ForeignKey, OneToOneField, ManyToManyField</li>
+          <li>La classe Meta i el mètode __str__</li>
+          <li>Crear camps personalitzats subclassant Field</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-wrapper">
+
+    <!-- SECCIÓ 1: Camps principals -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Camps principals de Django
+      </h2>
+      <p class="theory-text">
+        Un model Django és una classe Python que hereta de <code>models.Model</code>. Cada atribut
+        de classe que sigui una instància d'un <code>Field</code> es mapeja a una columna de la base
+        de dades. Django genera automàticament el camp <code>id</code> (clau primària) per a cada model
+        tret que n'especifiquis un de propi amb <code>primary_key=True</code>.
+      </p>
+
+      <table class="fields-table">
+        <thead>
+          <tr>
+            <th>Camp</th>
+            <th>SQL equivalent</th>
+            <th>Ús típic</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>CharField(max_length=n)</td><td>VARCHAR(n)</td><td>Noms, títols, codis</td></tr>
+          <tr><td>TextField()</td><td>TEXT</td><td>Descripcions llargues, contingut HTML</td></tr>
+          <tr><td>IntegerField()</td><td>INTEGER</td><td>Quantitats, comptadors, anys</td></tr>
+          <tr><td>PositiveIntegerField()</td><td>INTEGER ≥ 0</td><td>Edats, preus en cèntims</td></tr>
+          <tr><td>FloatField()</td><td>FLOAT</td><td>Valors decimals aproximats</td></tr>
+          <tr><td>DecimalField(max_digits, decimal_places)</td><td>DECIMAL</td><td>Preus, puntuacions exactes</td></tr>
+          <tr><td>BooleanField()</td><td>BOOLEAN</td><td>Flags, estat actiu/inactiu</td></tr>
+          <tr><td>DateField()</td><td>DATE</td><td>Dates de naixement, publicació</td></tr>
+          <tr><td>DateTimeField()</td><td>DATETIME</td><td>Timestamps de creació, modificació</td></tr>
+          <tr><td>EmailField()</td><td>VARCHAR(254)</td><td>Adreces de correu (amb validació)</td></tr>
+          <tr><td>URLField()</td><td>VARCHAR(200)</td><td>Adreces web</td></tr>
+          <tr><td>SlugField()</td><td>VARCHAR(50)</td><td>URLs amigables: "el-quixot"</td></tr>
+          <tr><td>JSONField()</td><td>JSON / JSONB</td><td>Dades estructurades flexibles</td></tr>
+          <tr><td>FileField(upload_to=...)</td><td>VARCHAR</td><td>Ruta a fitxer pujat</td></tr>
+          <tr><td>ImageField(upload_to=...)</td><td>VARCHAR</td><td>Ruta a imatge pujada (valida format)</td></tr>
+          <tr><td>UUIDField()</td><td>UUID / CHAR(32)</td><td>Identificadors únics no seqüencials</td></tr>
+        </tbody>
+      </table>
+
+      <p class="theory-text">Les opcions més importants que accepten quasi tots els camps:</p>
+      <ul class="concept-list">
+        <li><code>blank=True</code> — el camp pot estar buit en formularis de Django (validació de formulari)</li>
+        <li><code>null=True</code> — la columna pot contenir NULL a la base de dades; per a CharField usa <code>blank=True</code> en lloc de <code>null=True</code></li>
+        <li><code>default=valor</code> — valor per defecte si no s'especifica; pot ser un callable (<code>default=list</code>)</li>
+        <li><code>unique=True</code> — restricció d'unicitat a la base de dades</li>
+        <li><code>db_index=True</code> — crea un índex a la base de dades per a cerques ràpides</li>
+        <li><code>verbose_name='...'</code> — nom llegible per als formularis i l'admin</li>
+        <li><code>choices=LLISTA</code> — restricció de valors possibles; mostra un select al formulari</li>
+        <li><code>auto_now_add=True</code> — guarda la data/hora en el moment de creació; no es pot modificar</li>
+        <li><code>auto_now=True</code> — actualitza la data/hora en cada <code>save()</code></li>
+      </ul>
+
+      <div class="tip-block tip-warning">
+        <span class="tip-prefix">⚠️ null vs blank</span>
+        <p>Confondre <code>null</code> i <code>blank</code> és un error molt comú. <code>null=True</code> afecta la base de dades (permet NULL). <code>blank=True</code> afecta la validació de Django (permet camp buit en formularis). Per a camps de text (<code>CharField</code>, <code>TextField</code>), usa <code>blank=True</code> i Django guardarà una cadena buida <code>""</code>, no NULL. Reserva <code>null=True</code> per a camps numèrics, dates i relacions opcionals.</p>
+      </div>
+    </section>
+
+    <!-- SECCIÓ 2: Relacions -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Relacions entre Models
+      </h2>
+      <p class="theory-text">
+        Django ofereix tres tipus de camps de relació que es corresponen amb els tres patrons de
+        relació de bases de dades relacionals. Triar el tipus correcte és fonamental per a l'eficiència
+        de les consultes i la integritat de les dades.
+      </p>
+
+      <div class="relation-diagram">
+        <div class="rel-model">
+          <div class="rel-model-name">Llibre</div>
+          <span class="rel-model-field">títol: CharField</span>
+          <span class="rel-model-field">autor: ForeignKey →</span>
+        </div>
+        <div class="rel-connector">
+          <span class="rel-type">N:1</span>
+          <div class="rel-arrow">⟷</div>
+          <span class="rel-type">ForeignKey</span>
+        </div>
+        <div class="rel-model">
+          <div class="rel-model-name">Autor</div>
+          <span class="rel-model-field">nom: CharField</span>
+          <span class="rel-model-field">← llibres (related)</span>
+        </div>
+      </div>
+
+      <ul class="concept-list">
+        <li>
+          <code>ForeignKey(Model, on_delete=...)</code> — relació molts-a-un (N:1). Molts llibres poden tenir un mateix autor.
+          El paràmetre <code>on_delete</code> és obligatori i defineix què passa quan s'esborra el registre relacionat.
+        </li>
+        <li>
+          <code>OneToOneField(Model, on_delete=...)</code> — relació un-a-un (1:1). Un lector té exactament un perfil extès.
+          Útil per a dividir models grans o estendre el model User de Django.
+        </li>
+        <li>
+          <code>ManyToManyField(Model)</code> — relació molts-a-molts (N:M). Un llibre pot tenir múltiples gèneres i un gènere agrupa molts llibres.
+          Django crea automàticament una taula intermèdia.
+        </li>
+        <li>
+          <code>related_name='nom'</code> — nom del accessor invers (de l'autor als seus llibres: <code>autor.llibres.all()</code>).
+          Usa <code>related_name='+'</code> per deshabilitar l'accessor invers.
+        </li>
+        <li>
+          <code>on_delete=CASCADE</code> — quan s'esborra l'autor, s'esborren tots els seus llibres
+        </li>
+        <li>
+          <code>on_delete=PROTECT</code> — impedeix esborrar l'autor si té llibres associats (llança excepció)
+        </li>
+        <li>
+          <code>on_delete=SET_NULL</code> — posa el camp a NULL quan s'esborra el relacionat (requereix <code>null=True</code>)
+        </li>
+        <li>
+          <code>on_delete=SET_DEFAULT</code> — posa el valor per defecte quan s'esborra el relacionat
+        </li>
+      </ul>
+
+      <div class="tip-block tip-info">
+        <span class="tip-prefix">📌 La classe Meta</span>
+        <p>La classe interna <code>Meta</code> controla el comportament del model: <code>ordering</code> defineix l'ordre per defecte de les consultes, <code>verbose_name</code> i <code>verbose_name_plural</code> controlen els noms a l'admin, <code>unique_together</code> i <code>constraints</code> afegeixen restriccions compostes, i <code>indexes</code> crea índexos personalitzats.</p>
+      </div>
+    </section>
+
+    <!-- CODI 1: Models complets de bibliapp -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">books/models.py — models complets de bibliapp</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">from django.db import models
+from django.utils import timezone
+
+
+class Autor(models.Model):
+    """Autor d'un o més llibres de la biblioteca."""
+
+    # choices: tupla de (valor_bd, etiqueta_llegible)
+    NACIONALITAT_CHOICES = [
+        ('CAT', 'Catalunya'),
+        ('ESP', 'Espanya'),
+        ('FRA', 'França'),
+        ('GBR', 'Regne Unit'),
+        ('USA', 'Estats Units'),
+        ('ALT', 'Altra'),
+    ]
+
+    nom        = models.CharField(max_length=100, verbose_name='nom complet')
+    cognoms    = models.CharField(max_length=150)
+    # blank=True: el camp és opcional als formularis
+    biografia  = models.TextField(blank=True, verbose_name='biografia')
+    # null=True + blank=True: camp opcional, guardat com NULL si buit
+    data_naix  = models.DateField(null=True, blank=True, verbose_name='data de naixement')
+    nacionalitat = models.CharField(
+        max_length=3,
+        choices=NACIONALITAT_CHOICES,
+        default='ALT',
+    )
+    # auto_now_add: s'omple sol en la creació, mai es pot canviar manualment
+    creat_el   = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['cognoms', 'nom']           # ordre per defecte a les consultes
+        verbose_name = 'autor'
+        verbose_name_plural = 'autors'
+
+    def __str__(self):
+        return f"{self.cognoms}, {self.nom}"
+
+    def nom_complet(self):
+        """Retorna el nom en format 'Nom Cognom' (ordre natural)."""
+        return f"{self.nom} {self.cognoms}"
+
+
+class Llibre(models.Model):
+    """Exemplar d'un llibre al catàleg de la biblioteca."""
+
+    ESTAT_CHOICES = [
+        ('disponible', 'Disponible'),
+        ('prestat',    'Prestat'),
+        ('reservat',   'Reservat'),
+        ('baixa',      'Baixa'),
+    ]
+
+    titol       = models.CharField(max_length=255)
+    # ForeignKey: molts llibres → un autor
+    # related_name permet accedir als llibres des de l'autor: autor.llibres.all()
+    autor       = models.ForeignKey(
+        Autor,
+        on_delete=models.PROTECT,   # no permet esborrar autors amb llibres
+        related_name='llibres',
+    )
+    isbn        = models.CharField(max_length=13, unique=True)
+    # ManyToMany: un llibre pot tenir múltiples gèneres
+    generes     = models.ManyToManyField(
+        'Genere',
+        blank=True,
+        related_name='llibres',
+    )
+    sinopsi     = models.TextField(blank=True)
+    any_publ    = models.PositiveIntegerField(
+        verbose_name='any de publicació',
+        null=True,
+        blank=True,
+    )
+    pagines     = models.PositiveIntegerField(null=True, blank=True)
+    estat       = models.CharField(
+        max_length=20,
+        choices=ESTAT_CHOICES,
+        default='disponible',
+        db_index=True,   # índex per a cerques freqüents per estat
+    )
+    portada     = models.ImageField(
+        upload_to='portades/%Y/%m/',   # callable amb any i mes per organitzar fitxers
+        null=True,
+        blank=True,
+    )
+    # JSONField: flexibilitat per a metadades variables sense afectar l'esquema
+    metadades   = models.JSONField(default=dict, blank=True)
+    creat_el    = models.DateTimeField(auto_now_add=True)
+    # auto_now: s'actualitza automàticament a cada save()
+    modificat_el = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['titol']
+        verbose_name = 'llibre'
+        verbose_name_plural = 'llibres'
+        # Índex compost per a cerques habituals
+        indexes = [
+            models.Index(fields=['autor', 'estat'], name='idx_autor_estat'),
+        ]
+
+    def __str__(self):
+        return f"{self.titol} ({self.autor.cognoms})"
+
+    def esta_disponible(self):
+        """Comprova si el llibre es pot prestar."""
+        return self.estat == 'disponible'
+
+
+class Genere(models.Model):
+    """Gènere literari (Ficció, Assaig, Poesia, Infantil...)."""
+
+    nom  = models.CharField(max_length=80, unique=True)
+    slug = models.SlugField(max_length=80, unique=True)
+
+    class Meta:
+        ordering = ['nom']
+        verbose_name = 'gènere'
+        verbose_name_plural = 'gèneres'
+
+    def __str__(self):
+        return self.nom
+
+
+class Lector(models.Model):
+    """Usuari de la biblioteca que pot fer préstecs."""
+
+    # OneToOneField: un lector ↔ un usuari Django
+    # Si s'esborra l'usuari, s'esborra el lector (CASCADE)
+    usuari      = models.OneToOneField(
+        'auth.User',              # referència per string per evitar imports circulars
+        on_delete=models.CASCADE,
+        related_name='lector',
+    )
+    telefon     = models.CharField(max_length=20, blank=True)
+    adreca      = models.TextField(blank=True)
+    data_alta   = models.DateField(auto_now_add=True)
+    actiu       = models.BooleanField(default=True)
+    # Límit de préstecs simultanis configurable per lector
+    max_prestecs = models.PositiveIntegerField(default=3)
+
+    class Meta:
+        verbose_name = 'lector'
+        verbose_name_plural = 'lectors'
+
+    def __str__(self):
+        return f"Lector: {self.usuari.get_full_name() or self.usuari.username}"
+
+    def prestecs_actius(self):
+        """Retorna els préstecs actuals sense data de devolució."""
+        return self.prestecs.filter(data_devolucio__isnull=True)
+
+
+class Prestec(models.Model):
+    """Registre d'un préstec d'un llibre a un lector."""
+
+    lector      = models.ForeignKey(
+        Lector,
+        on_delete=models.PROTECT,
+        related_name='prestecs',
+    )
+    llibre      = models.ForeignKey(
+        Llibre,
+        on_delete=models.PROTECT,
+        related_name='prestecs',
+    )
+    data_prestec   = models.DateField(auto_now_add=True)
+    data_limit     = models.DateField(verbose_name='data límit de devolució')
+    # null=True: el préstec és actiu mentre no hi hagi data de devolució
+    data_devolucio = models.DateField(null=True, blank=True)
+    notes          = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['-data_prestec']
+        verbose_name = 'préstec'
+        verbose_name_plural = 'préstecs'
+        # Un lector no pot tenir el mateix llibre dues vegades simultàniament
+        constraints = [
+            models.UniqueConstraint(
+                fields=['lector', 'llibre'],
+                condition=models.Q(data_devolucio__isnull=True),
+                name='uq_prestec_actiu',
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.llibre.titol} → {self.lector} ({self.data_prestec})"
+
+    def esta_actiu(self):
+        """El préstec és actiu si no s'ha retornat."""
+        return self.data_devolucio is None
+
+    def esta_en_retard(self):
+        """El préstec ha superat la data límit sense retornar."""
+        if self.data_devolucio:
+            return False
+        return timezone.now().date() > self.data_limit</code></pre>
+    </div>
+
+    <!-- SECCIÓ 3: Camps personalitzats -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Camps personalitzats
+      </h2>
+      <p class="theory-text">
+        Django permet crear camps a mida subclassant <code>models.Field</code>. Això és útil quan
+        cap camp built-in satisfà la necessitat, com ara transformar automàticament el valor en
+        guardar-lo o llegir-lo, validar un format específic, o encapsular lògica de serialització.
+        El mètode <code>from_db_value</code> transforma en llegir de la base de dades,
+        i <code>get_prep_value</code> transforma en guardar.
+      </p>
+    </section>
+
+    <!-- CODI 2: Camp personalitzat UpperCaseField -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">books/fields.py — camp personalitzat UpperCaseField</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">"""
+Camp personalitzat que guarda el text en majúscules a la base de dades.
+Inspirat en patrons del món real (p. ex. codis ISBN, matrícules, codis país).
+
+Referència avançada: MediNetHub usa EncryptedTextField, que segueix el mateix
+patró però xifra/desxifra el valor amb una clau Fernet.
+"""
+from django.db import models
+
+
+class UpperCaseField(models.CharField):
+    """
+    CharField que converteix automàticament el valor a majúscules.
+
+    Ús:
+        class Pais(models.Model):
+            codi = UpperCaseField(max_length=3)
+            # pais.codi = 'esp' → guardat com 'ESP'
+    """
+
+    # description és el text que apareix als esquemes i a l'admin
+    description = "Text guardat sempre en majúscules"
+
+    def get_prep_value(self, value):
+        """
+        Crida just ABANS de guardar a la base de dades.
+        Aquí és on apliquem la transformació.
+        """
+        value = super().get_prep_value(value)
+        if value is not None:
+            return value.upper()
+        return value
+
+    def from_db_value(self, value, expression, connection):
+        """
+        Crida just DESPRÉS de llegir de la base de dades.
+        En aquest cas ja és majúscules, però podria fer desxifrat, etc.
+        """
+        if value is not None:
+            return value.upper()
+        return value
+
+    def to_python(self, value):
+        """
+        Crida en la deserialització i validació de formularis.
+        """
+        value = super().to_python(value)
+        if value is not None:
+            return value.upper()
+        return value
+
+
+# ── Ús als models ────────────────────────────────────────────────────────
+
+# books/models.py
+from .fields import UpperCaseField
+
+class Autor(models.Model):
+    # El codi de país es guardarà sempre en majúscules: 'cat' → 'CAT'
+    codi_pais = UpperCaseField(max_length=3, default='ALT')
+    # ... resta de camps
+
+
+# ── Camp amb lògica de validació personalitzada ──────────────────────────
+
+class ISBNField(models.CharField):
+    """Camp que valida el format ISBN-13."""
+
+    def __init__(self, *args, **kwargs):
+        # Fixem max_length a 13 per a tots els ISBNField
+        kwargs.setdefault('max_length', 13)
+        super().__init__(*args, **kwargs)
+
+    def validate(self, value, model_instance):
+        super().validate(value, model_instance)
+        # Validació de dígit de control ISBN-13
+        if len(value) != 13 or not value.isdigit():
+            from django.core.exceptions import ValidationError
+            raise ValidationError(
+                f"'{value}' no és un ISBN-13 vàlid (ha de tenir 13 dígits)"
+            )</code></pre>
+    </div>
+
+    <div class="tip-block tip-note">
+      <span class="tip-prefix">🔮 Nota avançada</span>
+      <p>Quan creïs un camp personalitzat, afegeix sempre el mètode <code>deconstruct()</code>
+      si el camp accepta paràmetres propis. Sense ell, les migracions no podran reconstruir
+      correctament el camp. Consulta la documentació de Django sobre "Writing custom model fields".</p>
+    </div>
+
+    <!-- EXERCICI -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Definir els 4 models de bibliapp</h3>
+        <p class="exercise-context">
+          Ara construïm l'esquema de dades complet de <em>bibliapp</em>. Aquests quatre models
+          seran la base de totes les unitats posteriors: consultes ORM, vistes, formularis i API REST
+          treballaran sempre amb <code>Autor</code>, <code>Llibre</code>, <code>Lector</code> i
+          <code>Prestec</code>.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Crea el fitxer <code>books/models.py</code> amb els quatre models complets (Autor, Llibre, Lector, Prestec)</li>
+            <li>Assegura't que <code>Prestec</code> té <code>ForeignKey</code> a <code>Lector</code> i a <code>Llibre</code> amb <code>on_delete=PROTECT</code></li>
+            <li>Afegeix <code>choices</code> a l'estat del <code>Llibre</code> i a la nacionalitat de l'<code>Autor</code></li>
+            <li>Implementa el mètode <code>__str__</code> i almenys un mètode de negoci a cada model</li>
+            <li>Executa <code>makemigrations</code> i <code>migrate</code> per aplicar els canvis</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">books/models.py — completa els TODO</span>
+          </div>
+          <pre><code class="language-python">from django.db import models
+from django.utils import timezone
+
+
+class Autor(models.Model):
+    # TODO: Afegeix camps: nom, cognoms, biografia (opcional), data_naix (opcional)
+    # TODO: Afegeix choices per a nacionalitat
+    # TODO: Afegeix auto_now_add per a creat_el
+    creat_el = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # TODO: Ordena per cognoms i nom
+        pass
+
+    def __str__(self):
+        # TODO: Retorna "Cognoms, Nom"
+        pass
+
+
+class Llibre(models.Model):
+    ESTAT_CHOICES = [
+        # TODO: Defineix els estats: disponible, prestat, reservat, baixa
+    ]
+
+    titol = models.CharField(max_length=255)
+    # TODO: Afegeix ForeignKey a Autor amb on_delete=PROTECT i related_name='llibres'
+    # TODO: Afegeix camp isbn (unique=True)
+    # TODO: Afegeix camp estat amb choices i default='disponible'
+    # TODO: Afegeix camps opcionals: sinopsi, any_publ, pagines
+    creat_el     = models.DateTimeField(auto_now_add=True)
+    modificat_el = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['titol']
+
+    def __str__(self):
+        # TODO: Retorna "Títol (Cognom de l'autor)"
+        pass
+
+    def esta_disponible(self):
+        # TODO: Retorna True si l'estat és 'disponible'
+        pass
+
+
+class Lector(models.Model):
+    # TODO: Afegeix OneToOneField a 'auth.User' amb on_delete=CASCADE
+    telefon   = models.CharField(max_length=20, blank=True)
+    data_alta = models.DateField(auto_now_add=True)
+    actiu     = models.BooleanField(default=True)
+
+    def __str__(self):
+        # TODO: Retorna el nom complet de l'usuari o el username
+        pass
+
+
+class Prestec(models.Model):
+    # TODO: Afegeix ForeignKey a Lector (related_name='prestecs')
+    # TODO: Afegeix ForeignKey a Llibre (related_name='prestecs')
+    data_prestec   = models.DateField(auto_now_add=True)
+    data_limit     = models.DateField()
+    # TODO: Afegeix data_devolucio (null=True, blank=True)
+
+    class Meta:
+        ordering = ['-data_prestec']
+
+    def __str__(self):
+        # TODO: Retorna "Títol del llibre → Nom del lector"
+        pass
+
+    def esta_actiu(self):
+        # TODO: Retorna True si no hi ha data_devolucio
+        pass</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Shell</span>
+            <span class="code-file">Comandes per aplicar els models</span>
+          </div>
+          <pre><code class="language-bash"># Genera les migracions a partir dels models
+python manage.py makemigrations books
+
+# Comprova el SQL que es generarà (sense aplicar)
+python manage.py sqlmigrate books 0001
+
+# Aplica les migracions a la base de dades
+python manage.py migrate
+
+# Comprova l'estat de les migracions
+python manage.py showmigrations books</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Si obtens un error de clau forana circular entre <code>Lector</code> i <code>auth.User</code>, usa la cadena <code>'auth.User'</code> en lloc d'importar la classe directament. Django resoldrà la referència en el moment de construir l'esquema.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p><code>python manage.py showmigrations books</code> mostra <code>[X] 0001_initial</code>.
+          Des del shell de Django (<code>python manage.py shell</code>) pots crear un autor amb
+          <code>Autor.objects.create(nom='Mercè', cognoms='Rodoreda')</code> sense errors.</p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-lang">Python</span>
+                <span class="code-file">Solució completa</span>
+                <button class="copy-btn">Copiar</button>
+              </div>
+              <pre><code class="language-python"># books/models.py
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils.text import slugify
+
+
+class Autor(models.Model):
+    nom = models.CharField(max_length=100)
+    cognoms = models.CharField(max_length=150)
+    nacionalitat = models.CharField(max_length=100, blank=True)
+    data_naixement = models.DateField(null=True, blank=True)
+    biografia = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['cognoms', 'nom']
+        verbose_name_plural = 'autors'
+
+    def __str__(self):
+        return f"{self.cognoms}, {self.nom}"
+
+    @property
+    def nom_complet(self):
+        return f"{self.nom} {self.cognoms}"
+
+
+class Llibre(models.Model):
+    GENERE_CHOICES = [
+        ('novel', 'Novel·la'),
+        ('poesia', 'Poesia'),
+        ('assaig', 'Assaig'),
+        ('infantil', 'Infantil'),
+        ('tecnic', 'Tècnic'),
+    ]
+    autor = models.ForeignKey(Autor, on_delete=models.CASCADE, related_name='llibres')
+    titol = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True, blank=True)
+    isbn = models.CharField(max_length=17, unique=True)
+    any_publicacio = models.PositiveIntegerField()
+    genere = models.CharField(max_length=20, choices=GENERE_CHOICES, default='novel')
+    disponible = models.BooleanField(default=True)
+    num_pagines = models.PositiveIntegerField(default=0)
+    resum = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['titol']
+
+    def __str__(self):
+        return f"{self.titol} ({self.autor.cognoms})"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.titol)
+        super().save(*args, **kwargs)
+
+
+class Lector(models.Model):
+    usuari = models.OneToOneField(User, on_delete=models.CASCADE, related_name='lector')
+    numero_carnet = models.CharField(max_length=20, unique=True)
+    data_alta = models.DateField(auto_now_add=True)
+    adreca = models.TextField(blank=True)
+    telefon = models.CharField(max_length=20, blank=True)
+    actiu = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['usuari__last_name']
+
+    def __str__(self):
+        return f"{self.usuari.get_full_name()} ({self.numero_carnet})"
+
+
+class Prestec(models.Model):
+    ESTAT_CHOICES = [
+        ('actiu', 'Actiu'),
+        ('retornat', 'Retornat'),
+        ('vençut', 'Vençut'),
+    ]
+    llibre = models.ForeignKey(Llibre, on_delete=models.CASCADE, related_name='prestecs')
+    lector = models.ForeignKey(Lector, on_delete=models.CASCADE, related_name='prestecs')
+    data_prestec = models.DateField(auto_now_add=True)
+    data_retorn_prevista = models.DateField()
+    data_retorn_real = models.DateField(null=True, blank=True)
+    estat = models.CharField(max_length=10, choices=ESTAT_CHOICES, default='actiu')
+    notes = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['-data_prestec']
+
+    def __str__(self):
+        return f"{self.llibre.titol} → {self.lector} ({self.estat})"</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- EXERCICI 2 -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Camp personalitzat UpperCaseField</h3>
+        <p class="exercise-context">
+          Django permet crear camps de model personalitzats sobreescrivint la classe <code>Field</code>.
+          Crearem un camp que guardi sempre el text en majúscules, útil per a codis, matrícules i
+          identificadors normalitzats.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Crea la classe <code>UpperCaseField</code> que hereti de <code>models.CharField</code></li>
+            <li>Sobreescriu <code>pre_save()</code> per convertir el valor a majúscules abans de guardar</li>
+            <li>Afegeix el camp <code>codi_biblioteca</code> (<code>UpperCaseField</code>, <code>max_length=10</code>) al model <code>Llibre</code></li>
+            <li>Verifica que en crear un Llibre amb codi en minúscules, es guarda en majúscules</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">Codi inicial — books/fields.py</span>
+          </div>
+          <pre><code class="language-python"># books/fields.py
+from django.db import models
+
+class UpperCaseField(models.CharField):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def pre_save(self, model_instance, add):
+        # TODO: Obté el valor actual del camp
+        valor = getattr(model_instance, self.attname)
+        # TODO: Converteix a majúscules si no és None
+        # TODO: Guarda el valor modificat i retorna-l'hi
+        pass</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Usa <code>self.attname</code> per obtenir el nom del camp i <code>setattr()</code> per modificar el valor a la instància del model abans de retornar-lo.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p><code>Llibre(codi_biblioteca='bib-001')</code> guarda <code>'BIB-001'</code> a la base de dades. Comprova-ho des del shell de Django amb <code>ll.codi_biblioteca</code> després de guardar.</p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-lang">Python</span>
+                <span class="code-file">Solució completa</span>
+                <button class="copy-btn">Copiar</button>
+              </div>
+              <pre><code class="language-python"># books/fields.py
+from django.db import models
+
+class UpperCaseField(models.CharField):
+    def pre_save(self, model_instance, add):
+        valor = getattr(model_instance, self.attname)
+        if valor:
+            valor_upper = valor.upper()
+            setattr(model_instance, self.attname, valor_upper)
+            return valor_upper
+        return valor
+
+# books/models.py — afegir import i camp
+from .fields import UpperCaseField
+
+class Llibre(models.Model):
+    # ... camps existents ...
+    codi_biblioteca = UpperCaseField(max_length=10, unique=True, blank=True)
+    # ...
+
+# Verificació en shell:
+# &gt;&gt;&gt; from books.models import Llibre
+# &gt;&gt;&gt; ll = Llibre.objects.create(codi_biblioteca='bib-001', ...)
+# &gt;&gt;&gt; ll.codi_biblioteca  # → 'BIB-001'</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- RESUM -->
+    <section class="summary-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Resum de la Unitat
+      </h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h4>Camps principals</h4>
+          <ul>
+            <li>CharField, TextField</li>
+            <li>IntegerField, DecimalField</li>
+            <li>BooleanField, DateTimeField</li>
+            <li>JSONField, FileField, ImageField</li>
+            <li>UUIDField, SlugField</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Relacions</h4>
+          <ul>
+            <li>ForeignKey (N:1)</li>
+            <li>OneToOneField (1:1)</li>
+            <li>ManyToManyField (N:M)</li>
+            <li>on_delete: CASCADE, PROTECT, SET_NULL</li>
+            <li>related_name per accés invers</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Opcions de camp</h4>
+          <ul>
+            <li>blank, null, default</li>
+            <li>choices, unique, db_index</li>
+            <li>auto_now_add, auto_now</li>
+            <li>verbose_name</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Classe Meta i mètodes</h4>
+          <ul>
+            <li>ordering, verbose_name</li>
+            <li>indexes, constraints</li>
+            <li>__str__ obligatori</li>
+            <li>Camps personalitzats (Field)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="unit-nav">
+    <a href="unitat-02.html" class="nav-prev">
+      ← <span>Unitat 02 — Configuració i Settings</span>
+    </a>
+    <a href="index.html" class="nav-home">Índex</a>
+    <a href="unitat-04.html" class="nav-next">
+      <span>Unitat 04 — L'ORM: QuerySets i Consultes</span> →
+    </a>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      hljs.highlightAll();
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const code = btn.closest('.code-block').querySelector('code').textContent;
+          navigator.clipboard.writeText(code);
+          btn.textContent = 'Copiat!';
+          setTimeout(() => btn.textContent = 'Copiar', 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

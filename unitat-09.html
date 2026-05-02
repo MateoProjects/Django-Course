@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unitat 09 — Tags i Filtres Personalitzats | Curs Django</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Highlight.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    /* === RESET === */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* === TOKENS === */
+    :root {
+      --bg:           #F4F7FB;
+      --surface:      #FFFFFF;
+      --surface-2:    #EBF0F8;
+      --code-bg:      #F1F5F9;
+      --border:       #C5D3E4;
+      --border-dim:   #DAE3EF;
+      --text:         #1C2E45;
+      --text-muted:   #4E6478;
+      --text-dim:     #96ABBE;
+      --heading:      #091929;
+      --accent:       #1755C4;
+      --accent-glow:  #1755C420;
+      --blue:         #2463EB;
+      --green:        #057A55;
+      --amber:        #92530A;
+      --purple:       #5B21B6;
+      --django-green: #E8F0FD;
+      --exercise-bg:  #F0FDF8;
+    }
+
+    /* === BASE === */
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Lora', serif;
+      min-height: 100vh;
+    }
+
+    /* === LAYOUT === */
+    .page-wrapper { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+
+    /* === CAPÇALERA === */
+    .unit-header {
+      background: linear-gradient(135deg, var(--django-green) 0%, var(--bg) 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 4rem;
+    }
+    .unit-number {
+      font-family: 'Lora', serif;
+      font-weight: 500;
+      font-size: 0.78rem;
+      color: var(--accent);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .unit-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 2.6rem;
+      color: var(--heading);
+      margin: 0.5rem 0;
+      letter-spacing: -0.01em;
+    }
+    .unit-subtitle {
+      font-family: 'Lora', serif;
+      font-style: italic;
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      margin-bottom: 1.5rem;
+    }
+    .objectives {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .objectives h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.75rem;
+    }
+    .objectives ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .objectives li {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      padding-left: 1.25rem;
+      position: relative;
+    }
+    .objectives li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--green);
+      font-family: 'Syne', sans-serif;
+    }
+
+    /* === SECCIONS DE TEORIA === */
+    .theory-section {
+      padding: 2.5rem 0;
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      font-size: 1.3rem;
+      color: var(--heading);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .section-icon { color: var(--accent); font-size: 0.8em; }
+    .theory-text {
+      font-family: 'Lora', serif;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    .concept-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .concept-list li {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.7;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+    .concept-list li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-family: 'Syne', sans-serif;
+    }
+    .concept-list code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88em;
+      color: var(--blue);
+      background: var(--surface-2);
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+    }
+
+    /* === BLOCS DE CODI === */
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+    .code-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .code-lang {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .code-file {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .copy-btn {
+      margin-left: auto;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.7rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    pre { padding: 1.5rem; overflow-x: auto; }
+    pre code {
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 0.88rem !important;
+      line-height: 1.7 !important;
+      background: transparent !important;
+    }
+
+    /* === TIPS === */
+    .tip-block {
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .tip-block.tip-info   { background: #EBF2FF; border-left: 3px solid var(--blue); }
+    .tip-block.tip-warning{ background: #FEF9C3; border-left: 3px solid var(--amber); }
+    .tip-block.tip-note   { background: #F5F3FF; border-left: 3px solid var(--purple); }
+    .tip-prefix {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .tip-block.tip-info    .tip-prefix { color: var(--blue); }
+    .tip-block.tip-warning .tip-prefix { color: var(--amber); }
+    .tip-block.tip-note    .tip-prefix { color: var(--purple); }
+    .tip-block p {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* === BADGES === */
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--blue);
+      padding: 0.15em 0.5em;
+      border-radius: 4px;
+    }
+    .badge-shell { color: var(--amber); }
+    .badge-new   { color: var(--green); border-color: #6EE7B7; background: var(--exercise-bg); }
+
+    /* === EXERCICI === */
+    .exercise-block {
+      background: var(--exercise-bg);
+      border: 1px solid #6EE7B7;
+      border-radius: 16px;
+      overflow: hidden;
+      margin: 2rem 0;
+    }
+    .exercise-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      background: #ECFDF5;
+      border-bottom: 1px solid #A7F3D0;
+    }
+    .exercise-label {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .exercise-tag {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #057A55;
+      background: #ECFDF5;
+      border: 1px solid #6EE7B7;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+    }
+    .exercise-body { padding: 1.5rem; }
+    .exercise-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--heading);
+      margin-bottom: 0.75rem;
+    }
+    .exercise-context {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+    .exercise-tasks h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .exercise-tasks ol {
+      padding-left: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .exercise-tasks li {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .exercise-tip {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      background: #FEF9E7;
+      border: 1px solid #FCD34D;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--amber);
+    }
+    .exercise-result {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px dashed #6EE7B7;
+    }
+    .exercise-result h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+    .exercise-result p {
+      font-family: 'Lora', serif;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* === RESUM === */
+    .summary-section {
+      padding: 2.5rem 0;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+    .summary-card h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .summary-card ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .summary-card li {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* === NAV === */
+    .unit-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 4rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+    .unit-nav a {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .unit-nav a:hover { color: var(--accent); }
+    .nav-home {
+      font-size: 0.8rem !important;
+      color: var(--text-dim) !important;
+      border: 1px solid var(--border);
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+    }
+    .nav-home:hover { border-color: var(--accent) !important; }
+
+    .solution-spoiler { margin-top:1rem; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    .solution-spoiler summary { cursor:pointer; padding:0.875rem 1.25rem; background:var(--surface-2); font-family:'Syne',sans-serif; font-size:0.85rem; font-weight:600; color:var(--accent); user-select:none; list-style:none; display:flex; align-items:center; gap:0.5rem; transition:background 0.2s; }
+    .solution-spoiler summary::marker,.solution-spoiler summary::-webkit-details-marker{display:none;}
+    .solution-spoiler summary:hover{background:#EBF2FF;}
+    .solution-spoiler[open] summary{border-bottom:1px solid var(--border);}
+    .solution-body .code-block{margin:0;border:none;border-radius:0;}
+  </style>
+</head>
+<body>
+
+  <!-- CAPÇALERA -->
+  <header class="unit-header">
+    <div class="page-wrapper">
+      <p class="unit-number">Unitat 09 · Curs de Django</p>
+      <h1 class="unit-title">Tags i Filtres Personalitzats</h1>
+      <p class="unit-subtitle">Estén el sistema de templates de Django amb la teva pròpia lògica reutilitzable</p>
+      <div class="objectives">
+        <h3>En aquesta unitat aprendràs:</h3>
+        <ul>
+          <li>Crear l'estructura de carpetes <code>templatetags/</code> correcta</li>
+          <li>Definir filtres amb <code>@register.filter</code> i retornar HTML segur amb <code>mark_safe</code></li>
+          <li>Usar <code>@register.simple_tag</code> i <code>@register.inclusion_tag</code> per a lògica complexa</li>
+          <li>Carregar i usar els tags personalitzats als templates amb <code>{% load %}</code></li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTINGUT PRINCIPAL -->
+  <main class="page-wrapper">
+
+    <!-- Secció 1 -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Estructura de templatetags/ i filtres bàsics
+      </h2>
+      <p class="theory-text">
+        Quan Django no ofereix cap filtre o tag built-in que satisfaci una necessitat concreta,
+        podem crear-ne de propis dins del directori <code>templatetags/</code> de l'aplicació.
+        Aquesta carpeta ha d'existir com a paquet Python, és a dir, ha de contenir un fitxer
+        <code>__init__.py</code> buit. Django descobrirà els mòduls d'aquesta carpeta automàticament
+        si l'aplicació és a <code>INSTALLED_APPS</code>.
+      </p>
+      <p class="theory-text">
+        Un <strong>filtre</strong> és una funció Python que rep un valor (i opcionalment un argument)
+        i en retorna un altre valor transformat. Es registra amb el decorador
+        <code>@register.filter</code> de la biblioteca <code>django.template</code>.
+        Al template, el filtre s'aplica amb la barra vertical: <code>{{ valor|nom_filtre }}</code>.
+        Si el filtre ha de retornar HTML que no volem que Django escapi, cal fer-ho passar per
+        <code>mark_safe()</code> de <code>django.utils.safestring</code>.
+      </p>
+      <ul class="concept-list">
+        <li><code>books/templatetags/</code> — directori que Django reconeix com a mòdul de tags</li>
+        <li><code>__init__.py</code> — fitxer buit que converteix la carpeta en paquet Python</li>
+        <li><code>books_tags.py</code> — fitxer amb els nostres filtres i tags (el nom és lliure)</li>
+        <li><code>register = template.Library()</code> — instància del registre de tags de Django</li>
+        <li><code>@register.filter</code> — decora una funció per convertir-la en filtre de template</li>
+        <li><code>{% load books_tags %}</code> — carrega el mòdul de tags al template (obligatori)</li>
+        <li><code>mark_safe(html)</code> — marca una cadena com a HTML segur (no s'escapa)</li>
+      </ul>
+
+      <div class="tip-block tip-warning">
+        <span class="tip-prefix">⚠️ Atenció</span>
+        <p>Usa <code>mark_safe()</code> únicament amb cadenes que tu has construït o has netejat prèviament. Mai apliquis <code>mark_safe()</code> a contingut que prové directament de l'usuari, ja que obriria una vulnerabilitat XSS.</p>
+      </div>
+    </section>
+
+    <!-- Codi 1 -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">books/templatetags/books_tags.py</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">from django import template
+from django.utils.safestring import mark_safe
+
+# Cal instanciar Library per poder registrar filtres i tags
+register = template.Library()
+
+
+@register.filter(name='disponible')
+def disponible(exemplars_disponibles):
+    """Retorna True si hi ha exemplars disponibles per prestar."""
+    return exemplars_disponibles > 0
+
+
+@register.filter(name='format_isbn')
+def format_isbn(isbn):
+    """
+    Formata un ISBN de 13 dígits com: 978-84-376-0494-7
+    Si l'ISBN no té 13 caràcters, el retorna sense modificar.
+    """
+    isbn = str(isbn).replace('-', '').replace(' ', '')
+    if len(isbn) != 13:
+        return isbn
+    # Grup registre (3) + país (2) + editor (3) + títol (4) + dígit control (1)
+    return f"{isbn[:3]}-{isbn[3:5]}-{isbn[5:8]}-{isbn[8:12]}-{isbn[12]}"
+
+
+@register.filter(name='estat_badge')
+def estat_badge(estat):
+    """
+    Rep l'estat d'un exemplar i retorna un badge HTML amb color.
+    mark_safe() és segur aquí perquè construïm l'HTML nosaltres mateixos;
+    l'estat ve del nostre model, no de l'entrada de l'usuari.
+    """
+    colors = {
+        'disponible': '#2ECC71',
+        'prestat':    '#F59E0B',
+        'reservat':   '#4A9EFF',
+        'baixa':      '#6B7280',
+    }
+    color = colors.get(estat, '#6B7280')
+    html = (
+        f'&lt;span style="color:{color}; font-weight:600; '
+        f'font-family:\'JetBrains Mono\',monospace; font-size:0.85em;"&gt;'
+        f'{estat.capitalize()}&lt;/span&gt;'
+    )
+    return mark_safe(html)</code></pre>
+    </div>
+
+    <p class="theory-text" style="margin-top:1rem;">
+      Per usar aquests filtres a qualsevol template, primer cal carregar el mòdul amb
+      <code>{% load books_tags %}</code> i després aplicar-los:
+    </p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">HTML</span>
+        <span class="code-file">books/templates/books/llibre_list.html</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-html">{% extends "base.html" %}
+{% load books_tags %}
+
+{% block content %}
+&lt;ul&gt;
+  {% for llibre in llibres %}
+  &lt;li&gt;
+    &lt;strong&gt;{{ llibre.titol }}&lt;/strong&gt;
+    — ISBN: {{ llibre.isbn|format_isbn }}
+    — {{ llibre.exemplars_disponibles|disponible|yesno:"Disponible,Esgotat" }}
+  &lt;/li&gt;
+  {% endfor %}
+&lt;/ul&gt;
+{% endblock %}</code></pre>
+    </div>
+
+    <!-- Secció 2 -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        simple_tag, inclusion_tag i accés al context
+      </h2>
+      <p class="theory-text">
+        Els <strong>filtres</strong> transformen un valor en un altre, però de vegades necessitem
+        lògica més complexa: consultar la base de dades, retornar múltiples valors o renderitzar
+        un fragment de template. Per a aquests casos Django ofereix dos tipus de tags addicionals:
+      </p>
+      <ul class="concept-list">
+        <li><code>@register.simple_tag</code> — pot retornar qualsevol valor Python (string, número, objecte, QuerySet). El resultat s'insereix directament al template o es pot guardar en una variable amb <code>as nom_var</code>.</li>
+        <li><code>@register.inclusion_tag('template.html')</code> — executa la funció, rep un diccionari que s'usa com a context, i renderitza el template indicat. Ideal per a components reutilitzables (sidebar, widget de prestecs, etc.).</li>
+        <li><code>takes_context=True</code> — paràmetre opcional que fa que el primer argument de la funció sigui el context complet del template pare. Permet accedir a variables com <code>request</code> o <code>user</code>.</li>
+      </ul>
+      <p class="theory-text">
+        La diferència clau entre <code>simple_tag</code> i <code>inclusion_tag</code> és que el
+        primer retorna un valor simple (text o objecte) mentre que el segon renderitza tot un
+        sub-template HTML. Usa <code>inclusion_tag</code> quan necessitin HTML estructurat
+        (taules, llistes, components) i <code>simple_tag</code> per a valors o càlculs.
+      </p>
+
+      <div class="tip-block tip-info">
+        <span class="tip-prefix">📌 Nota</span>
+        <p>Per accedir a <code>request</code> dins d'un tag, el context processor <code>django.template.context_processors.request</code> ha d'estar actiu a <code>TEMPLATES['OPTIONS']['context_processors']</code>. Sense ell, <code>context['request']</code> no existirà.</p>
+      </div>
+    </section>
+
+    <!-- Codi 2 -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">books/templatetags/books_tags.py (continuació)</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">from books.models import Prestec
+
+
+@register.simple_tag
+def total_prestecs_actius():
+    """
+    Retorna el nombre total de préstecs actius a tota la biblioteca.
+    Es pot usar al template com: {% total_prestecs_actius %}
+    o guardar en variable: {% total_prestecs_actius as n_actius %}
+    """
+    return Prestec.objects.filter(retornat=False).count()
+
+
+@register.simple_tag(takes_context=True)
+def prestecs_del_lector(context):
+    """
+    Retorna els préstecs actius de l'usuari actual.
+    takes_context=True ens dóna accés al context del template pare,
+    on hi ha 'request' gràcies al context processor corresponent.
+    """
+    request = context.get('request')
+    if request and request.user.is_authenticated:
+        return Prestec.objects.filter(
+            lector__usuari=request.user,
+            retornat=False
+        ).select_related('llibre')
+    return Prestec.objects.none()
+
+
+@register.inclusion_tag('books/components/darrers_prestecs.html', takes_context=True)
+def mostra_darrers_prestecs(context, limit=5):
+    """
+    Renderitza el component darrers_prestecs.html amb els últims préstecs.
+    L'argument 'limit' es pot passar directament al template:
+    {% mostra_darrers_prestecs limit=3 %}
+    """
+    request = context.get('request')
+    if request and request.user.is_authenticated:
+        prestecs = Prestec.objects.filter(
+            lector__usuari=request.user
+        ).select_related('llibre').order_by('-data_prestec')[:limit]
+    else:
+        prestecs = Prestec.objects.none()
+
+    # El diccionari retornat és el context del sub-template
+    return {
+        'prestecs': prestecs,
+        'limit': limit,
+    }</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">HTML</span>
+        <span class="code-file">books/templates/books/components/darrers_prestecs.html</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-html">{% load books_tags %}
+{# Sub-template renderitzat per l'inclusion_tag mostra_darrers_prestecs #}
+&lt;div class="darrers-prestecs"&gt;
+  &lt;h4&gt;Darrers préstecs ({{ limit }}):&lt;/h4&gt;
+  {% if prestecs %}
+    &lt;ul&gt;
+      {% for prestec in prestecs %}
+      &lt;li&gt;
+        {{ prestec.llibre.titol }}
+        — {{ prestec.data_prestec|date:"d/m/Y" }}
+        {% if prestec.retornat %}
+          &lt;span style="color:#2ECC71"&gt;✓ Retornat&lt;/span&gt;
+        {% else %}
+          &lt;span style="color:#F59E0B"&gt;Pendent&lt;/span&gt;
+        {% endif %}
+      &lt;/li&gt;
+      {% endfor %}
+    &lt;/ul&gt;
+  {% else %}
+    &lt;p&gt;No tens préstecs recents.&lt;/p&gt;
+  {% endif %}
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <div class="tip-block tip-note">
+      <span class="tip-prefix">🔮 Avançat</span>
+      <p>Pots registrar un filtre amb nom diferent al de la funció usant <code>@register.filter(name='nom_custom')</code>. Si no especifiques nom, Django usa el nom de la funció Python. Pots tenir múltiples fitxers dins de <code>templatetags/</code> i cada un s'ha de carregar per separat amb <code>{% load %}</code>.</p>
+    </div>
+
+    <!-- EXERCICI -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Filtre estat_prestec amb format visual</h3>
+        <p class="exercise-context">
+          La llista de préstecs de <em>bibliapp</em> ha de mostrar l'estat de cada préstec
+          de forma visual: "Disponible" en verd si el llibre no ha sortit, "Prestat" en ambre
+          si el lector el té, i "Vençut" en vermell si la data de retorn prevista ja ha passat.
+          Implementaràs un filtre personalitzat que rep un objecte <code>Prestec</code> i
+          retorna HTML formatat amb el color adequat.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Crea l'estructura <code>books/templatetags/__init__.py</code> i <code>books/templatetags/books_tags.py</code> si no existeix.</li>
+            <li>Implementa el filtre <code>estat_prestec</code> que rep un objecte <code>Prestec</code> i retorna un badge HTML: verd si <code>retornat=True</code>, ambre si <code>retornat=False</code> i la data no ha vençut, vermell si <code>retornat=False</code> i <code>data_retorn_prevista &lt; date.today()</code>.</li>
+            <li>Usa <code>mark_safe()</code> per retornar l'HTML i assegura't que el filtre funciona al template amb <code>{{ prestec|estat_prestec }}</code>.</li>
+            <li>Carrega el filtre al template de llista de préstecs amb <code>{% load books_tags %}</code> i mostra l'estat de cada préstec.</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">Codi inicial — books/templatetags/books_tags.py</span>
+          </div>
+          <pre><code class="language-python">from django import template
+from django.utils.safestring import mark_safe
+from datetime import date
+
+register = template.Library()
+
+
+@register.filter(name='estat_prestec')
+def estat_prestec(prestec):
+    """
+    Rep un objecte Prestec i retorna un badge HTML amb l'estat:
+    - "Disponible" (verd) si retornat=True
+    - "Prestat" (ambre) si retornat=False i data no vençuda
+    - "Vençut" (vermell) si retornat=False i data_retorn_prevista < avui
+    """
+    # TODO: Comprova si el préstec ja ha estat retornat
+    # if prestec.retornat:
+    #     ...
+
+    # TODO: Comprova si la data de retorn prevista ja ha passat
+    # avui = date.today()
+    # if prestec.data_retorn_prevista and prestec.data_retorn_prevista < avui:
+    #     ...
+
+    # TODO: Si cap dels anteriors, el préstec és actiu (prestat)
+    # ...
+
+    # TODO: Construeix l'HTML del badge i retorna'l amb mark_safe()
+    # html = f'&lt;span style="color:{color}; font-weight:600"&gt;{text}&lt;/span&gt;'
+    # return mark_safe(html)
+    pass</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Pista: El model <code>Prestec</code> té els camps <code>retornat</code> (BooleanField) i <code>data_retorn_prevista</code> (DateField, pot ser null). Importa <code>date</code> de <code>datetime</code> per comparar dates amb <code>date.today()</code>.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>Al template, <code>{{ prestec|estat_prestec }}</code> mostra un span de color verd "Disponible", ambre "Prestat" o vermell "Vençut" segons l'estat del préstec. La pàgina de llista de préstecs mostra el badge correctament per a cada element.</p>
+        </div>
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa</span><button class="copy-btn">Copiar</button></div>
+              <pre><code class="language-python"># books/templatetags/books_tags.py
+from django import template
+from django.utils.html import format_html
+from django.utils import timezone
+
+register = template.Library()
+
+@register.filter(name='estat_prestec')
+def estat_prestec(prestec):
+    """Retorna un badge HTML amb l'estat del préstec."""
+    avui = timezone.now().date()
+    if prestec.estat == 'retornat':
+        color = '#057A55'
+        bg = '#ECFDF5'
+        text = 'Retornat'
+    elif prestec.data_retorn_prevista &lt; avui:
+        color = '#DC2626'
+        bg = '#FEF2F2'
+        text = 'Vençut'
+    else:
+        color = '#92530A'
+        bg = '#FEF9E7'
+        text = 'Actiu'
+    return format_html(
+        '&lt;span style="color:{};background:{};padding:2px 8px;border-radius:4px;font-size:0.85em;"&gt;{}&lt;/span&gt;',
+        color, bg, text
+    )
+
+# Ús al template:
+# {% load books_tags %}
+# {{ prestec|estat_prestec }}</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- EXERCICI 2 -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic 2</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Inclusion tag per al widget de darrers préstecs</h3>
+        <p class="exercise-context">
+          Les <code>inclusion_tag</code> renderitzen un sub-template parcial, útil per a components reutilitzables com sidebars, widgets, o blocs de contingut relacionat.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Crea una <code>@register.inclusion_tag</code> anomenada <code>widget_darrers_prestecs</code> que renderitzi <code>books/widgets/darrers_prestecs.html</code>.</li>
+            <li>El tag ha d'acceptar un paràmetre <code>limit</code> (per defecte 5) i retornar els últims préstecs actius.</li>
+            <li>Crea el template del widget: llista compacta amb títol del llibre i data prevista de retorn.</li>
+            <li>Usa el widget al <code>base.html</code> amb <code>{% widget_darrers_prestecs limit=3 %}</code>.</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">Codi inicial — books/templatetags/books_tags.py + template</span>
+          </div>
+          <pre><code class="language-python"># books/templatetags/books_tags.py (afegir a sota)
+from books.models import Prestec
+
+@register.inclusion_tag('books/widgets/darrers_prestecs.html')
+def widget_darrers_prestecs(limit=5):
+    # TODO: Obté els 'limit' últims prestecs actius ordenats per data_retorn_prevista
+    prestecs = None  # TODO
+    return {'prestecs': prestecs, 'limit': limit}
+
+# templates/books/widgets/darrers_prestecs.html
+# &lt;aside class="widget-prestecs"&gt;
+#   &lt;h4&gt;Préstecs actius&lt;/h4&gt;
+#   &lt;!-- TODO: for prestec in prestecs --&gt;
+#     &lt;!-- TODO: mostra titol i data_retorn_prevista --&gt;
+#   &lt;!-- TODO: empty → "Cap préstec actiu" --&gt;
+# &lt;/aside&gt;</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Pista: <code>Prestec.objects.filter(estat='actiu').order_by('data_retorn_prevista')[:limit]</code>.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p><code>{% load books_tags %}{% widget_darrers_prestecs limit=3 %}</code> mostra els 3 préstecs més urgents.</p>
+        </div>
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa</span><button class="copy-btn">Copiar</button></div>
+              <pre><code class="language-python"># books/templatetags/books_tags.py
+@register.inclusion_tag('books/widgets/darrers_prestecs.html')
+def widget_darrers_prestecs(limit=5):
+    prestecs = Prestec.objects.filter(
+        estat='actiu'
+    ).select_related('llibre', 'lector').order_by('data_retorn_prevista')[:limit]
+    return {'prestecs': prestecs, 'limit': limit}
+
+# templates/books/widgets/darrers_prestecs.html
+# &lt;aside class="widget-prestecs"&gt;
+#   &lt;h4&gt;Préstecs actius&lt;/h4&gt;
+#   {% for prestec in prestecs %}
+#     &lt;div&gt;
+#       &lt;strong&gt;{{ prestec.llibre.titol|truncatechars:40 }}&lt;/strong&gt;&lt;br&gt;
+#       &lt;small&gt;{{ prestec.lector }} · Retorn: {{ prestec.data_retorn_prevista|date:"d/m/Y" }}&lt;/small&gt;
+#     &lt;/div&gt;
+#   {% empty %}
+#     &lt;p&gt;Cap préstec actiu.&lt;/p&gt;
+#   {% endfor %}
+# &lt;/aside&gt;</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Resum -->
+    <section class="summary-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Resum
+      </h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h4>Estructura de fitxers</h4>
+          <ul>
+            <li>books/templatetags/</li>
+            <li>books/templatetags/__init__.py</li>
+            <li>books/templatetags/books_tags.py</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Decoradors principals</h4>
+          <ul>
+            <li>@register.filter</li>
+            <li>@register.simple_tag</li>
+            <li>@register.inclusion_tag</li>
+            <li>takes_context=True</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Al template</h4>
+          <ul>
+            <li>{% load books_tags %}</li>
+            <li>{{ valor|filtre }}</li>
+            <li>{% simple_tag as var %}</li>
+            <li>{% inclusion_tag %}</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>HTML segur</h4>
+          <ul>
+            <li>mark_safe(html)</li>
+            <li>format_html()</li>
+            <li>conditional_escape()</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- NAV ENTRE UNITATS -->
+  <nav class="unit-nav">
+    <a href="unitat-08.html" class="nav-prev">← <span>Unitat 08 — El Sistema de Templates</span></a>
+    <a href="index.html" class="nav-home">Índex</a>
+    <a href="unitat-10.html" class="nav-next"><span>Unitat 10 — Context Processors</span> →</a>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      hljs.highlightAll();
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const code = btn.closest('.code-block').querySelector('code').textContent;
+          navigator.clipboard.writeText(code);
+          btn.textContent = 'Copiat!';
+          setTimeout(() => btn.textContent = 'Copiar', 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

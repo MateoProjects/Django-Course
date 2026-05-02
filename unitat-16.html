@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unitat 16 — Sistema de Cache | Curs Django</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #F4F7FB;
+      --surface:      #FFFFFF;
+      --surface-2:    #EBF0F8;
+      --code-bg:      #F1F5F9;
+      --border:       #C5D3E4;
+      --border-dim:   #DAE3EF;
+      --text:         #1C2E45;
+      --text-muted:   #4E6478;
+      --text-dim:     #96ABBE;
+      --heading:      #091929;
+      --accent:       #1755C4;
+      --accent-glow:  #1755C420;
+      --blue:         #2463EB;
+      --green:        #057A55;
+      --amber:        #92530A;
+      --purple:       #5B21B6;
+      --django-green: #E8F0FD;
+      --exercise-bg:  #F0FDF8;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'Lora', serif; min-height: 100vh; }
+    .page-wrapper { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+
+    .unit-header {
+      background: linear-gradient(135deg, var(--django-green) 0%, var(--bg) 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 4rem;
+    }
+    .unit-number { font-family: 'Lora', serif; font-weight: 500; font-size: 0.78rem; color: var(--accent); letter-spacing: 0.14em; text-transform: uppercase; }
+    .unit-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 2.6rem; color: var(--heading); margin: 0.5rem 0; letter-spacing: -0.01em; }
+    .unit-subtitle { font-family: 'Lora', serif; font-size: 1.1rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+    .objectives { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-top: 1.5rem; }
+    .objectives h3 { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.75rem; }
+    .objectives ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .objectives li { font-family: 'Lora', serif; font-size: 0.95rem; color: var(--text); padding-left: 1.25rem; position: relative; }
+    .objectives li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-family: 'Syne', sans-serif; }
+
+    .theory-section { padding: 2.5rem 0; border-bottom: 1px solid var(--border-dim); }
+    .section-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 1.3rem; color: var(--heading); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; }
+    .section-icon { color: var(--accent); font-size: 0.8em; }
+    .theory-text { font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.8; color: var(--text); margin-bottom: 1rem; }
+    .concept-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+    .concept-list li { font-family: 'Lora', serif; color: var(--text); line-height: 1.7; padding-left: 1.5rem; position: relative; }
+    .concept-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-family: 'Syne', sans-serif; }
+    .concept-list code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; color: var(--blue); background: var(--surface-2); padding: 0.1em 0.4em; border-radius: 4px; }
+
+    .code-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 1.5rem 0; }
+    .code-header { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .code-lang { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent); font-weight: 600; text-transform: uppercase; }
+    .code-file { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
+    .copy-btn { margin-left: auto; background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-family: 'Syne', sans-serif; font-size: 0.7rem; padding: 0.3rem 0.75rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    pre { padding: 1.25rem; overflow-x: auto; }
+    pre code { font-family: 'JetBrains Mono', monospace !important; font-size: 0.88rem !important; line-height: 1.7 !important; background: transparent !important; }
+
+    .tip-block { border-radius: 10px; padding: 1rem 1.25rem; margin: 1.25rem 0; display: flex; flex-direction: column; gap: 0.4rem; }
+    .tip-block.tip-info   { background: #EBF2FF; border-left: 3px solid var(--blue); }
+    .tip-block.tip-warning{ background: #FEF9C3; border-left: 3px solid var(--amber); }
+    .tip-block.tip-note   { background: #F5F3FF; border-left: 3px solid var(--purple); }
+    .tip-prefix { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+    .tip-block.tip-info    .tip-prefix { color: var(--blue); }
+    .tip-block.tip-warning .tip-prefix { color: var(--amber); }
+    .tip-block.tip-note    .tip-prefix { color: var(--purple); }
+    .tip-block p { font-family: 'Lora', serif; font-size: 0.95rem; color: var(--text); line-height: 1.65; margin: 0; }
+
+    /* Taula de backends */
+    .backend-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.83rem;
+    }
+    .backend-table th {
+      background: var(--surface-2);
+      color: var(--accent);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.6rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .backend-table td {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border-dim);
+      color: var(--text);
+      vertical-align: top;
+    }
+    .backend-table tr:last-child td { border-bottom: none; }
+    .backend-table .backend-name { color: var(--blue); }
+    .backend-table .env-dev { color: var(--green); }
+    .backend-table .env-prod { color: var(--amber); }
+
+    .badge { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; background: var(--surface-2); border: 1px solid var(--border); color: var(--blue); padding: 0.15em 0.5em; border-radius: 4px; }
+    .badge-shell { color: var(--amber); }
+    .badge-new   { color: var(--green); border-color: #1a4a2a; background: var(--exercise-bg); }
+
+    .exercise-block { background: var(--exercise-bg); border: 1px solid #6EE7B7; border-radius: 16px; overflow: hidden; margin: 2rem 0; }
+    .exercise-header { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.5rem; background: #ECFDF5; border-bottom: 1px solid #A7F3D0; }
+    .exercise-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; }
+    .exercise-tag { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #057A55; background: #ECFDF5; border: 1px solid #6EE7B7; padding: 0.2rem 0.6rem; border-radius: 20px; }
+    .exercise-body { padding: 1.5rem; }
+    .exercise-title { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 1.1rem; color: var(--heading); margin-bottom: 0.75rem; }
+    .exercise-context { font-family: 'Lora', serif; color: var(--text); line-height: 1.7; margin-bottom: 1.25rem; }
+    .exercise-tasks h4 { font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
+    .exercise-tasks ol { padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .exercise-tasks li { font-family: 'Lora', serif; color: var(--text); line-height: 1.6; }
+    .exercise-tip { display: flex; gap: 0.5rem; align-items: flex-start; background: #FEF9E7; border: 1px solid #FCD34D; border-radius: 8px; padding: 0.75rem 1rem; margin: 1rem 0; font-family: 'Lora', serif; font-size: 0.95rem; color: var(--amber); }
+    .exercise-result { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px dashed #6EE7B7; }
+    .exercise-result h4 { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+    .exercise-result p { font-family: 'Lora', serif; color: var(--text-muted); font-size: 0.95rem; }
+
+    .summary-section { padding: 2.5rem 0; }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.25rem; }
+    .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; }
+    .summary-card h4 { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.6rem; }
+    .summary-card ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .summary-card li { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--blue); }
+
+    .unit-nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 4rem; border-top: 1px solid var(--border); margin-top: 3rem; }
+    .unit-nav a { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .unit-nav a:hover { color: var(--accent); }
+    .nav-home { font-size: 0.8rem !important; color: var(--text-dim) !important; border: 1px solid var(--border); padding: 0.4rem 1rem; border-radius: 20px; }
+    .nav-home:hover { border-color: var(--accent) !important; }
+
+    .solution-spoiler{margin-top:1rem;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+    .solution-spoiler summary{cursor:pointer;padding:.875rem 1.25rem;background:var(--surface-2);font-family:'Syne',sans-serif;font-size:.85rem;font-weight:600;color:var(--accent);user-select:none;list-style:none;display:flex;align-items:center;gap:.5rem;transition:background .2s;}
+    .solution-spoiler summary::marker,.solution-spoiler summary::-webkit-details-marker{display:none;}
+    .solution-spoiler summary:hover{background:#EBF2FF;}
+    .solution-spoiler[open] summary{border-bottom:1px solid var(--border);}
+    .solution-body .code-block{margin:0;border:none;border-radius:0;}
+    .deps-block{background:#FFF8EE;border:1px solid #FCD34D;border-radius:12px;overflow:hidden;margin:1.5rem 0;}
+    .deps-header{display:flex;align-items:center;gap:.5rem;padding:.75rem 1.25rem;background:#FEF3C7;border-bottom:1px solid #FCD34D;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:#92400E;text-transform:uppercase;letter-spacing:.08em;}
+    .deps-body{padding:1.25rem;}
+    .deps-body .code-block{margin:.75rem 0 0;}
+  </style>
+</head>
+<body>
+
+  <header class="unit-header">
+    <div class="page-wrapper">
+      <p class="unit-number">Unitat 16 · Curs de Django</p>
+      <h1 class="unit-title">Sistema de Cache</h1>
+      <p class="unit-subtitle">Redueix la càrrega a la base de dades i accelera l'aplicació guardant resultats costosos en memòria.</p>
+      <div class="objectives">
+        <h3>En aquesta unitat aprendràs:</h3>
+        <ul>
+          <li>Configurar backends de cache (LocMemCache, DatabaseCache, RedisCache) a <code>CACHES</code></li>
+          <li>Usar l'API de baix nivell: <code>cache.get()</code>, <code>cache.set()</code>, <code>cache.delete()</code> i <code>cache.get_or_set()</code></li>
+          <li>Cachear vistes completes amb el decorador <code>@cache_page</code></li>
+          <li>Invalidar la cache automàticament amb signals quan canvien les dades</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-wrapper">
+
+    <!-- SECCIÓ 1 -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Per a què serveix la cache i l'API de baix nivell
+      </h2>
+      <p class="theory-text">
+        La cache és una capa d'emmagatzematge temporal molt ràpid (normalment en memòria RAM) que guarda resultats de consultes costoses per servir-los directament sense tornar a calcular-los. En Django, la cache és transparent: el teu codi llegeix d'ella com si fos qualsevol altra font de dades, i Django s'encarrega d'interconnectar-la amb el backend configurat.
+      </p>
+      <p class="theory-text">
+        El cas més habitual és cachear QuerySets que consulten moltes taules o fan agregacions complexes, i que el resultat no canvia gaire sovint. Per exemple, la llista de tots els autors d'una biblioteca pública canvia potser un cop al dia, però es consulta milers de vegades. Sense cache, cada pàgina visitada llança una consulta SQL; amb cache, la consulta es fa una sola vegada i el resultat s'emmagatzema.
+      </p>
+
+      <table class="backend-table">
+        <thead>
+          <tr>
+            <th>Backend</th>
+            <th>Entorn</th>
+            <th>Característiques</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="backend-name">LocMemCache</td>
+            <td class="env-dev">Desenvolupament</td>
+            <td>En memòria, per procés. No es comparteix entre workers. Perfecte per a tests i dev local.</td>
+          </tr>
+          <tr>
+            <td class="backend-name">DatabaseCache</td>
+            <td class="env-dev">Dev / staging</td>
+            <td>Guarda la cache en una taula SQL. Compartit entre workers, però més lent que Redis.</td>
+          </tr>
+          <tr>
+            <td class="backend-name">FileBasedCache</td>
+            <td class="env-dev">Dev</td>
+            <td>Fitxers al disc. Simple però lent per a producció.</td>
+          </tr>
+          <tr>
+            <td class="backend-name">RedisCache</td>
+            <td class="env-prod">Producció</td>
+            <td>Redis extern. Ràpid, compartit entre tots els workers, amb TTL natiu. Estàndard de la indústria.</td>
+          </tr>
+          <tr>
+            <td class="backend-name">MemcachedCache</td>
+            <td class="env-prod">Producció</td>
+            <td>Alternativa a Redis. Menys funcionalitats però molt madur.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <ul class="concept-list">
+        <li><code>cache.set(clau, valor, timeout)</code> — guarda <code>valor</code> sota <code>clau</code> durant <code>timeout</code> segons. Si <code>timeout=None</code>, no caduca mai.</li>
+        <li><code>cache.get(clau, default=None)</code> — recupera el valor. Si no existeix o ha caducat, retorna <code>default</code>.</li>
+        <li><code>cache.delete(clau)</code> — elimina una clau de la cache. Útil per invalidar quan les dades canvien.</li>
+        <li><code>cache.get_or_set(clau, callable_o_valor, timeout)</code> — retorna el valor si existeix; si no, el calcula (cridant el callable), el guarda i el retorna. Molt convenient per evitar el patró get/set manual.</li>
+        <li><code>cache.clear()</code> — esborra <strong>tota</strong> la cache. Usar amb precaució en producció.</li>
+        <li><code>cache.set_many({'k1': v1, 'k2': v2}, timeout)</code> — guarda múltiples claus d'una sola vegada (més eficient que múltiples <code>set()</code>).</li>
+        <li><code>KEY_PREFIX</code> — prefix afegit a totes les claus d'aquesta configuració de cache. Útil per separar entorns (dev/prod) o aplicacions que comparteixen el mateix servidor Redis.</li>
+        <li><code>TIMEOUT</code> — timeout per defecte en segons quan no n'especifiques cap (per defecte 300 s = 5 minuts).</li>
+      </ul>
+
+      <div class="tip-block tip-warning">
+        <span class="tip-prefix">⚠️ Cache i dades d'usuari</span>
+        <p>No cachis mai dades específiques d'un usuari sense incloure l'ID de l'usuari a la clau de cache. Si caches la pàgina de perfil sense distingir per usuari, tots els usuaris veuran el perfil del primer que l'ha carregat. Usa <code>f"perfil_{request.user.id}"</code> com a clau.</p>
+      </div>
+    </section>
+
+    <!-- CODI 1 -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">settings.py — configuració CACHES per a dev i producció</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python"># ===== settings/base.py — configuració comuna =====
+
+# Timeout per defecte: 5 minuts
+CACHE_TIMEOUT_DEFAULT = 60 * 5   # 300 segons
+CACHE_TIMEOUT_LLARG   = 60 * 60  # 1 hora per a dades que canvien poc
+
+
+# ===== settings/dev.py — cache en memòria local =====
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'bibliapp-dev',  # nom intern per distingir instàncies
+        'TIMEOUT': 300,
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000,  # màxim d'entrades en memòria
+        },
+    }
+}
+
+
+# ===== settings/prod.py — Redis en producció =====
+import os
+
+CACHES = {
+    'default': {
+        # django-redis és el paquet de facto per a Redis amb Django
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.environ.get('REDIS_URL', 'redis://localhost:6379/1'),
+        'TIMEOUT': 300,
+        'KEY_PREFIX': 'bibliapp',   # evita col·lisions si compartim servidor Redis
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'SOCKET_CONNECT_TIMEOUT': 5,   # segons per connectar
+            'SOCKET_TIMEOUT': 5,            # segons per operació
+            'IGNORE_EXCEPTIONS': True,      # si Redis falla, comportament normal (sense cache)
+        },
+    }
+}
+
+# django-ratelimit pot usar la mateixa cache
+RATELIMIT_USE_CACHE = 'default'
+
+
+# ===== Exemple d'API de baix nivell =====
+from django.core.cache import cache
+
+# Guardar un valor durant 10 minuts
+cache.set('total_llibres', 342, timeout=60 * 10)
+
+# Recuperar (retorna None si no existeix o ha caducat)
+total = cache.get('total_llibres')
+if total is None:
+    total = Llibre.objects.count()
+    cache.set('total_llibres', total, timeout=60 * 10)
+
+# Patró més net amb get_or_set:
+total = cache.get_or_set(
+    'total_llibres',
+    lambda: Llibre.objects.count(),  # callable: s'executa només si cal
+    timeout=60 * 10,
+)
+
+# Invalidar quan sabem que les dades han canviat
+cache.delete('total_llibres')
+
+# Guardar múltiples claus alhora (una sola connexió a Redis)
+cache.set_many({
+    'total_llibres':  Llibre.objects.count(),
+    'total_autors':   Autor.objects.count(),
+    'total_lectors':  Lector.objects.count(),
+}, timeout=60 * 5)
+</code></pre>
+    </div>
+
+    <!-- SECCIÓ 2 -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        @cache_page, invalidació amb signals i vary_on_headers
+      </h2>
+      <p class="theory-text">
+        El decorador <code>@cache_page(timeout)</code> és la manera més ràpida de cachear una vista completa: Django guarda la resposta HTTP sencera (headers inclosos) i la serveix directament en peticions posteriors sense executar la vista. És ideal per a pàgines de contingut públic que no canvien sovint, com una llista de llibres o la pàgina d'inici.
+      </p>
+      <p class="theory-text">
+        La <em>invalidació</em> és la part més delicada de la cache: saber <em>quan</em> esborrar les dades emmagatzemades perquè no serveixin informació desfasada. La millor estratègia és invalidar automàticament usant signals: quan es crea o modifica un model, el signal <code>post_save</code> neteja les claus de cache relacionades. Així la cache sempre té dades fresques sense necessitat de configurar un TTL molt curt.
+      </p>
+      <ul class="concept-list">
+        <li><code>@cache_page(timeout)</code> — decorador per a vistes FBV. Per a CBV, usa <code>method_decorator</code> o afegeix-lo a <code>urls.py</code> amb <code>cache_page(60)(vista)</code>.</li>
+        <li><code>vary_on_headers('Accept-Language')</code> — indica a Django que mantingui versions de cache separades per a valors de header diferents. Útil per a multiidioma o per a respostes que varien segons <code>Accept</code>.</li>
+        <li><code>vary_on_cookie('sessionid')</code> — manté caches separades per a cada sessió (és a dir, per a cada usuari autenticat).</li>
+        <li><code>cache_control(no_cache=True)</code> — desactiva la cache per a una vista concreta, fins i tot si hi ha un middleware de cache global actiu.</li>
+        <li><code>never_cache</code> — decorador que afegeix headers HTTP per evitar que qualsevol cache intermèdia (CDN, proxy) guardi la resposta.</li>
+        <li>Invalidació per patró — si uses <code>django-redis</code>, pots esborrar totes les claus que comencin per un prefix amb <code>cache.delete_pattern("prefix_*")</code>.</li>
+      </ul>
+
+      <div class="tip-block tip-info">
+        <span class="tip-prefix">📌 Cache en tests</span>
+        <p>Als tests, usa <code>from django.test.utils import override_settings</code> per substituir el backend de cache per <code>DummyCache</code> (que no guarda res) o per <code>LocMemCache</code> (que es buida entre tests). Així els tests no s'interfereixen entre si per dades cached.</p>
+      </div>
+    </section>
+
+    <!-- CODI 2 -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">views.py + signals.py — cache de QuerySets amb invalidació automàtica</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python"># ===== views.py =====
+from django.shortcuts import render
+from django.views.decorators.cache import cache_page, never_cache
+from django.core.cache import cache
+from .models import Llibre, Autor
+
+# Clau de cache centralitzada per evitar errors tipogràfics
+CACHE_KEY_LLIBRES = 'bibliapp:llista_llibres'
+CACHE_KEY_AUTORS  = 'bibliapp:llista_autors'
+
+
+def llista_llibres(request):
+    """
+    Vista de llistat de llibres amb cache manual.
+    Usem cache manual (en lloc de @cache_page) per tenir control
+    total sobre la clau i poder invalidar-la des dels signals.
+    """
+    llibres = cache.get(CACHE_KEY_LLIBRES)
+
+    if llibres is None:
+        # Cache miss: consultem la base de dades i guardem el resultat
+        llibres = list(
+            Llibre.objects.select_related('autor')
+                          .filter(disponible=True)
+                          .order_by('titol')
+        )
+        # Guardem durant 5 minuts
+        cache.set(CACHE_KEY_LLIBRES, llibres, timeout=60 * 5)
+
+    return render(request, 'bibliapp/llista_llibres.html', {'llibres': llibres})
+
+
+# @cache_page: manera més simple per a vistes que no necessiten invalidació manual
+@cache_page(60 * 15)   # cache durant 15 minuts
+def portada_publica(request):
+    """
+    Pàgina de portada pública: canvia poc, @cache_page és suficient.
+    Django guarda la resposta HTTP completa indexada per URL.
+    """
+    llibres_destacats = Llibre.objects.order_by('-data_creacio')[:6]
+    return render(request, 'bibliapp/portada.html', {'llibres': llibres_destacats})
+
+
+@never_cache
+def tauler_personal(request):
+    """
+    Tauler personal de l'usuari: mai s'ha de cachear perquè és dada privada.
+    @never_cache afegeix headers Cache-Control: no-cache, no-store, must-revalidate
+    """
+    prestecs = request.user.perfillector.prestecs.filter(retornat=False)
+    return render(request, 'bibliapp/tauler.html', {'prestecs': prestecs})
+
+
+# ===== signals.py — invalidació automàtica de cache =====
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from django.core.cache import cache
+from .models import Llibre
+
+
+@receiver(post_save, sender=Llibre, dispatch_uid='invalidar_cache_llibres_save')
+@receiver(post_delete, sender=Llibre, dispatch_uid='invalidar_cache_llibres_delete')
+def invalidar_cache_llibres(sender, **kwargs):
+    """
+    Quan es crea, modifica o esborra un Llibre, la cache de la llista
+    queda desfasada i cal eliminar-la perquè la propera petició
+    la regeneri amb les dades actuals.
+    """
+    cache.delete(CACHE_KEY_LLIBRES)
+    # Si usem django-redis, podem esborrar totes les claus del patró:
+    # cache.delete_pattern('bibliapp:llista_*')
+</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">views.py — get_or_set i vary_on_headers</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">from django.shortcuts import render
+from django.views.decorators.vary import vary_on_headers, vary_on_cookie
+from django.core.cache import cache
+from .models import Autor
+
+
+def llista_autors(request):
+    """
+    get_or_set: manera compacta i segura de cachear un QuerySet.
+    Si la clau no existeix, executa el lambda, guarda el resultat i el retorna.
+    Si la clau existeix, el lambda NO s'executa (lazy evaluation).
+    """
+    autors = cache.get_or_set(
+        'bibliapp:llista_autors',
+        lambda: list(Autor.objects.order_by('cognom', 'nom')),
+        timeout=60 * 5,  # 5 minuts
+    )
+    return render(request, 'bibliapp/llista_autors.html', {'autors': autors})
+
+
+@vary_on_headers('Accept-Language')
+@cache_page(60 * 10)
+def portada_multiidioma(request):
+    """
+    vary_on_headers fa que Django mantingui una versió de cache
+    per a cada idioma. Sense vary_on_headers, tots els usuaris
+    rebrien la versió en l'idioma del primer visitant.
+    """
+    return render(request, 'bibliapp/portada.html', {})
+
+
+@vary_on_cookie('sessionid')
+@cache_page(60 * 2)
+def recomanacions(request):
+    """
+    vary_on_cookie fa que cada sessió tingui la seva pròpia cache.
+    Útil si les recomanacions depenen de l'usuari però el càlcul és costós.
+    """
+    recomanats = Autor.objects.order_by('?')[:5]  # exemple simplificat
+    return render(request, 'bibliapp/recomanacions.html', {'recomanats': recomanats})
+</code></pre>
+    </div>
+
+    <div class="tip-block tip-note">
+      <span class="tip-prefix">🔮 Cache múltiple</span>
+      <p>Django suporta múltiples backends de cache simultàniament. Pots tenir <code>'default'</code> amb Redis per a dades generals i <code>'sessions'</code> amb LocMemCache per a sessions. Accedeix a un backend no-default amb <code>from django.core.cache import caches; caches['sessions'].get('clau')</code>. A MediNetNode, la variable <code>RATELIMIT_USE_CACHE</code> apunta al backend de Redis per al rate limiting.</p>
+    </div>
+
+    <div class="deps-block">
+      <div class="deps-header">📦 Dependències i fitxers necessaris</div>
+      <div class="deps-body">
+        <p style="font-family:'Lora',serif;color:#1C2E45;margin-bottom:.75rem;">Per a dev s'usa LocMemCache (sense instal·lació). Per a producció, Redis és recomanat.</p>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Shell</span><span class="code-file">Instal·lació (producció)</span></div>
+          <pre><code class="language-bash">pip install redis django-redis
+# o amb docker:
+docker run -d -p 6379:6379 redis:alpine</code></pre>
+        </div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Python</span><span class="code-file">settings/dev.py vs prod.py</span></div>
+          <pre><code class="language-python"># settings/dev.py — sense Redis
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'bibliapp-dev',
+    }
+}
+
+# settings/prod.py — amb Redis
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'TIMEOUT': 300,
+        'KEY_PREFIX': 'bibliapp:',
+    }
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCICI -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Cache de la llista d'Autors amb invalidació per signals</h3>
+        <p class="exercise-context">
+          La llista d'autors de bibliapp es consulta molt sovint però els autors nous s'afegeixen rarament. Implementarem una cache de 5 minuts per a aquesta llista, i la invalidarem automàticament via signals cada vegada que es crea o modifica un Autor, de manera que els canvis siguin sempre visibles immediatament.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>A <code>views.py</code>, modifica la vista <code>llista_autors</code> perquè usi <code>cache.get_or_set()</code> amb la clau <code>'bibliapp:autors'</code> i un timeout de 5 minuts (300 segons).</li>
+            <li>A <code>signals.py</code>, crea un receiver de <code>post_save</code> per al model <code>Autor</code> que cridi <code>cache.delete('bibliapp:autors')</code> per invalidar la cache quan es modifica o crea un autor.</li>
+            <li>Afegeix també un receiver de <code>post_delete</code> per al mateix model per invalidar si s'esborra un autor.</li>
+            <li>Assegura't que els signals estan importats a <code>apps.py</code> dins de <code>ready()</code>.</li>
+            <li>Configura <code>CACHES</code> a <code>settings.py</code> per usar <code>LocMemCache</code> en desenvolupament (el backend per defecte de Django ja és LocMem, però fes-ho explícit).</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">views.py — Codi inicial</span>
+          </div>
+          <pre><code class="language-python">from django.shortcuts import render
+from django.core.cache import cache
+from .models import Autor
+
+CACHE_KEY_AUTORS = 'bibliapp:autors'
+CACHE_TIMEOUT    = 60 * 5  # 5 minuts
+
+
+def llista_autors(request):
+    # TODO 1: substituir la consulta directa per cache.get_or_set()
+    # Ara mateix consulta la BD cada vegada:
+    autors = Autor.objects.order_by('cognom', 'nom')
+
+    return render(request, 'bibliapp/llista_autors.html', {'autors': autors})
+</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">signals.py — Codi inicial</span>
+          </div>
+          <pre><code class="language-python">from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from django.core.cache import cache
+from .models import Autor
+
+CACHE_KEY_AUTORS = 'bibliapp:autors'
+
+
+# TODO 2: afegir @receiver per a post_save de l'Autor
+# Recorda: dispatch_uid per evitar duplicats
+def invalidar_cache_autors_save(sender, **kwargs):
+    # TODO 3: esborrar la clau de cache
+    pass
+
+
+# TODO 4: afegir @receiver per a post_delete de l'Autor
+def invalidar_cache_autors_delete(sender, **kwargs):
+    # TODO 5: esborrar la clau de cache
+    pass
+</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">settings.py — Codi inicial</span>
+          </div>
+          <pre><code class="language-python"># TODO 6: configurar explícitament LocMemCache per a dev
+CACHES = {
+    'default': {
+        # TODO: afegir BACKEND, LOCATION, TIMEOUT i MAX_ENTRIES
+    }
+}
+</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span class="tip-icon">💡</span>
+          <span>El lambda dins de <code>cache.get_or_set()</code> ha de retornar una llista, no un QuerySet. Si guardes un QuerySet, Django el serialitza però pot donar problemes en deserialitzar. Fes <code>lambda: list(Autor.objects.order_by(...))</code> per forçar l'avaluació i guardar una llista Python.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>La primera petició a <code>/autors/</code> fa una consulta SQL i guarda el resultat a la cache. Les peticions següents (dins dels 5 minuts) no fan cap consulta SQL. En crear o modificar un autor des de l'admin o una vista, la cache s'invalida automàticament i la propera petició torna a consultar la BD amb les dades actualitzades.</p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>▶ Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa — views.py + signals.py</span></div>
+              <pre><code class="language-python"># books/views.py
+from django.core.cache import cache
+from .models import Autor
+
+CACHE_KEY_AUTORS = 'books:autors_llista'
+CACHE_TTL = 300  # 5 minuts
+
+def llistar_autors(request):
+    autors = cache.get(CACHE_KEY_AUTORS)
+    if autors is None:
+        autors = list(Autor.objects.annotate(
+            total_llibres=Count('llibres')
+        ).order_by('cognoms'))
+        cache.set(CACHE_KEY_AUTORS, autors, CACHE_TTL)
+    return render(request, 'books/llistar_autors.html', {'autors': autors})
+
+# books/signals.py — invalidació automàtica
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from django.core.cache import cache
+from .models import Autor
+
+@receiver(post_save, sender=Autor)
+@receiver(post_delete, sender=Autor)
+def invalidar_cache_autors(sender, **kwargs):
+    cache.delete(CACHE_KEY_AUTORS)</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Segon exercici -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic 2</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Cache per usuari amb clau personalitzada</h3>
+        <p class="exercise-context">
+          De vegades la cache ha de variar per usuari (p.ex. pàgines personalitzades). <code>@cache_page</code> és massa simple; cal una clau de cache que inclogui l'usuari per evitar que un usuari vegi les dades d'un altre.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Implementa cache manual a la vista <code>els_meus_prestecs</code> que cachi el resultat per usuari.</li>
+            <li>Usa com a clau <code>f"prestecs:{request.user.pk}"</code> amb TTL de 2 minuts.</li>
+            <li>Invalida la cache de l'usuari quan es crea un nou <code>Prestec</code> (via signal).</li>
+            <li>Afegeix un indicador <code>from_cache=True</code> al context del template per saber si les dades vénen de cache.</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">books/views.py — Codi inicial</span>
+          </div>
+          <pre><code class="language-python"># books/views.py
+from django.core.cache import cache
+
+@login_required
+def els_meus_prestecs(request):
+    cache_key = f"prestecs:{request.user.pk}"
+    # TODO: intenta obtenir de cache
+    dades = None  # TODO: cache.get(cache_key)
+    from_cache = False
+
+    if dades is None:
+        dades = list(Prestec.objects.filter(
+            lector=request.user.lector
+        ).select_related('llibre').order_by('-data_prestec'))
+        # TODO: guarda a cache 120 segons
+        from_cache = False
+    else:
+        from_cache = True
+
+    return render(request, 'books/els_meus_prestecs.html', {
+        'prestecs': dades, 'from_cache': from_cache
+    })</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Pista: La clau de cache ha d'incloure l'ID d'usuari per no barrejar dades entre usuaris. Usa <code>f"prestecs:{request.user.pk}"</code>.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>La segona petició de cada usuari és instantània (ve de cache). Crear un préstec invalida la seva cache personal sense afectar la cache d'altres usuaris.</p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>▶ Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa</span></div>
+              <pre><code class="language-python">@login_required
+def els_meus_prestecs(request):
+    cache_key = f"prestecs:{request.user.pk}"
+    dades = cache.get(cache_key)
+    from_cache = dades is not None
+
+    if not from_cache:
+        dades = list(Prestec.objects.filter(
+            lector=request.user.lector
+        ).select_related('llibre').order_by('-data_prestec'))
+        cache.set(cache_key, dades, 120)
+
+    return render(request, 'books/els_meus_prestecs.html', {
+        'prestecs': dades, 'from_cache': from_cache
+    })
+
+# books/signals.py — invalidació per usuari
+@receiver(post_save, sender=Prestec)
+def invalidar_cache_prestecs_usuari(sender, instance, created, **kwargs):
+    if created or kwargs.get('update_fields'):
+        cache_key = f"prestecs:{instance.lector.usuari.pk}"
+        cache.delete(cache_key)</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- RESUM -->
+    <section class="summary-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Resum de la unitat
+      </h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h4>API de baix nivell</h4>
+          <ul>
+            <li>cache.get(clau)</li>
+            <li>cache.set(clau, val, t)</li>
+            <li>cache.delete(clau)</li>
+            <li>cache.get_or_set()</li>
+            <li>cache.clear()</li>
+            <li>cache.set_many()</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Backends disponibles</h4>
+          <ul>
+            <li>LocMemCache (dev)</li>
+            <li>DatabaseCache</li>
+            <li>FileBasedCache</li>
+            <li>RedisCache (prod)</li>
+            <li>MemcachedCache</li>
+            <li>DummyCache (tests)</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Decoradors de vista</h4>
+          <ul>
+            <li>@cache_page(timeout)</li>
+            <li>@never_cache</li>
+            <li>@vary_on_headers()</li>
+            <li>@vary_on_cookie()</li>
+            <li>@cache_control()</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Settings clau</h4>
+          <ul>
+            <li>CACHES['default']</li>
+            <li>BACKEND</li>
+            <li>LOCATION</li>
+            <li>TIMEOUT</li>
+            <li>KEY_PREFIX</li>
+            <li>OPTIONS</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="unit-nav">
+    <a href="unitat-15.html" class="nav-prev">← <span>Unitat 15 — Signals de Django</span></a>
+    <a href="index.html" class="nav-home">Índex</a>
+    <a href="unitat-17.html" class="nav-next"><span>Unitat 17 — Django REST Framework</span> →</a>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      hljs.highlightAll();
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const code = btn.closest('.code-block').querySelector('code').textContent;
+          navigator.clipboard.writeText(code);
+          btn.textContent = 'Copiat!';
+          setTimeout(() => btn.textContent = 'Copiar', 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

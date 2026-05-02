@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unitat 01 — Introducció a Django i MVT | Curs Django</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Highlight.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    /* === RESET === */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* === TOKENS === */
+    :root {
+      --bg:           #F4F7FB;
+      --surface:      #FFFFFF;
+      --surface-2:    #EBF0F8;
+      --code-bg:      #F1F5F9;
+      --border:       #C5D3E4;
+      --border-dim:   #DAE3EF;
+      --text:         #1C2E45;
+      --text-muted:   #4E6478;
+      --text-dim:     #96ABBE;
+      --heading:      #091929;
+      --accent:       #1755C4;
+      --accent-glow:  #1755C420;
+      --blue:         #2463EB;
+      --green:        #057A55;
+      --amber:        #92530A;
+      --purple:       #5B21B6;
+      --django-green: #E8F0FD;
+      --exercise-bg:  #F0FDF8;
+    }
+
+    /* === BASE === */
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Lora', serif;
+      min-height: 100vh;
+    }
+
+    /* === LAYOUT === */
+    .page-wrapper { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+
+    /* === CAPÇALERA === */
+    .unit-header {
+      background: linear-gradient(135deg, var(--django-green) 0%, var(--bg) 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 4rem;
+    }
+    .unit-number {
+      font-family: 'Lora', serif;
+      font-weight: 500;
+      font-size: 0.78rem;
+      color: var(--accent);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .unit-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 2.6rem;
+      color: var(--heading);
+      margin: 0.5rem 0;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+    }
+    .unit-subtitle {
+      font-family: 'Lora', serif;
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      font-style: italic;
+    }
+    .objectives {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .objectives h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.75rem;
+    }
+    .objectives ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .objectives li {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      padding-left: 1.25rem;
+      position: relative;
+    }
+    .objectives li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--green);
+      font-family: 'Syne', sans-serif;
+    }
+
+    /* === THEORY SECTION === */
+    .theory-section {
+      padding: 2.5rem 0;
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      font-size: 1.3rem;
+      color: var(--heading);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .section-icon { color: var(--accent); font-size: 0.8em; }
+    .theory-text {
+      font-family: 'Lora', serif;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    .concept-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .concept-list li {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.7;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+    .concept-list li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-family: 'Syne', sans-serif;
+    }
+    .concept-list code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88em;
+      color: var(--blue);
+      background: var(--surface-2);
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+    }
+
+    /* === CODE BLOCK === */
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+    .code-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .code-lang {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .code-file {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .copy-btn {
+      margin-left: auto;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.7rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    pre { padding: 1.25rem; overflow-x: auto; }
+    pre code {
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 0.88rem !important;
+      line-height: 1.7 !important;
+      background: transparent !important;
+    }
+
+    /* === TIP BLOCKS === */
+    .tip-block {
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .tip-block.tip-info    { background:#EBF2FF; border-left: 3px solid var(--blue); }
+    .tip-block.tip-warning { background:#FEF9C3; border-left: 3px solid var(--amber); }
+    .tip-block.tip-note    { background:#F5F3FF; border-left: 3px solid var(--purple); }
+    .tip-prefix {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .tip-block.tip-info    .tip-prefix { color: var(--blue); }
+    .tip-block.tip-warning .tip-prefix { color: var(--amber); }
+    .tip-block.tip-note    .tip-prefix { color: var(--purple); }
+    .tip-block p {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* === BADGE === */
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--blue);
+      padding: 0.15em 0.5em;
+      border-radius: 4px;
+    }
+    .badge-shell { color: var(--amber); }
+    .badge-new   { color: var(--green); border-color: #6EE7B7; background: var(--exercise-bg); }
+
+    /* === EXERCISE BLOCK === */
+    .exercise-block {
+      background: var(--exercise-bg);
+      border: 1px solid #6EE7B7;
+      border-radius: 16px;
+      overflow: hidden;
+      margin: 2rem 0;
+    }
+    .exercise-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      background: #ECFDF5;
+      border-bottom: 1px solid #A7F3D0;
+    }
+    .exercise-label {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .exercise-tag {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #057A55;
+      background: #ECFDF5;
+      border: 1px solid #6EE7B7;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+    }
+    .exercise-body { padding: 1.5rem; }
+    .exercise-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--heading);
+      margin-bottom: 0.75rem;
+    }
+    .exercise-context {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+    .exercise-tasks h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .exercise-tasks ol {
+      padding-left: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .exercise-tasks li {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .exercise-tip {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      background: #FEF9E7;
+      border: 1px solid #FCD34D;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--amber);
+    }
+    .exercise-result {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px dashed #6EE7B7;
+    }
+    .exercise-result h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+    .exercise-result p {
+      font-family: 'Lora', serif;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* === SUMMARY === */
+    .summary-section {
+      padding: 2.5rem 0;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+    .summary-card h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .summary-card ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .summary-card li {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .summary-card li code {
+      color: var(--blue);
+    }
+
+    /* === DIAGRAMA MVT === */
+    .mvt-diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.25rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+    }
+    .mvt-box {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1.25rem;
+      text-align: center;
+      min-width: 110px;
+    }
+    .mvt-box-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.25rem;
+    }
+    .mvt-box-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--heading);
+    }
+    .mvt-arrow {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      color: var(--accent);
+      padding: 0 0.75rem;
+    }
+    .mvt-box.model .mvt-box-name { color: var(--blue); }
+    .mvt-box.view .mvt-box-name  { color: var(--accent); }
+    .mvt-box.template .mvt-box-name { color: var(--green); }
+
+    /* === NAV === */
+    .unit-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 4rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+    .unit-nav a {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .unit-nav a:hover { color: var(--accent); }
+    .nav-home {
+      font-size: 0.8rem !important;
+      color: var(--text-dim) !important;
+      border: 1px solid var(--border);
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+    }
+    .nav-home:hover { border-color: var(--accent) !important; }
+    .nav-prev { opacity: 0.4; pointer-events: none; }
+
+    /* === SPOILER DE SOLUCIÓ === */
+    .solution-spoiler {
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .solution-spoiler summary {
+      cursor: pointer;
+      padding: 0.875rem 1.25rem;
+      background: var(--surface-2);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent);
+      user-select: none;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.2s;
+    }
+    .solution-spoiler summary::marker,
+    .solution-spoiler summary::-webkit-details-marker { display: none; }
+    .solution-spoiler summary:hover { background: #EBF2FF; }
+    .solution-spoiler[open] summary { border-bottom: 1px solid var(--border); }
+    .solution-body .code-block { margin: 0; border: none; border-radius: 0; }
+  </style>
+</head>
+<body>
+
+  <!-- CAPÇALERA -->
+  <header class="unit-header">
+    <div class="page-wrapper">
+      <p class="unit-number">Unitat 01 · Curs de Django</p>
+      <h1 class="unit-title">Introducció a Django i MVT</h1>
+      <p class="unit-subtitle">Del "Hola, món!" a entendre com Django processa cada petició web.</p>
+      <div class="objectives">
+        <h3>En aquesta unitat aprendràs:</h3>
+        <ul>
+          <li>Què és Django i per a quin tipus de projectes és adequat</li>
+          <li>El patró MVT (Model-Vista-Template) i com difereix de MVC</li>
+          <li>L'estructura de fitxers d'un projecte Django nou</li>
+          <li>Crear el primer projecte i la primera app amb les comandes bàsiques</li>
+          <li>El cicle complet d'una petició HTTP dins de Django</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTINGUT PRINCIPAL -->
+  <main class="page-wrapper">
+
+    <!-- SECCIÓ 1: Què és Django -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Què és Django i per què existeix
+      </h2>
+      <p class="theory-text">
+        Django és un framework web d'alt nivell escrit en Python que fomenta el desenvolupament ràpid
+        i el disseny net i pragmàtic. Va néixer el 2003 a la redacció del diari <em>Lawrence Journal-World</em>
+        per a gestionar continguts de notícies amb agilitat. Des de llavors s'ha convertit en un dels
+        frameworks web més populars del món, usat per empreses com Instagram, Pinterest, Disqus i Mozilla.
+      </p>
+      <p class="theory-text">
+        El lema oficial és <em>"The web framework for perfectionists with deadlines"</em>: Django inclou
+        de sèrie tot el que una aplicació web real necessita: ORM, sistema d'autenticació, panell
+        d'administració, sistema de formularis, gestió d'arxius estàtics i molt més. Això contrasta amb
+        microframeworks com Flask, que requereixen afegir cada peça per separat.
+      </p>
+      <ul class="concept-list">
+        <li><code>Django 4.2 LTS</code> — versió de suport a llarg termini, recomanada per a producció fins al 2026</li>
+        <li><code>batteries included</code> — tot inclòs: ORM, admin, auth, formularis, cache, signals</li>
+        <li><code>DRY</code> — Don't Repeat Yourself: principi fonamental del disseny de Django</li>
+        <li><code>python manage.py</code> — eina de gestió principal per a totes les operacions de Django</li>
+      </ul>
+
+      <div class="tip-block tip-info">
+        <span class="tip-prefix">📌 Prerequisit</span>
+        <p>Necessites Python 3.10 o superior. Comprova-ho amb <code>python --version</code> al terminal.
+        Es recomana crear sempre un entorn virtual per a cada projecte: <code>python -m venv .venv</code>.</p>
+      </div>
+    </section>
+
+    <!-- SECCIÓ 2: MVT vs MVC -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        El patró MVT — Model, Vista, Template
+      </h2>
+      <p class="theory-text">
+        Django segueix el patró arquitectònic MVT, una variant del conegut MVC (Model-Vista-Controlador).
+        La diferència principal és terminològica i de responsabilitats: el que en MVC seria el
+        <em>Controlador</em> és la <em>Vista</em> en Django, i el que seria la <em>Vista</em> és el
+        <em>Template</em>. Django gestiona la capa de controlador internament a través del sistema d'URLs.
+      </p>
+
+      <!-- Diagrama MVT -->
+      <div class="mvt-diagram">
+        <div class="mvt-box model">
+          <div class="mvt-box-label">Dades</div>
+          <div class="mvt-box-name">Model</div>
+        </div>
+        <div class="mvt-arrow">⇄</div>
+        <div class="mvt-box view">
+          <div class="mvt-box-label">Lògica</div>
+          <div class="mvt-box-name">Vista</div>
+        </div>
+        <div class="mvt-arrow">⇄</div>
+        <div class="mvt-box template">
+          <div class="mvt-box-label">Presentació</div>
+          <div class="mvt-box-name">Template</div>
+        </div>
+      </div>
+
+      <ul class="concept-list">
+        <li><code>Model</code> — defineix l'estructura de les dades i la lògica de negoci; Django el mapa a la base de dades via l'ORM</li>
+        <li><code>Vista</code> — rep la petició HTTP, consulta els models, prepara el context i retorna una resposta (normalment renderitzant un template)</li>
+        <li><code>Template</code> — fitxer HTML amb el sistema de plantilles de Django; rep el context de la vista i genera el HTML final</li>
+        <li><code>URL dispatcher</code> — el component que Django gestiona automàticament i que connecta URLs amb vistes (el "Controlador" de MVC)</li>
+      </ul>
+
+      <p class="theory-text">
+        El cicle d'una petició HTTP en Django segueix sempre el mateix flux:
+        el navegador fa una petició → Django cerca la URL a <code>urls.py</code> → executa la Vista
+        corresponent → la Vista consulta els Models → renderitza el Template → retorna la resposta HTTP.
+      </p>
+
+      <div class="tip-block tip-note">
+        <span class="tip-prefix">🔮 Nota avançada</span>
+        <p>Django també suporta vistes que no renderitzen templates sinó que retornen JSON
+        (<code>JsonResponse</code>), ideal per a APIs. Ho veurem a la unitat 17 amb Django REST Framework.</p>
+      </div>
+    </section>
+
+    <!-- SECCIÓ 3: Estructura del projecte -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Estructura d'un projecte Django
+      </h2>
+      <p class="theory-text">
+        Quan crees un projecte amb <code>django-admin startproject nom</code>, Django genera una
+        estructura de fitxers estàndard. Entendre quin fitxer fa què és imprescindible per a treballar
+        amb comoditat des del primer dia.
+      </p>
+      <ul class="concept-list">
+        <li><code>manage.py</code> — script de gestió del projecte; l'ús directe és equivalent a <code>django-admin</code> però amb les settings carregades automàticament</li>
+        <li><code>settings.py</code> — configuració global: base de dades, apps instal·lades, middleware, templates, arxius estàtics, etc.</li>
+        <li><code>urls.py</code> — taula d'enrutament principal; connecta patrons d'URL amb vistes o inclou urls.py d'apps</li>
+        <li><code>wsgi.py</code> — punt d'entrada per a servidors WSGI (Gunicorn, uWSGI) en producció</li>
+        <li><code>asgi.py</code> — punt d'entrada per a servidors ASGI (Daphne, Uvicorn) per a suport de WebSockets</li>
+        <li><code>models.py</code> — dins de cada app: definició dels models de dades</li>
+        <li><code>views.py</code> — dins de cada app: lògica de les vistes</li>
+        <li><code>admin.py</code> — dins de cada app: registre de models al panell d'administració</li>
+        <li><code>apps.py</code> — configuració de l'app (nom, etiqueta, senyal de preparació)</li>
+        <li><code>migrations/</code> — carpeta que conté les migracions de la base de dades generades automàticament</li>
+      </ul>
+    </section>
+
+    <!-- CODI 1: Crear projecte i app -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Shell</span>
+        <span class="code-file">terminal — crear projecte i app</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-bash"># Instal·lar Django en un entorn virtual nou
+python -m venv .venv
+source .venv/bin/activate      # Linux/macOS
+# .venv\Scripts\activate       # Windows
+
+pip install django==4.2.*
+
+# Verificar la instal·lació
+python -m django --version
+
+# Crear el projecte (genera la carpeta bibliapp_project/)
+django-admin startproject bibliapp_project .
+# El punt final posa els fitxers a l'arrel, no en una subcarpeta extra
+
+# Estructura generada:
+# manage.py
+# bibliapp_project/
+#   __init__.py
+#   settings.py
+#   urls.py
+#   asgi.py
+#   wsgi.py
+
+# Crear l'app books (una app és un mòdul reutilitzable)
+python manage.py startapp books
+
+# Estructura de l'app generada:
+# books/
+#   __init__.py
+#   admin.py
+#   apps.py
+#   models.py
+#   tests.py
+#   views.py
+#   migrations/
+#     __init__.py
+
+# Arrancar el servidor de desenvolupament (port 8000 per defecte)
+python manage.py runserver
+
+# O en un port específic:
+python manage.py runserver 0.0.0.0:5000</code></pre>
+    </div>
+
+    <div class="tip-block tip-warning">
+      <span class="tip-prefix">⚠️ Important</span>
+      <p>Quan crees una app nova, has d'afegir-la a <code>INSTALLED_APPS</code> al fitxer
+      <code>settings.py</code> perquè Django la reconegui. Sense aquest pas, les migracions
+      de l'app no s'aplicaran i els templates no es trobaran.</p>
+    </div>
+
+    <!-- CODI 2: Primera vista i URL -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">books/views.py</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">from django.http import HttpResponse
+from django.shortcuts import render
+
+
+def inici(request):
+    """Vista principal de l'app books.
+
+    Rep un objecte HttpRequest i retorna un HttpResponse.
+    Tota vista Django segueix exactament aquest contracte.
+    """
+    # La variable 'request' conté tota la informació de la petició:
+    # request.method (GET, POST, PUT...)
+    # request.user (usuari autenticat o AnonymousUser)
+    # request.GET / request.POST (dades del formulari o query string)
+    return HttpResponse("Hola, biblioteca! Benvingut a bibliapp.")
+
+
+def llista_llibres(request):
+    """Vista que usa un template per renderitzar la resposta.
+
+    El context és un diccionari que el template rebrà com a variables.
+    """
+    # En unitats posteriors obtindrem això de la base de dades
+    context = {
+        'titol': 'Catàleg de Llibres',
+        'llibres': [
+            {'titol': 'El Quixot', 'autor': 'Cervantes'},
+            {'titol': 'Tirant lo Blanc', 'autor': 'Joanot Martorell'},
+            {'titol': 'La Plaça del Diamant', 'autor': 'Mercè Rodoreda'},
+        ],
+    }
+    # render() combina un template amb el context i retorna HttpResponse
+    return render(request, 'books/llista.html', context)</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">books/urls.py — crear aquest fitxer nou</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">from django.urls import path
+from . import views
+
+# app_name permet usar namespaces: {% url 'books:inici' %}
+app_name = 'books'
+
+urlpatterns = [
+    # /books/           → vista inici
+    path('', views.inici, name='inici'),
+    # /books/llibres/   → vista llista_llibres
+    path('llibres/', views.llista_llibres, name='llista-llibres'),
+]</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">bibliapp_project/urls.py — afegir l'include</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python">from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    # Inclou totes les URLs de l'app books sota el prefix /books/
+    path('books/', include('books.urls')),
+]</code></pre>
+    </div>
+
+    <!-- EXERCICI PRÀCTIC -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Posar en marxa bibliapp</h3>
+        <p class="exercise-context">
+          Comencem a construir <em>bibliapp</em>, l'aplicació de gestió de biblioteca que anirem
+          ampliant al llarg de tot el curs. En aquesta primera sessió el més important és tenir
+          l'entorn operatiu i veure la primera resposta al navegador.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Crea un entorn virtual i instal·la Django 4.2</li>
+            <li>Crea el projecte <code>bibliapp_project</code> usant el punt final per evitar una subcarpeta extra</li>
+            <li>Crea l'app <code>books</code> i registra-la a <code>INSTALLED_APPS</code></li>
+            <li>Implementa la vista <code>hola_biblioteca</code> i la seva URL a <code>/books/</code></li>
+            <li>Arrenca el servidor i comprova que <code>http://127.0.0.1:8000/books/</code> mostra el missatge</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">Codi inicial — completa els TODO</span>
+          </div>
+          <pre><code class="language-python"># books/views.py
+
+from django.http import HttpResponse
+
+
+def hola_biblioteca(request):
+    # TODO: Retorna un HttpResponse amb el text "Hola biblioteca!"
+    # Recorda: tota vista rep 'request' i ha de retornar una resposta
+    pass
+
+
+# -----------------------------------------------------------------------
+# books/urls.py  (crea aquest fitxer nou dins de la carpeta books/)
+
+from django.urls import path
+from . import views
+
+app_name = 'books'
+
+urlpatterns = [
+    # TODO: Afegeix un path que mapegi '' (arrel de /books/)
+    #       a la vista hola_biblioteca amb name='hola'
+]
+
+
+# -----------------------------------------------------------------------
+# bibliapp_project/settings.py  (modifica INSTALLED_APPS)
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    # TODO: Afegeix l'app books aquí
+]
+
+
+# -----------------------------------------------------------------------
+# bibliapp_project/urls.py  (modifica per incloure les urls de books)
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    # TODO: Afegeix un include per a 'books.urls' sota el prefix 'books/'
+]</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Si veus un error <em>"ModuleNotFoundError: No module named 'books'"</em>, assegura't que has escrit exactament <code>'books'</code> (sense majúscules) a INSTALLED_APPS i que el fitxer <code>books/apps.py</code> existeix.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>Quan visites <code>http://127.0.0.1:8000/books/</code> al navegador has de veure el text
+          "Hola biblioteca!" sense cap error. El servidor de Django al terminal ha de mostrar
+          <code>GET /books/ 200</code> al log de peticions.</p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-lang">Python</span>
+                <span class="code-file">Solució completa</span>
+                <button class="copy-btn">Copiar</button>
+              </div>
+              <pre><code class="language-python"># Terminal (bash):
+# django-admin startproject bibliapp
+# cd bibliapp
+# python manage.py startapp books
+
+# books/views.py
+from django.http import HttpResponse
+
+def hola_biblioteca(request):
+    return HttpResponse("&lt;h1&gt;Hola, biblioteca!&lt;/h1&gt;")
+
+# bibliapp/urls.py
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('books.urls')),
+]
+
+# books/urls.py (crear el fitxer)
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.hola_biblioteca, name='inici'),
+]
+
+# bibliapp/settings.py — afegir 'books' a INSTALLED_APPS
+INSTALLED_APPS = [
+    ...
+    'books',
+]</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- EXERCICI 2 -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Vista de benvinguda amb sessió</h3>
+        <p class="exercise-context">
+          Les sessions de Django permeten guardar dades entre peticions. Afegirem un comptador de
+          visites a la pàgina d'inici per veure com funciona el mecanisme de sessió integrat.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Crea una nova vista <code>comptador_visites</code> a <code>books/views.py</code></li>
+            <li>Cada vegada que s'accedeix, incrementa <code>request.session['visites']</code> en 1</li>
+            <li>Retorna un <code>HttpResponse</code> mostrant el nombre de visites</li>
+            <li>Afegeix la URL <code>/visites/</code> mapeada a aquesta vista</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">Codi inicial — completa els TODO</span>
+          </div>
+          <pre><code class="language-python"># books/views.py
+from django.http import HttpResponse
+
+def comptador_visites(request):
+    # TODO: Obté el valor actual de 'visites' de la sessió (per defecte 0)
+    visites = None  # TODO
+    # TODO: Incrementa el comptador
+    # TODO: Guarda el nou valor a la sessió
+    # TODO: Retorna HttpResponse amb el missatge "Has visitat aquesta pàgina X vegades"
+    pass</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Usa <code>request.session.get('visites', 0)</code> per obtenir el valor i <code>request.session['visites'] = valor</code> per guardar-lo.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>En accedir a <code>/visites/</code> repetidament, el comptador ha d'augmentar cada vegada. La sessió manté el valor entre peticions del mateix navegador.</p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-lang">Python</span>
+                <span class="code-file">Solució completa</span>
+                <button class="copy-btn">Copiar</button>
+              </div>
+              <pre><code class="language-python"># books/views.py
+from django.http import HttpResponse
+
+def comptador_visites(request):
+    visites = request.session.get('visites', 0)
+    visites += 1
+    request.session['visites'] = visites
+    return HttpResponse(f"&lt;h2&gt;Has visitat aquesta pàgina {visites} vegada/es&lt;/h2&gt;")
+
+# books/urls.py
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.hola_biblioteca, name='inici'),
+    path('visites/', views.comptador_visites, name='comptador_visites'),
+]</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- RESUM -->
+    <section class="summary-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Resum de la Unitat
+      </h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h4>Comandes clau</h4>
+          <ul>
+            <li><code>django-admin startproject nom .</code></li>
+            <li><code>python manage.py startapp nom</code></li>
+            <li><code>python manage.py runserver</code></li>
+            <li><code>python manage.py runserver 0.0.0.0:5000</code></li>
+            <li><code>python manage.py migrate</code></li>
+            <li><code>python manage.py createsuperuser</code></li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Conceptes apresos</h4>
+          <ul>
+            <li>Django i el patró MVT</li>
+            <li>Diferència MVT vs MVC</li>
+            <li>Estructura de fitxers del projecte</li>
+            <li>Crear projecte i app</li>
+            <li>Primera vista i URL</li>
+            <li>Cicle petició → resposta</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- NAV ENTRE UNITATS -->
+  <nav class="unit-nav">
+    <a href="#" class="nav-prev">
+      ← <span>Inici del curs</span>
+    </a>
+    <a href="index.html" class="nav-home">Índex</a>
+    <a href="unitat-02.html" class="nav-next">
+      <span>Unitat 02 — Configuració i Settings</span> →
+    </a>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      hljs.highlightAll();
+
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const code = btn.closest('.code-block').querySelector('code').textContent;
+          navigator.clipboard.writeText(code);
+          btn.textContent = 'Copiat!';
+          setTimeout(() => btn.textContent = 'Copiar', 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

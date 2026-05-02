@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unitat 19 — Seguretat en Django | Curs Django</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Highlight.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    /* === RESET === */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* === TOKENS === */
+    :root {
+      --bg:           #F4F7FB;
+      --surface:      #FFFFFF;
+      --surface-2:    #EBF0F8;
+      --code-bg:      #F1F5F9;
+      --border:       #C5D3E4;
+      --border-dim:   #DAE3EF;
+      --text:         #1C2E45;
+      --text-muted:   #4E6478;
+      --text-dim:     #96ABBE;
+      --heading:      #091929;
+      --accent:       #1755C4;
+      --accent-glow:  #1755C420;
+      --blue:         #2463EB;
+      --green:        #057A55;
+      --amber:        #92530A;
+      --purple:       #5B21B6;
+      --django-green: #E8F0FD;
+      --exercise-bg:  #F0FDF8;
+    }
+
+    /* === BASE === */
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Lora', serif;
+      min-height: 100vh;
+    }
+
+    /* === LAYOUT === */
+    .page-wrapper { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+
+    /* === CAPÇALERA === */
+    .unit-header {
+      background: linear-gradient(135deg, var(--django-green) 0%, var(--bg) 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 4rem;
+    }
+    .unit-number {
+      font-family: 'Lora', serif;
+      font-weight: 500;
+      font-size: 0.78rem;
+      color: var(--accent);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .unit-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 2.6rem;
+      color: var(--heading);
+      margin: 0.5rem 0;
+      letter-spacing: -0.01em;
+    }
+    .unit-subtitle {
+      font-family: 'Lora', serif;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+    .objectives {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .objectives h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.75rem;
+    }
+    .objectives ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .objectives li {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      padding-left: 1.25rem;
+      position: relative;
+    }
+    .objectives li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--green);
+      font-family: 'Syne', sans-serif;
+    }
+
+    /* === SECCIONS DE TEORIA === */
+    .theory-section {
+      padding: 2.5rem 0;
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      font-size: 1.3rem;
+      color: var(--heading);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .section-icon { color: var(--accent); font-size: 0.8em; }
+    .theory-text {
+      font-family: 'Lora', serif;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    .concept-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .concept-list li {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.7;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+    .concept-list li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-family: 'Syne', sans-serif;
+    }
+    .concept-list code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88em;
+      color: var(--blue);
+      background: var(--surface-2);
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+    }
+
+    /* === BLOCS DE CODI === */
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+    .code-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .code-lang {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .code-file {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .copy-btn {
+      margin-left: auto;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.7rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    pre { padding: 1.25rem; overflow-x: auto; }
+    pre code {
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 0.88rem !important;
+      line-height: 1.7 !important;
+      background: transparent !important;
+    }
+
+    /* === TIP BLOCKS === */
+    .tip-block {
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .tip-block.tip-info   { background:#EBF2FF; border-left: 3px solid var(--blue); }
+    .tip-block.tip-warning{ background:#FEF9C3; border-left: 3px solid var(--amber); }
+    .tip-block.tip-note   { background:#F5F3FF; border-left: 3px solid var(--purple); }
+    .tip-block.tip-danger { background:#1a0d0d; border-left: 3px solid #e53e3e; }
+    .tip-prefix {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .tip-block.tip-info    .tip-prefix { color: var(--blue); }
+    .tip-block.tip-warning .tip-prefix { color: var(--amber); }
+    .tip-block.tip-note    .tip-prefix { color: var(--purple); }
+    .tip-block.tip-danger  .tip-prefix { color: #e53e3e; }
+    .tip-block p {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* === BADGES === */
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--blue);
+      padding: 0.15em 0.5em;
+      border-radius: 4px;
+    }
+    .badge-shell { color: var(--amber); }
+    .badge-new   { color: var(--green); border-color: #6EE7B7; background: var(--exercise-bg); }
+    .badge-danger { color: #e53e3e; border-color: #4a1a1a; background: #1a0d0d; }
+
+    /* === EXERCICI === */
+    .exercise-block {
+      background: var(--exercise-bg);
+      border: 1px solid #6EE7B7;
+      border-radius: 16px;
+      overflow: hidden;
+      margin: 2rem 0;
+    }
+    .exercise-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      background: #ECFDF5;
+      border-bottom: 1px solid #A7F3D0;
+    }
+    .exercise-label {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .exercise-tag {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #057A55;
+      background: #ECFDF5;
+      border: 1px solid #6EE7B7;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+    }
+    .exercise-body { padding: 1.5rem; }
+    .exercise-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--heading);
+      margin-bottom: 0.75rem;
+    }
+    .exercise-context {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+    .exercise-tasks h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .exercise-tasks ol {
+      padding-left: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .exercise-tasks li {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .exercise-tip {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      background: #FEF9E7;
+      border: 1px solid #FCD34D;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--amber);
+    }
+    .exercise-result {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px dashed #6EE7B7;
+    }
+    .exercise-result h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+    .exercise-result p {
+      font-family: 'Lora', serif;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* === RESUM === */
+    .summary-section { padding: 2.5rem 0; }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+    .summary-card h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .summary-card ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .summary-card li {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* === NAV === */
+    .unit-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 4rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+    .unit-nav a {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .unit-nav a:hover { color: var(--accent); }
+    .nav-home {
+      font-size: 0.8rem;
+      color: var(--text-dim) !important;
+      border: 1px solid var(--border);
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+    }
+    .nav-home:hover { border-color: var(--accent) !important; }
+
+    /* === SOLUTION SPOILER === */
+    .solution-spoiler { margin-top:1rem; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    .solution-spoiler summary { cursor:pointer; padding:.875rem 1.25rem; background:var(--surface-2); font-family:'Syne',sans-serif; font-size:.85rem; font-weight:600; color:var(--accent); user-select:none; list-style:none; display:flex; align-items:center; gap:.5rem; transition:background .2s; }
+    .solution-spoiler summary::marker,.solution-spoiler summary::-webkit-details-marker{display:none;}
+    .solution-spoiler summary:hover{background:#EBF2FF;}
+    .solution-spoiler[open] summary{border-bottom:1px solid var(--border);}
+    .solution-body .code-block{margin:0;border:none;border-radius:0;}
+    .deps-block{background:#FFF8EE;border:1px solid #FCD34D;border-radius:12px;overflow:hidden;margin:1.5rem 0;}
+    .deps-header{display:flex;align-items:center;gap:.5rem;padding:.75rem 1.25rem;background:#FEF3C7;border-bottom:1px solid #FCD34D;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:#92400E;text-transform:uppercase;letter-spacing:.08em;}
+    .deps-body{padding:1.25rem;}
+
+    /* === SECURITY TABLE === */
+    .security-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.25rem 0;
+      font-family: 'Lora', serif;
+      font-size: 0.92rem;
+    }
+    .security-table th {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      background: var(--surface);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .security-table td {
+      padding: 0.65rem 1rem;
+      color: var(--text);
+      border-bottom: 1px solid var(--border-dim);
+      vertical-align: top;
+    }
+    .security-table tr:hover td { background: var(--surface); }
+    .security-table code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      color: var(--blue);
+      background: var(--surface-2);
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+    }
+    .threat { color: #e53e3e; font-weight: 500; }
+  </style>
+</head>
+<body>
+
+  <!-- CAPÇALERA DE UNITAT -->
+  <header class="unit-header">
+    <div class="page-wrapper">
+      <p class="unit-number">Unitat 19 · Curs de Django</p>
+      <h1 class="unit-title">Seguretat en Django</h1>
+      <p class="unit-subtitle">CSRF, XSS, SQL injection, CSP, rate limiting i hardening de settings de producció</p>
+      <div class="objectives">
+        <h3>En aquesta unitat aprendràs:</h3>
+        <ul>
+          <li>Com Django protegeix contra CSRF, XSS i SQL injection — i on fallen aquestes proteccions</li>
+          <li>Implementar Content Security Policy (CSP) amb nonce per a scripts inline segurs</li>
+          <li>Configurar tots els settings de seguretat per a producció (HSTS, cookies segures, headers)</li>
+          <li>Afegir rate limiting amb django-ratelimit i gestionar secrets amb python-decouple</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTINGUT PRINCIPAL -->
+  <main class="page-wrapper">
+
+    <!-- Secció 1: CSRF, XSS i SQL Injection -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        CSRF, XSS i SQL Injection: com funcionen i com Django les mitiga
+      </h2>
+
+      <p class="theory-text">
+        Les tres vulnerabilitats web més comunes tenen mecanismes de defensa molt concrets a Django. Entendre <em>per què</em> existeixen les proteccions és tan important com saber activar-les: és l'única manera de reconèixer quan una excepció a la regla és segura i quan no ho és.
+      </p>
+
+      <table class="security-table">
+        <thead>
+          <tr>
+            <th>Atac</th>
+            <th>Com funciona</th>
+            <th>Protecció de Django</th>
+            <th>On falla</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="threat">CSRF</span></td>
+            <td>Un lloc maliciós fa que el navegador de la víctima enviï una petició autenticada al nostre servidor sense que la víctima ho sàpiga</td>
+            <td><code>CsrfViewMiddleware</code> + <code>{% csrf_token %}</code></td>
+            <td><code>@csrf_exempt</code> mal aplicat; formularis sense el token</td>
+          </tr>
+          <tr>
+            <td><span class="threat">XSS</span></td>
+            <td>L'atacant injecta codi JavaScript maliciós que s'executa al navegador d'altres usuaris</td>
+            <td>Escapament automàtic de variables als templates Django</td>
+            <td>Usar <code>|safe</code> o <code>mark_safe()</code> amb dades no fiables</td>
+          </tr>
+          <tr>
+            <td><span class="threat">SQL Injection</span></td>
+            <td>L'atacant injecta codi SQL dins d'una consulta per llegir, modificar o esborrar dades arbitràries</td>
+            <td>L'ORM de Django parametritza totes les consultes automàticament</td>
+            <td>Usar <code>.raw()</code> amb f-strings o concatenació de strings</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="theory-text">
+        <strong>CSRF en detall:</strong> El middleware <code>CsrfViewMiddleware</code> genera un token secret per a cada sessió i l'incrusta als formularis amb <code>{% csrf_token %}</code>. En rebre una petició POST, verifica que el token del formulari coincideixi amb el de la sessió. Un lloc extern no pot conèixer aquest token, per tant no pot forjar la petició. <code>@csrf_exempt</code> desactiva aquesta protecció i <em>només</em> és acceptable per a endpoints que ja s'autentiquen per altres mecanismes, com les APIs DRF que usen tokens a la capçalera HTTP (on el disseny de l'arquitectura fa que el CSRF no apliqui).
+      </p>
+
+      <ul class="concept-list">
+        <li><code>{% csrf_token %}</code> — tag obligatori dins de qualsevol formulari HTML que faci POST; genera un camp ocult amb el token</li>
+        <li><code>CSRF_COOKIE_SECURE = True</code> — el cookie CSRF només es transmet per HTTPS; obligatori en producció</li>
+        <li><code>CSRF_TRUSTED_ORIGINS</code> — llista de dominis fiables per a peticions cross-origin (necessari amb reverse proxies)</li>
+        <li><code>@csrf_exempt</code> — usa-ho <em>únicament</em> quan tens un altre mecanisme d'autenticació per petició (token a capçalera, webhook amb signatura HMAC)</li>
+      </ul>
+
+      <p class="theory-text">
+        <strong>XSS en detall:</strong> Django escapa automàticament els caràcters especials HTML en totes les variables de template. Si un atacant aconsegueix guardar <code>&lt;script&gt;alert('xss')&lt;/script&gt;</code> a la base de dades, Django el mostrarà com a text literal, no com a codi. El perill apareix quan els programadors sobreescriuen aquesta protecció o construeixen HTML dinàmicament de manera incorrecta:
+      </p>
+
+      <ul class="concept-list">
+        <li><code>{{ variable|safe }}</code> — desactiva l'escapament; <strong>mai</strong> usar amb dades que provenen de l'usuari</li>
+        <li><code>mark_safe(string)</code> — marca un string com a HTML segur; <strong>només</strong> per a strings que has construït tu, mai per a dades d'entrada</li>
+        <li><code>format_html()</code> — alternativa segura a <code>mark_safe</code> quan cal construir HTML dinàmicament: escapa els arguments automàticament</li>
+        <li>JavaScript: mai inserir dades d'usuari via <code>element.innerHTML</code>; usar <code>element.textContent</code> que no interpreta HTML</li>
+        <li>JSON segur al template: usar <code>{{ dades|json_script:"id-element" }}</code> en lloc d'inserir dades directament a un bloc script</li>
+      </ul>
+
+      <p class="theory-text">
+        <strong>SQL Injection en detall:</strong> Quan escrius <code>Llibre.objects.filter(titol=valor_usuari)</code>, Django usa consultes parametritzades: el valor s'envia separat de la consulta SQL, i el motor de base de dades el tracta sempre com a dada, mai com a codi. El risc apareix quan uses l'escape hatch de l'ORM per escriure SQL manual:
+      </p>
+
+      <ul class="concept-list">
+        <li><code>Llibre.objects.raw("SELECT * FROM llibres WHERE titol = %s", [titol])</code> — segur: paràmetres separats</li>
+        <li><code>Llibre.objects.raw(f"SELECT * FROM ... WHERE titol = '{titol}'")</code> — <span class="threat">perillós</span>: concatenació directa</li>
+        <li><code>cursor.execute("SELECT * FROM llibres WHERE titol = %s", [titol])</code> — segur amb paràmetres</li>
+        <li><code>.extra(where=["titol = '%s'" % titol])</code> — <span class="threat">perillós</span>: el <code>%s</code> aquí és interpolació de Python, no un paràmetre SQL</li>
+      </ul>
+
+      <div class="tip-block tip-danger">
+        <span class="tip-prefix">🚨 Regla absoluta</span>
+        <p>Si necessites escriure SQL manual amb <code>.raw()</code> o <code>cursor.execute()</code>, <strong>sempre</strong> usa la sintaxi de paràmetres amb llista separada: <code>cursor.execute("... WHERE id = %s", [id_valor])</code>. Mai useu f-strings ni concatenació de strings en consultes SQL. El motor de la base de dades garanteix el tractament segur quan els valors van en la llista de paràmetres.</p>
+      </div>
+    </section>
+
+    <!-- BLOC DE CODI 1 -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">config/settings/prod.py — settings de producció segurs complets</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python"># config/settings/prod.py
+"""
+Settings de producció per a bibliapp.
+Tots els valors sensibles provenen de variables d'entorn via python-decouple.
+Mai hardcodis claus, contrasenyes ni secrets al codi font.
+"""
+from .base import *
+from decouple import config, Csv
+
+# ─── Secrets i configuració bàsica ────────────────────────────────────────
+SECRET_KEY = config('DJANGO_SECRET_KEY')  # mínim 50 caràcters aleatoris
+DEBUG = False
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+
+# ─── Base de dades de producció ───────────────────────────────────────────
+import dj_database_url
+DATABASES = {
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL'),
+        conn_max_age=600,   # connexions persistents fins a 10 minuts
+        ssl_require=True,   # exigir TLS a la connexió PostgreSQL
+    )
+}
+
+# ─── HTTPS i Transport Security ───────────────────────────────────────────
+
+# Redirigeix TOTES les peticions HTTP a HTTPS (codi 301)
+SECURE_SSL_REDIRECT = True
+
+# HSTS: indica als navegadors que bibliapp.cat SEMPRE és HTTPS.
+# 31536000 = 1 any en segons. Activa'l progressivament:
+# primer 300 (5 min), després 86400 (1 dia), finalment 31536000 (1 any).
+# Un HSTS mal configurat pot fer el lloc inaccessible durant tot el període.
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True   # aplica també a www., api., etc.
+SECURE_HSTS_PRELOAD = True              # permet incloure el domini al preload list
+
+# Evita que el navegador "endevini" el MIME type d'una resposta.
+# Protegeix contra atacs de MIME type confusion (p. ex. un CSV tractat com a JS).
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Evita que la pàgina es carregui dins d'un <iframe> (protecció clickjacking).
+X_FRAME_OPTIONS = 'DENY'
+
+# ─── Cookies segures ──────────────────────────────────────────────────────
+
+# Els cookies de sessió i CSRF només viatgen per HTTPS.
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# HttpOnly: JavaScript no pot llegir el cookie de sessió.
+# Protegeix contra robatori de sessió si hi ha una vulnerabilitat XSS residual.
+SESSION_COOKIE_HTTPONLY = True
+
+# SameSite=Lax: el cookie no s'envia en peticions cross-site de tercers.
+# 'Strict' és més segur però pot trencar fluxos OAuth; 'Lax' és l'equilibri bo.
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# Temps de vida de la sessió: 2 hores d'inactivitat màxima.
+SESSION_COOKIE_AGE = 7200
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# ─── Rate limiting (django-ratelimit) ─────────────────────────────────────
+# Instal·lació: pip install django-ratelimit
+# Els comptadors de rate limiting es guarden a la cache compartida (Redis).
+# Mai usar LocMemCache en producció: no es comparteix entre processos workers.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': config('REDIS_URL', default='redis://127.0.0.1:6379/1'),
+    }
+}
+RATELIMIT_USE_CACHE = 'default'
+# Si la cache no és accessible, BLOQUEJA (comportament conservador i segur).
+RATELIMIT_FAIL_OPEN = False
+
+# ─── Dominis fiables per a CSRF ───────────────────────────────────────────
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    cast=Csv(),
+    default='https://bibliapp.cat'
+)
+
+# ─── Gestió de secrets amb python-decouple ────────────────────────────────
+# Fitxer .env local (MAI al repositori git):
+#
+#   DJANGO_SECRET_KEY=clau-super-secreta-de-50-caracters-com-a-minim
+#   DATABASE_URL=postgres://user:pass@host:5432/bibliapp_prod
+#   REDIS_URL=redis://127.0.0.1:6379/1
+#   ALLOWED_HOSTS=bibliapp.cat,www.bibliapp.cat
+#   CSRF_TRUSTED_ORIGINS=https://bibliapp.cat,https://www.bibliapp.cat
+#
+# Genera una SECRET_KEY nova amb:
+#   python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+
+
+# ─── Exemple d'ús de @ratelimit a una vista ───────────────────────────────
+# biblioteca/views.py
+
+# from django_ratelimit.decorators import ratelimit
+#
+# @ratelimit(key='ip', rate='5/m', method='POST', block=True)
+# def login_view(request):
+#     """Màxim 5 intents de login per minut per IP. El 6è rep HTTP 429."""
+#     ...
+#
+# @ratelimit(key='user_or_ip', rate='100/h', block=False)
+# def cerca_llibres(request):
+#     """Rate limit suau: la vista pot reaccionar llegint request.limited."""
+#     if getattr(request, 'limited', False):
+#         return JsonResponse({'error': 'Massa peticions'}, status=429)
+#     ...
+#
+# Per capturar HTTP 429 globalment amb una pàgina personalitzada:
+# handler429 = 'biblioteca.views.ratelimit_exceeded'
+</code></pre>
+    </div>
+
+    <!-- Secció 2: CSP, Rate Limiting i Gestió de Secrets -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Content Security Policy, Rate Limiting i Gestió de Secrets
+      </h2>
+
+      <p class="theory-text">
+        La <strong>Content Security Policy (CSP)</strong> és una capçalera HTTP que el servidor envia i que el navegador usa per decidir d'on pot carregar recursos: scripts, estils, imatges, fonts, connexions. Fins i tot si un atacant aconsegueix injectar codi maliciós a la pàgina (via XSS), la CSP pot impedir que s'executi si no prové d'una font autoritzada. És la capa de defensa en profunditat.
+      </p>
+
+      <p class="theory-text">
+        El problema de la CSP és que bloqueja els <em>scripts inline</em> (blocs <code>&lt;script&gt;</code> directament al HTML) perquè no es pot distingir el teu codi legítim del codi injectat per un atacant. La solució moderna és el <strong>nonce</strong>: un valor aleatori criptogràfic generat per a cada petició HTTP que s'afegeix tant a la capçalera CSP com a cada tag <code>&lt;script&gt;</code>. El navegador permet executar únicament els scripts que tinguin el nonce correcte per a aquella petició concreta.
+      </p>
+
+      <ul class="concept-list">
+        <li><code>Content-Security-Policy: script-src 'nonce-abc123xyz'</code> — la capçalera declara el nonce vàlid per a aquesta petició</li>
+        <li><code>&lt;script nonce="abc123xyz"&gt;...&lt;/script&gt;</code> — script inline amb el nonce coincident; el navegador el permet</li>
+        <li><code>default-src 'self'</code> — per defecte, només s'accepten recursos del mateix domini</li>
+        <li><code>script-src 'self' https://cdnjs.cloudflare.com</code> — permet scripts del domini propi i de Cloudflare CDN</li>
+        <li><code>frame-ancestors 'none'</code> — equivalent CSP a <code>X-Frame-Options: DENY</code>; bloqueja iframes</li>
+        <li><code>form-action 'self'</code> — els formularis HTML només poden enviar dades al propi domini</li>
+        <li><code>base-uri 'self'</code> — evita atacs d'injecció del tag <code>&lt;base&gt;</code> que redirigeix tots els links relatius</li>
+      </ul>
+
+      <p class="theory-text">
+        El <strong>rate limiting</strong> protegeix contra atacs de força bruta (provar moltes contrasenyes), enumeració d'usuaris i abús de la API. <code>django-ratelimit</code> és la biblioteca estàndard: el decorator <code>@ratelimit</code> controla l'accés per <code>ip</code>, <code>user</code> o qualsevol camp de la petició. Els comptadors es guarden a la cache compartida, per la qual cosa necessites Redis o Memcached en producció.
+      </p>
+
+      <ul class="concept-list">
+        <li><code>@ratelimit(key='ip', rate='5/m', method='POST', block=True)</code> — màxim 5 POSTs per minut per IP; bloqueja amb HTTP 429 si se supera</li>
+        <li><code>@ratelimit(key='user', rate='100/h')</code> — límit per usuari autenticat (millor que per IP per a xarxes amb NAT compartit)</li>
+        <li><code>@ratelimit(key='ip', rate='10/m', block=False)</code> — no bloqueja automàticament; la vista llegeix <code>request.limited</code> per decidir</li>
+        <li><code>RATELIMIT_FAIL_OPEN = False</code> — si la cache falla, bloqueja per defecte (conservador i segur)</li>
+        <li><code>handler429 = 'biblioteca.views.ratelimit_exceeded'</code> — pàgina d'error personalitzada per a HTTP 429</li>
+      </ul>
+
+      <p class="theory-text">
+        La <strong>gestió de secrets</strong> és el punt on moltes aplicacions fallen fins i tot amb tota la resta configurat correctament. Un <code>SECRET_KEY</code> hardcoded al repositori és una vulnerabilitat crítica: qualsevol persona amb accés al codi o a l'historial de git pot falsificar sessions i cookies. <code>python-decouple</code> llegeix els secrets d'un fitxer <code>.env</code> en local i de variables d'entorn en producció, sense canviar el codi.
+      </p>
+
+      <ul class="concept-list">
+        <li><code>.env</code> — fitxer local amb els secrets; <strong>sempre</strong> al <code>.gitignore</code>; mai al repositori git</li>
+        <li><code>config('SECRET_KEY')</code> — llegeix de variable d'entorn primer; si no existeix, busca al fitxer <code>.env</code></li>
+        <li><code>config('DEBUG', default=False, cast=bool)</code> — amb valor per defecte segur i conversió de tipus automàtica</li>
+        <li><code>config('ALLOWED_HOSTS', cast=Csv())</code> — llegeix una llista separada per comes del fitxer <code>.env</code></li>
+        <li>Si accidentalment fas commit d'un secret, canvia'l immediatament — esborrar-lo en un commit posterior no és suficient perquè l'historial de git conserva el valor original</li>
+      </ul>
+
+      <div class="tip-block tip-info">
+        <span class="tip-prefix">📌 Verificació automàtica</span>
+        <p>Executa <code>python manage.py check --deploy</code> abans de desplegar. Django verifica automàticament que <code>DEBUG=False</code>, que <code>SECRET_KEY</code> no és el valor per defecte, que les cookies són segures i que HSTS és actiu. Qualsevol advertència retornada per aquesta comanda és un risc de seguretat real que cal corregir.</p>
+      </div>
+
+      <div class="tip-block tip-warning">
+        <span class="tip-prefix">⚠️ HSTS: activa amb precaució</span>
+        <p><code>SECURE_HSTS_SECONDS</code> amb <code>SECURE_HSTS_PRELOAD = True</code> és pràcticament irrevocable durant el període configurat. Si actives HSTS per 1 any i el certificat TLS caduca sense renovar, els navegadors dels usuaris continuaran exigint HTTPS durant 1 any i el lloc serà inaccessible. Comença amb <code>SECURE_HSTS_SECONDS = 300</code>, verifica que tot funciona, i augmenta progressivament fins a 31536000.</p>
+      </div>
+    </section>
+
+    <!-- BLOC DE CODI 2 -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">biblioteca/middleware.py — CSP amb nonce + @csrf_exempt justificat</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python"># biblioteca/middleware.py
+"""
+Middleware de seguretat per a bibliapp.
+Inspirat en el SecurityHeadersMiddleware de MediNetNode.
+
+Genera un nonce CSP per petició per permetre scripts inline segurs,
+afegeix totes les capçaleres de seguretat HTTP i elimina la capçalera
+'Server' per no revelar informació del servidor als atacants.
+"""
+import secrets
+import threading
+
+# Emmagatzemem el nonce al thread-local per accedir-hi des dels templates
+# sense haver de passar-lo explícitament per tota la cadena de crides.
+_nonce_local = threading.local()
+
+
+def get_current_nonce():
+    """Retorna el nonce CSP de la petició actual. Usat des dels template tags."""
+    return getattr(_nonce_local, 'nonce', '')
+
+
+class SecurityHeadersMiddleware:
+    """
+    Middleware que:
+    1. Genera un nonce CSP únic i aleatori per a cada petició HTTP
+    2. Afegeix totes les capçaleres de seguretat HTTP recomanades
+    3. Elimina la capçalera 'Server' per no revelar el software del servidor
+
+    Ordre de registre a MIDDLEWARE (ha d'anar ABANS de SecurityMiddleware):
+        MIDDLEWARE = [
+            'biblioteca.middleware.SecurityHeadersMiddleware',
+            'django.middleware.security.SecurityMiddleware',
+            ...
+        ]
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # ── Generem el nonce ABANS de processar la vista ──────────────────
+        # 16 bytes = 128 bits d'entropia → suficient per a un nonce CSP.
+        # token_urlsafe() retorna un string base64-URL sense padding.
+        nonce = secrets.token_urlsafe(16)
+        request.csp_nonce = nonce
+        # Thread-local permet que el template tag llegeixi el nonce
+        # sense dependre del context de la vista.
+        _nonce_local.nonce = nonce
+
+        response = self.get_response(request)
+
+        # ── Afegim capçaleres de seguretat a TOTES les respostes ──────────
+
+        # CSP: defineix d'on poden provenir els recursos de la pàgina.
+        # Cada directiva és independent; 'self' significa el propi domini.
+        csp_directives = [
+            "default-src 'self'",
+            # Permet scripts del propi domini, amb nonce (per inline), i CDNs coneguts
+            f"script-src 'self' 'nonce-{nonce}' https://cdnjs.cloudflare.com https://fonts.googleapis.com",
+            # 'unsafe-inline' per a estils és menys crític que per a scripts
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+            "font-src 'self' https://fonts.gstatic.com",
+            "img-src 'self' data: https:",
+            "connect-src 'self'",
+            # Bloqueja que la pàgina es carregui dins d'un iframe de qualsevol origen
+            "frame-ancestors 'none'",
+            # Els formularis només poden enviar dades al propi domini
+            "form-action 'self'",
+            # Evita injecció del tag base que redirigeix tots els links relatius
+            "base-uri 'self'",
+        ]
+        response['Content-Security-Policy'] = '; '.join(csp_directives)
+
+        # Evita que el navegador interpreti un CSS o imatge com a JavaScript
+        response['X-Content-Type-Options'] = 'nosniff'
+
+        # Informa d'on prové la petició: domini complet per same-origin,
+        # només l'origen (sense path) per a cross-origin HTTPS
+        response['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+
+        # Desactiva funcionalitats del navegador que bibliapp no usa
+        response['Permissions-Policy'] = (
+            'camera=(), microphone=(), geolocation=(), payment=()'
+        )
+
+        # Eliminem 'Server' per no revelar que usem gunicorn, nginx, etc.
+        if 'Server' in response:
+            del response['Server']
+
+        return response
+
+
+# ─── Exemple de @csrf_exempt CORRECTAMENT justificat ─────────────────────
+# biblioteca/api/webhooks.py
+
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.http import HttpResponse, HttpResponseForbidden
+import hmac
+import hashlib
+from django.conf import settings
+import json
+
+
+@csrf_exempt
+# JUSTIFICACIÓ de @csrf_exempt:
+# Aquest endpoint rep notificacions de serveis externs (webhooks).
+# Els serveis externs no tenen cookies de sessió Django ni poden obtenir
+# el token CSRF. Per tant, la protecció CSRF estàndard no és aplicable.
+#
+# En lloc de CSRF, la seguretat es basa en la verificació de la signatura
+# HMAC-SHA256: el servei extern firma el cos de la petició amb un secret
+# compartit. Si la signatura no és vàlida, rebutgem la petició amb 403.
+# Això és equivalent o superior a la protecció CSRF per a aquest cas d'ús.
+@require_POST
+def webhook_retorn_llibre(request):
+    """
+    Endpoint de webhook per a notificacions externes de retorn de llibres.
+    La seguretat no prové de CSRF sinó de la signatura HMAC del cos.
+    """
+    # Pas 1: Verifiquem la signatura HMAC — SEMPRE el primer pas, mai saltar-lo
+    signatura_rebuda = request.headers.get('X-Webhook-Signature', '')
+    mac = hmac.new(
+        settings.WEBHOOK_SECRET.encode(),
+        request.body,
+        hashlib.sha256
+    )
+    signatura_esperada = f"sha256={mac.hexdigest()}"
+
+    # compare_digest() compara en temps constant per evitar timing attacks:
+    # un atacant no pot endevinar el secret mesurant el temps de resposta
+    if not hmac.compare_digest(signatura_rebuda, signatura_esperada):
+        return HttpResponseForbidden("Signatura invàlida")
+
+    # Pas 2: A partir d'aquí, la petició és autèntica. Processem les dades.
+    dades = json.loads(request.body)
+    isbn = dades.get('isbn')
+    # ... processar el retorn del llibre ...
+    return HttpResponse(status=200)
+
+
+# ─── Template tag per exposar el nonce als templates ─────────────────────
+# biblioteca/templatetags/csp_tags.py
+
+from django import template
+from biblioteca.middleware import get_current_nonce
+
+register = template.Library()
+
+@register.simple_tag
+def csp_nonce():
+    """
+    Retorna el nonce CSP de la petició actual per usar-lo als templates.
+
+    Ús al template:
+        {% load csp_tags %}
+        &lt;script nonce="{% csp_nonce %}"&gt;
+          // Script inline permès per la CSP gràcies al nonce
+          document.addEventListener('DOMContentLoaded', function() { ... });
+        &lt;/script&gt;
+    """
+    return get_current_nonce()
+</code></pre>
+    </div>
+
+    <!-- DEPS BLOCK -->
+    <div class="deps-block">
+      <div class="deps-header">📦 Dependències i fitxers necessaris</div>
+      <div class="deps-body">
+        <p><strong>Instal·lació recomanada:</strong></p>
+        <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><span class="code-file">Terminal</span><button class="copy-btn">Copiar</button></div>
+        <pre><code class="language-bash">pip install django-ratelimit python-decouple</code></pre></div>
+        <p style="margin-top:1rem"><strong>Variables d'entorn necessàries (.env):</strong></p>
+        <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><span class="code-file">.env</span><button class="copy-btn">Copiar</button></div>
+        <pre><code class="language-bash">SECRET_KEY=la-teva-clau-secreta-molt-llarga
+DEBUG=False
+ALLOWED_HOSTS=localhost,127.0.0.1
+DATABASE_URL=sqlite:///db.sqlite3</code></pre></div>
+        <p style="margin-top:1rem"><strong>Comprova la configuració de seguretat:</strong></p>
+        <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><span class="code-file">Terminal</span><button class="copy-btn">Copiar</button></div>
+        <pre><code class="language-bash">python manage.py check --deploy</code></pre></div>
+      </div>
+    </div>
+
+    <!-- EXERCICI -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Hardening de seguretat de bibliapp</h3>
+        <p class="exercise-context">
+          Bibliapp s'ha de desplegar a producció. El responsable de seguretat ha detectat que la vista de login no té protecció contra força bruta, que falten capçaleres de seguretat HTTP i que els settings de producció no estan configurats. La teva tasca és aplicar totes les capes de protecció reals que un desplegament professional requereix.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Afegeix <code>@ratelimit(key='ip', rate='5/m', method='POST', block=True)</code> a la funció <code>login_view</code> i configura un <code>handler429</code> personalitzat a <code>urls.py</code> que retorni una pàgina en català explicant que s'ha superat el límit d'intents.</li>
+            <li>Crea el fitxer <code>config/settings/prod.py</code> activant: <code>SECURE_SSL_REDIRECT</code>, <code>SECURE_HSTS_SECONDS = 3600</code> (per testar), <code>SESSION_COOKIE_SECURE</code>, <code>CSRF_COOKIE_SECURE</code>, <code>SECURE_CONTENT_TYPE_NOSNIFF</code> i <code>X_FRAME_OPTIONS = 'DENY'</code>. Tots els valors sensibles han de venir de <code>python-decouple</code>.</li>
+            <li>Implementa <code>SecurityHeadersMiddleware</code> a <code>biblioteca/middleware.py</code> que afegeixi la capçalera <code>Content-Security-Policy</code> amb almenys <code>default-src 'self'</code> i <code>frame-ancestors 'none'</code>. Registra'l a <code>MIDDLEWARE</code> just abans de <code>SecurityMiddleware</code> de Django.</li>
+            <li>Revisa tots els templates de formularis de bibliapp (<code>login.html</code>, <code>formulari_prestec.html</code>, <code>registre.html</code>) i verifica que cada <code>&lt;form method="post"&gt;</code> conté <code>{% csrf_token %}</code> com a primer element fill.</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">Codi inicial — completa els TODO</span>
+          </div>
+          <pre><code class="language-python"># biblioteca/views.py — vista de login amb rate limiting
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+# TODO: from django_ratelimit.decorators import ratelimit
+
+
+# TODO: afegir decorator @ratelimit(key='ip', rate='5/m', method='POST', block=True)
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user:
+            login(request, user)
+            return redirect('biblioteca:llista_llibres')
+        return render(request, 'biblioteca/login.html',
+                      {'error': 'Credencials incorrectes'})
+    return render(request, 'biblioteca/login.html')
+
+
+def ratelimit_exceeded(request, exception=None):
+    """Pàgina personalitzada per a HTTP 429 Too Many Requests."""
+    # TODO: retornar render('biblioteca/429.html', status=429)
+    # El template ha de mostrar un missatge amable en català
+    pass
+
+
+# biblioteca/urls.py
+from django.urls import path
+from . import views
+
+# TODO: afegir handler429 = 'biblioteca.views.ratelimit_exceeded' al mòdul
+urlpatterns = [
+    path('login/', views.login_view, name='login'),
+    # ... resta de URLs ...
+]
+
+
+# biblioteca/middleware.py
+class SecurityHeadersMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        # TODO: construir la directiva CSP com a string
+        # almenys: "default-src 'self'; frame-ancestors 'none'"
+        # TODO: response['Content-Security-Policy'] = ...
+        # TODO: response['X-Content-Type-Options'] = 'nosniff'
+        # TODO: response['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        return response
+
+
+# config/settings/prod.py
+from .base import *
+from decouple import config, Csv
+
+SECRET_KEY = config('DJANGO_SECRET_KEY')
+DEBUG = False
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+
+MIDDLEWARE = [
+    # TODO: afegir 'biblioteca.middleware.SecurityHeadersMiddleware' AQUI (primer)
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+# TODO: SECURE_SSL_REDIRECT = True
+# TODO: SECURE_HSTS_SECONDS = 3600
+# TODO: SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# TODO: SESSION_COOKIE_SECURE = True
+# TODO: CSRF_COOKIE_SECURE = True
+# TODO: SECURE_CONTENT_TYPE_NOSNIFF = True
+# TODO: X_FRAME_OPTIONS = 'DENY'
+
+
+# templates/biblioteca/login.html (fragment a verificar)
+# &lt;form method="post" action="{% url 'biblioteca:login' %}"&gt;
+#   TODO: assegura't que hi ha {% csrf_token %} aqui dins
+#   &lt;input type="text" name="username"&gt;
+#   &lt;input type="password" name="password"&gt;
+#   &lt;button type="submit"&gt;Entrar&lt;/button&gt;
+# &lt;/form&gt;
+</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Per verificar les capçaleres sense desplegar: executa el servidor de dev i usa <code>curl -I http://localhost:8000/biblioteca/login/</code>. Hauràs de veure <code>Content-Security-Policy</code>, <code>X-Content-Type-Options</code> i <code>Referrer-Policy</code> a la sortida. Executa també <code>python manage.py check --deploy</code> amb els settings de producció: Django et dirà exactament quins settings de seguretat falten o estan malconfigurats.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>
+            Després del 5è intent de login fallat en 1 minut, el servidor retorna HTTP 429 amb una pàgina d'error en català. <code>curl -I</code> sobre qualsevol ruta mostra les capçaleres <code>Content-Security-Policy</code>, <code>X-Content-Type-Options: nosniff</code> i <code>Referrer-Policy</code>. <code>python manage.py check --deploy</code> no retorna cap advertència crítica. Inspeccionant el HTML dels formularis amb les eines de desenvolupador del navegador, tots contenen un camp ocult <code>&lt;input type="hidden" name="csrfmiddlewaretoken"&gt;</code>.
+          </p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa</span><button class="copy-btn">Copiar</button></div>
+              <pre><code class="language-python"># settings/prod.py
+from decouple import config
+
+DEBUG = False
+SECRET_KEY = config('SECRET_KEY')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=lambda v: [s.strip() for s in v.split(',')])
+
+# Seguretat HTTPS
+SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
+# Content Security Policy (manual)
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", "fonts.googleapis.com")
+CSP_FONT_SRC = ("'self'", "fonts.gstatic.com")
+CSP_SCRIPT_SRC = ("'self'",)
+CSP_IMG_SRC = ("'self'", "data:")</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- EXERCICI 2 -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Exercici 2: Middleware de capçaleres de seguretat</h3>
+        <p class="exercise-context">
+          Implementa un middleware personalitzat que afegeixi capçaleres de seguretat a totes les respostes: <code>X-Content-Type-Options</code>, <code>X-Frame-Options</code>, i una capçalera CSP bàsica. Registra-lo a <code>MIDDLEWARE</code> i comprova que funciona fent una petició a qualsevol vista.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Crea la classe <code>SecurityHeadersMiddleware</code> a <code>biblioteca/middleware.py</code> que afegeixi les capçaleres <code>X-Content-Type-Options: nosniff</code>, <code>X-Frame-Options: DENY</code> i <code>Content-Security-Policy: default-src 'self'</code> a cada resposta.</li>
+            <li>Afegeix també la capçalera <code>Referrer-Policy: strict-origin-when-cross-origin</code>.</li>
+            <li>Registra el middleware a la llista <code>MIDDLEWARE</code> de settings, just després de <code>SecurityMiddleware</code> de Django.</li>
+            <li>Verifica el resultat amb <code>curl -I http://localhost:8000/</code> i comprova que les capçaleres apareixen.</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">Codi inicial — completa els TODO</span>
+          </div>
+          <pre><code class="language-python"># biblioteca/middleware.py
+class SecurityHeadersMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        resposta = self.get_response(request)
+        # TODO: afegeix les capçaleres de seguretat:
+        # X-Content-Type-Options: nosniff
+        # X-Frame-Options: DENY
+        # Content-Security-Policy: default-src 'self'
+        return resposta
+
+# settings.py — afegir a MIDDLEWARE:
+# 'biblioteca.middleware.SecurityHeadersMiddleware',</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Les capçaleres HTTP s'afegeixen com a entrades del diccionari de la resposta: <code>resposta['Nom-Capçalera'] = 'valor'</code>. Pots afegir tantes com vulguis. L'ordre dels middlewares és important: el teu ha d'anar ABANS de <code>XFrameOptionsMiddleware</code> per evitar conflictes amb <code>X-Frame-Options</code>.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>Executant <code>curl -I http://localhost:8000/</code> es veuen les capçaleres <code>X-Content-Type-Options: nosniff</code>, <code>X-Frame-Options: DENY</code>, <code>Content-Security-Policy: default-src 'self'</code> i <code>Referrer-Policy: strict-origin-when-cross-origin</code> a totes les respostes, independentment de la vista.</p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa</span><button class="copy-btn">Copiar</button></div>
+              <pre><code class="language-python"># biblioteca/middleware.py
+class SecurityHeadersMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        resposta = self.get_response(request)
+        resposta['X-Content-Type-Options'] = 'nosniff'
+        resposta['X-Frame-Options'] = 'DENY'
+        resposta['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        resposta['Content-Security-Policy'] = (
+            "default-src 'self'; "
+            "style-src 'self' fonts.googleapis.com; "
+            "font-src 'self' fonts.gstatic.com; "
+            "script-src 'self'; "
+            "img-src 'self' data:;"
+        )
+        return resposta
+
+# settings.py
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'biblioteca.middleware.SecurityHeadersMiddleware',  # &lt;-- afegit
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    # ...
+]
+
+# Test manual:
+# curl -I http://localhost:8000/ | grep -E "X-|Content-Security"</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- RESUM -->
+    <section class="summary-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Resum
+      </h2>
+
+      <p class="theory-text">
+        La seguretat de Django és multicapa: el framework proporciona proteccions per defecte que cobreixen la gran majoria de casos, però el programador ha de saber activar les que estan desactivades per defecte i, sobretot, no desactivar accidentalment les que ja estan actives.
+      </p>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h4>Atacs i defenses</h4>
+          <ul>
+            <li>CSRF → {% csrf_token %}</li>
+            <li>XSS → escapament auto</li>
+            <li>SQLi → ORM parametritzat</li>
+            <li>Clickjacking → X-Frame-Options</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Settings de producció</h4>
+          <ul>
+            <li>SECURE_SSL_REDIRECT</li>
+            <li>SECURE_HSTS_SECONDS</li>
+            <li>SESSION_COOKIE_SECURE</li>
+            <li>CSRF_COOKIE_SECURE</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Capçaleres HTTP</h4>
+          <ul>
+            <li>Content-Security-Policy</li>
+            <li>X-Content-Type-Options</li>
+            <li>Referrer-Policy</li>
+            <li>Permissions-Policy</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Proteccions actives</h4>
+          <ul>
+            <li>@ratelimit (5/m login)</li>
+            <li>CSP nonce per inline</li>
+            <li>python-decouple secrets</li>
+            <li>manage.py check --deploy</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tip-block tip-info" style="margin-top: 1.5rem;">
+        <span class="tip-prefix">📌 Checklist final de desplegament</span>
+        <p>Abans de desplegar: <code>DEBUG=False</code> ✓, <code>SECRET_KEY</code> única i llarga ✓, cookies marcades Secure i HttpOnly ✓, HSTS activat progressivament ✓, CSP configurada ✓, <code>@ratelimit</code> al login i registre ✓, cap secret al codi ni a l'historial de git ✓, <code>python manage.py check --deploy</code> sense errors ✓.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- NAV ENTRE UNITATS -->
+  <nav class="unit-nav">
+    <a href="unitat-18.html" class="nav-prev">← <span>Unitat 18 — Testing amb pytest-django</span></a>
+    <a href="index.html" class="nav-home">Índex</a>
+    <a href="unitat-20.html" class="nav-next"><span>Unitat 20 — Fitxers Estàtics i Multimedia</span> →</a>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      hljs.highlightAll();
+
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const code = btn.closest('.code-block').querySelector('code').textContent;
+          navigator.clipboard.writeText(code);
+          btn.textContent = 'Copiat!';
+          setTimeout(() => btn.textContent = 'Copiar', 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

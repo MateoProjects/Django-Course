@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unitat 08 — El Sistema de Templates | Curs Django</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Highlight.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #F4F7FB;
+      --surface:      #FFFFFF;
+      --surface-2:    #EBF0F8;
+      --code-bg:      #F1F5F9;
+      --border:       #C5D3E4;
+      --border-dim:   #DAE3EF;
+      --text:         #1C2E45;
+      --text-muted:   #4E6478;
+      --text-dim:     #96ABBE;
+      --heading:      #091929;
+      --accent:       #1755C4;
+      --accent-glow:  #1755C420;
+      --blue:         #2463EB;
+      --green:        #057A55;
+      --amber:        #92530A;
+      --purple:       #5B21B6;
+      --django-green: #E8F0FD;
+      --exercise-bg:  #F0FDF8;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'Lora', serif; min-height: 100vh; }
+    .page-wrapper { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+
+    .unit-header { background: linear-gradient(135deg, var(--django-green) 0%, var(--bg) 60%); border-bottom: 1px solid var(--border); padding: 3rem 4rem; }
+    .unit-number { font-family: 'Lora', serif; font-weight: 500; font-size: 0.78rem; color: var(--accent); letter-spacing: 0.14em; text-transform: uppercase; }
+    .unit-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 2.6rem; color: var(--heading); margin: 0.5rem 0; letter-spacing: -0.01em; }
+    .unit-subtitle { font-family: 'Lora', serif; font-size: 1.05rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+    .objectives { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-top: 1.5rem; }
+    .objectives h3 { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.75rem; }
+    .objectives ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .objectives li { font-family: 'Lora', serif; font-size: 0.95rem; color: var(--text); padding-left: 1.25rem; position: relative; }
+    .objectives li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-family: 'Syne', sans-serif; }
+
+    .theory-section { padding: 2.5rem 0; border-bottom: 1px solid var(--border-dim); }
+    .section-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 1.3rem; color: var(--heading); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; }
+    .section-icon { color: var(--accent); font-size: 0.8em; }
+    .theory-text { font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.8; color: var(--text); margin-bottom: 1rem; }
+    .concept-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+    .concept-list li { font-family: 'Lora', serif; color: var(--text); line-height: 1.7; padding-left: 1.5rem; position: relative; }
+    .concept-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-family: 'Syne', sans-serif; }
+    .concept-list code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; color: var(--blue); background: var(--surface-2); padding: 0.1em 0.4em; border-radius: 4px; }
+
+    .code-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 1.5rem 0; }
+    .code-header { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .code-lang { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent); font-weight: 600; text-transform: uppercase; }
+    .code-file { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
+    .copy-btn { margin-left: auto; background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-family: 'Syne', sans-serif; font-size: 0.7rem; padding: 0.3rem 0.75rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    pre { padding: 1.25rem; overflow-x: auto; }
+    pre code { font-family: 'JetBrains Mono', monospace !important; font-size: 0.88rem !important; line-height: 1.7 !important; background: transparent !important; }
+
+    .tip-block { border-radius: 10px; padding: 1rem 1.25rem; margin: 1.25rem 0; display: flex; flex-direction: column; gap: 0.4rem; }
+    .tip-block.tip-info   { background:#EBF2FF; border-left: 3px solid var(--blue); }
+    .tip-block.tip-warning{ background:#FEF9C3; border-left: 3px solid var(--amber); }
+    .tip-block.tip-note   { background:#F5F3FF; border-left: 3px solid var(--purple); }
+    .tip-prefix { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+    .tip-block.tip-info    .tip-prefix { color: var(--blue); }
+    .tip-block.tip-warning .tip-prefix { color: var(--amber); }
+    .tip-block.tip-note    .tip-prefix { color: var(--purple); }
+    .tip-block p { font-family: 'Lora', serif; font-size: 0.95rem; color: var(--text); line-height: 1.65; margin: 0; }
+
+    /* Filter reference grid */
+    .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1.25rem 0; }
+    .filter-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; }
+    .filter-item code { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--blue); display: block; margin-bottom: 0.3rem; }
+    .filter-item p { font-family: 'Lora', serif; font-size: 0.85rem; color: var(--text-muted); margin: 0; line-height: 1.5; }
+
+    .badge { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; background: var(--surface-2); border: 1px solid var(--border); color: var(--blue); padding: 0.15em 0.5em; border-radius: 4px; }
+    .badge-shell { color: var(--amber); }
+    .badge-new   { color: var(--green); border-color: #6EE7B7; background: var(--exercise-bg); }
+
+    .exercise-block { background: var(--exercise-bg); border: 1px solid #6EE7B7; border-radius: 16px; overflow: hidden; margin: 2rem 0; }
+    .exercise-header { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.5rem; background: #ECFDF5; border-bottom: 1px solid #A7F3D0; }
+    .exercise-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; }
+    .exercise-tag { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #057A55; background: #ECFDF5; border: 1px solid #6EE7B7; padding: 0.2rem 0.6rem; border-radius: 20px; }
+    .exercise-body { padding: 1.5rem; }
+    .exercise-title { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 1.1rem; color: var(--heading); margin-bottom: 0.75rem; }
+    .exercise-context { font-family: 'Lora', serif; color: var(--text); line-height: 1.7; margin-bottom: 1.25rem; }
+    .exercise-tasks h4 { font-family: 'Syne', sans-serif; font-size: 0.85rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
+    .exercise-tasks ol { padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .exercise-tasks li { font-family: 'Lora', serif; color: var(--text); line-height: 1.6; }
+    .exercise-tip { display: flex; gap: 0.5rem; align-items: flex-start; background: #FEF9E7; border: 1px solid #FCD34D; border-radius: 8px; padding: 0.75rem 1rem; margin: 1rem 0; font-family: 'Lora', serif; font-size: 0.95rem; color: var(--amber); }
+    .exercise-result { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px dashed #6EE7B7; }
+    .exercise-result h4 { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+    .exercise-result p { font-family: 'Lora', serif; color: var(--text-muted); font-size: 0.95rem; }
+
+    .summary-section { padding: 2.5rem 0; }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.25rem; }
+    .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; }
+    .summary-card h4 { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
+    .summary-card ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .summary-card li { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--text-muted); }
+    .summary-card li span { color: var(--blue); }
+
+    .unit-nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 4rem; border-top: 1px solid var(--border); margin-top: 3rem; }
+    .unit-nav a { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .unit-nav a:hover { color: var(--accent); }
+    .nav-home { font-size: 0.8rem !important; color: var(--text-dim) !important; border: 1px solid var(--border); padding: 0.4rem 1rem; border-radius: 20px; }
+    .nav-home:hover { border-color: var(--accent) !important; }
+
+    .solution-spoiler { margin-top:1rem; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    .solution-spoiler summary { cursor:pointer; padding:0.875rem 1.25rem; background:var(--surface-2); font-family:'Syne',sans-serif; font-size:0.85rem; font-weight:600; color:var(--accent); user-select:none; list-style:none; display:flex; align-items:center; gap:0.5rem; transition:background 0.2s; }
+    .solution-spoiler summary::marker,.solution-spoiler summary::-webkit-details-marker{display:none;}
+    .solution-spoiler summary:hover{background:#EBF2FF;}
+    .solution-spoiler[open] summary{border-bottom:1px solid var(--border);}
+    .solution-body .code-block{margin:0;border:none;border-radius:0;}
+  </style>
+</head>
+<body>
+
+  <header class="unit-header">
+    <div class="page-wrapper">
+      <p class="unit-number">Unitat 08 · Curs de Django</p>
+      <h1 class="unit-title">El Sistema de Templates</h1>
+      <p class="unit-subtitle">Django Template Language (DTL): herència, tags, filtres i variables de context per generar HTML de manera neta i segura.</p>
+      <div class="objectives">
+        <h3>En aquesta unitat aprendràs:</h3>
+        <ul>
+          <li>Estructurar templates amb herència: {% extends %} i {% block %}</li>
+          <li>Usar els tags essencials: {% if %}, {% for %}, {% url %}, {% static %}, {% csrf_token %}</li>
+          <li>Aplicar filtres built-in per formatar dades: dates, textos, nombres</li>
+          <li>Entendre l'escapament automàtic i quan usar |safe de manera segura</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-wrapper">
+
+    <!-- SECCIÓ 1 -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Herència de templates i tags fonamentals
+      </h2>
+      <p class="theory-text">
+        El sistema de templates de Django segueix un principi de <em>herència</em>: un template base (<code>base.html</code>) defineix l'estructura comuna de totes les pàgines (navbar, footer, blocs de CSS/JS), i els templates fills estenen i omplen els blocs buits. Això elimina la duplicació i garanteix la consistència de l'aspecte general.
+      </p>
+      <p class="theory-text">
+        Django busca els templates als directoris definits a <code>TEMPLATES[0]['DIRS']</code> i, si <code>APP_DIRS: True</code>, també a <code>templates/</code> dins de cada app instal·lada. La convenció per als templates d'app és <code>app/templates/app/fitxer.html</code> (namespace per evitar col·lisions de noms entre apps).
+      </p>
+      <ul class="concept-list">
+        <li><code>{% extends 'base.html' %}</code> — ha de ser la <strong>primera línia</strong> del template fill; hereda tota l'estructura del pare</li>
+        <li><code>{% block nom %}contingut per defecte{% endblock %}</code> — defineix una zona sobreescrivible; el fill sobreescriu posant el seu propi <code>{% block nom %}</code></li>
+        <li><code>{{ block.super }}</code> — dins d'un bloc fill, insereix el contingut del bloc pare; permet afegir en lloc de substituir</li>
+        <li><code>{% include 'partial/navbar.html' %}</code> — insereix un template parcial en el punt indicat; útil per a components reutilitzables</li>
+        <li><code>{% include 'partial/card.html' with llibre=obj only %}</code> — <code>with</code> passa variables extra; <code>only</code> aïlla el context</li>
+        <li><code>{% load static %}</code> — carrega el sistema de fitxers estàtics; cal posar-ho al principi de cada template que usi <code>{% static %}</code></li>
+        <li><code>{% static 'books/css/estil.css' %}</code> — genera la URL absoluta d'un fitxer estàtic respectant <code>STATIC_URL</code></li>
+        <li><code>{% csrf_token %}</code> — insereix el camp ocult del token CSRF; <strong>obligatori</strong> en tots els formularis amb mètode POST</li>
+      </ul>
+
+      <p class="theory-text">
+        Tags de control de flux que usaràs a cada template:
+      </p>
+      <ul class="concept-list">
+        <li><code>{% if condicio %}...{% elif altra %}...{% else %}...{% endif %}</code> — condicionals; suporta <code>and</code>, <code>or</code>, <code>not</code>, <code>in</code>, <code>is</code></li>
+        <li><code>{% for item in llista %}...{% empty %}...{% endfor %}</code> — iteració; <code>{% empty %}</code> es mostra si la llista és buida</li>
+        <li><code>{{ forloop.counter }}</code> — índex de la iteració (comença en 1); <code>forloop.counter0</code> comença en 0</li>
+        <li><code>{{ forloop.first }}</code> / <code>{{ forloop.last }}</code> — booleans per al primer i últim element</li>
+        <li><code>{% url 'books:detall' pk=llibre.pk %}</code> — genera la URL per nom de vista (vegeu unitat 07)</li>
+        <li><code>{% with total=llibres|length %}...{% endwith %}</code> — crea una variable local temporal per evitar recalcular</li>
+        <li><code>{% comment %}...{% endcomment %}</code> — comentari que no apareix al HTML generat</li>
+      </ul>
+
+      <div class="tip-block tip-warning">
+        <span class="tip-prefix">⚠️ Limitació del DTL</span>
+        <p>El Django Template Language és intencionadament limitat: no pots cridar funcions amb arguments (<code>{{ obj.metode(arg) }}</code> no funciona), ni fer aritmètica complexa, ni usar Python arbitrari. Si necessites lògica complexa, fes-la a la vista i passa el resultat al context. Això manté els templates nets i els fa segurs.</p>
+      </div>
+    </section>
+
+    <!-- CODI 1: base.html -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">HTML</span>
+        <span class="code-file">templates/base.html — template base complet per a bibliapp</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="ca"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+
+  {# El títol de la pàgina es pot personalitzar a cada template fill #}
+  &lt;title&gt;{% block titol %}Bibliapp{% endblock %} — Biblioteca Municipal&lt;/title&gt;
+
+  {# {% load static %} cal posar-lo ABANS de qualsevol {% static %} #}
+  {% load static %}
+  &lt;link rel="stylesheet" href="{% static 'css/estil.css' %}"&gt;
+
+  {# Bloc per afegir CSS addicional des dels templates fills #}
+  {% block css_extra %}{% endblock %}
+&lt;/head&gt;
+&lt;body&gt;
+
+  &lt;nav class="navbar"&gt;
+    &lt;a href="{% url 'books:llista' %}" class="navbar-brand"&gt;📚 Bibliapp&lt;/a&gt;
+
+    &lt;div class="navbar-links"&gt;
+      &lt;a href="{% url 'books:llista' %}"&gt;Llibres&lt;/a&gt;
+
+      {# request.user.is_authenticated disponible gràcies al context processor auth #}
+      {% if request.user.is_authenticated %}
+        &lt;a href="{% url 'books:crear' %}"&gt;Afegir llibre&lt;/a&gt;
+        &lt;span class="navbar-user"&gt;{{ request.user.get_full_name|default:request.user.username }}&lt;/span&gt;
+        &lt;a href="{% url 'logout' %}"&gt;Sortir&lt;/a&gt;
+      {% else %}
+        &lt;a href="{% url 'login' %}"&gt;Entrar&lt;/a&gt;
+      {% endif %}
+    &lt;/div&gt;
+  &lt;/nav&gt;
+
+  {# Missatges flash (de messages.success, messages.error, etc.) #}
+  {% if messages %}
+    &lt;div class="messages-container"&gt;
+      {% for msg in messages %}
+        &lt;div class="alert alert-{{ msg.tags }}"&gt;{{ msg }}&lt;/div&gt;
+      {% endfor %}
+    &lt;/div&gt;
+  {% endif %}
+
+  &lt;main class="main-content"&gt;
+    {# Tot el contingut específic de cada pàgina va aquí #}
+    {% block contingut %}{% endblock %}
+  &lt;/main&gt;
+
+  &lt;footer class="footer"&gt;
+    &lt;p&gt;&amp;copy; {% now "Y" %} Biblioteca Municipal. Tots els drets reservats.&lt;/p&gt;
+  &lt;/footer&gt;
+
+  &lt;script src="{% static 'js/app.js' %}"&gt;&lt;/script&gt;
+
+  {# Bloc per afegir JS addicional al final del body #}
+  {% block js_extra %}{% endblock %}
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+    </div>
+
+    <!-- SECCIÓ 2 -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Filtres built-in, variables de context i escapament
+      </h2>
+      <p class="theory-text">
+        Els filtres transformen el valor d'una variable just en el moment de renderitzar-la. S'apliquen amb el caràcter <code>|</code> (pipe) i es poden encadenar: <code>{{ text|lower|truncatechars:50 }}</code>. Django inclou més de 60 filtres built-in; aquí els més usats en aplicacions reals:
+      </p>
+
+      <div class="filter-grid">
+        <div class="filter-item">
+          <code>{{ data|date:"d/m/Y" }}</code>
+          <p>Formata una data. Format ISO: <code>"Y-m-d"</code>. Amb hora: <code>"d/m/Y H:i"</code></p>
+        </div>
+        <div class="filter-item">
+          <code>{{ text|truncatechars:80 }}</code>
+          <p>Trunca a N caràcters afegint "…" al final si cal.</p>
+        </div>
+        <div class="filter-item">
+          <code>{{ valor|default:"Sense dades" }}</code>
+          <p>Mostra el valor alternatiu si la variable és buida, None o False.</p>
+        </div>
+        <div class="filter-item">
+          <code>{{ llista|length }}</code>
+          <p>Retorna el nombre d'elements d'una llista, QuerySet o string.</p>
+        </div>
+        <div class="filter-item">
+          <code>{{ text|upper }}</code>
+          <p>Converteix a majúscules. <code>|lower</code> fa el contrari. <code>|title</code> capitalitza.</p>
+        </div>
+        <div class="filter-item">
+          <code>{{ disponible|yesno:"Sí,No,—" }}</code>
+          <p>Booleà → text. Tres valors: True, False, None (opcional).</p>
+        </div>
+        <div class="filter-item">
+          <code>{{ preu|floatformat:2 }}</code>
+          <p>Format de decimal. <code>:2</code> → 2 decimals. <code>:-2</code> omet si .00</p>
+        </div>
+        <div class="filter-item">
+          <code>{{ html_segur|safe }}</code>
+          <p>Desactiva l'escapament. <strong>Usar NOMÉS amb HTML de confiança</strong>.</p>
+        </div>
+        <div class="filter-item">
+          <code>{{ text|linebreaks }}</code>
+          <p>Converteix salts de línia en etiquetes &lt;p&gt; i &lt;br&gt;.</p>
+        </div>
+        <div class="filter-item">
+          <code>{{ llista|join:", " }}</code>
+          <p>Uneix els elements d'una llista amb el separador donat.</p>
+        </div>
+        <div class="filter-item">
+          <code>{{ numero|add:5 }}</code>
+          <p>Suma un valor. Funciona amb enters i strings (concatenació).</p>
+        </div>
+        <div class="filter-item">
+          <code>{{ text|slugify }}</code>
+          <p>Converteix text a format slug: minúscules, guions, sense accents.</p>
+        </div>
+      </div>
+
+      <p class="theory-text">
+        <strong>Escapament automàtic</strong>: per defecte, Django escapa totes les variables del template per evitar atacs XSS. Els caràcters perillosos com <code>&lt;</code>, <code>&gt;</code>, <code>&amp;</code>, <code>"</code> es converteixen en entitats HTML. Això vol dir que si una variable conté <code>&lt;script&gt;alert('xss')&lt;/script&gt;</code>, el navegador ho mostrarà com a text, no l'executarà.
+      </p>
+      <ul class="concept-list">
+        <li><code>{{ variable|safe }}</code> — marca la variable com a segura i desactiva l'escapament per a ella; usar <strong>només</strong> amb HTML que tu has generat o validat</li>
+        <li><code>{% autoescape off %}...{% endautoescape %}</code> — desactiva l'escapament per a un bloc sencer; molt rarament necessari</li>
+        <li><code>mark_safe()</code> — des de Python (<code>from django.utils.safestring import mark_safe</code>), marca un string com a segur abans de passar-lo al context</li>
+      </ul>
+
+      <div class="tip-block tip-info">
+        <span class="tip-prefix">📌 Context de la vista</span>
+        <p>Tot el que passes com a tercer argument de <code>render(request, template, context)</code> és accessible al template com a variable. El context sempre inclou automàticament <code>request</code>, <code>user</code>, <code>messages</code> i <code>perms</code> gràcies als context processors per defecte de Django.</p>
+      </div>
+
+      <div class="tip-block tip-note">
+        <span class="tip-prefix">🔮 DTL vs Jinja2</span>
+        <p>Django admet Jinja2 com a backend de templates alternatiu (configurable a <code>TEMPLATES</code>). Jinja2 permet expressions Python completes i és més potent, però el DTL és el que trobaràs a la majoria de projectes Django i és l'opció per defecte i recomanada per a principiants.</p>
+      </div>
+    </section>
+
+    <!-- CODI 2: llista i detall -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">HTML</span>
+        <span class="code-file">books/templates/books/book_list.html + book_detail.html</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-html">{# ─── books/templates/books/book_list.html ───────────────────────────────── #}
+
+{% extends 'base.html' %}
+{% load static %}
+
+{# Sobreescrivim el bloc del títol de la pàgina #}
+{% block titol %}Llista de Llibres{% endblock %}
+
+{% block contingut %}
+&lt;div class="page-header"&gt;
+  &lt;h1&gt;Catàleg de Llibres&lt;/h1&gt;
+
+  {# Formulari de cerca que envia a GET (no cal csrf_token) #}
+  &lt;form method="get" action="{% url 'books:llista' %}"&gt;
+    &lt;input type="text" name="cerca" value="{{ cerca }}" placeholder="Cerca per títol..."&gt;
+    &lt;button type="submit"&gt;Cercar&lt;/button&gt;
+    {% if cerca %}
+      &lt;a href="{% url 'books:llista' %}"&gt;Netejar&lt;/a&gt;
+    {% endif %}
+  &lt;/form&gt;
+&lt;/div&gt;
+
+{# Mostrem el nombre de resultats #}
+&lt;p class="resultats"&gt;
+  {# |length sobre un QuerySet fa un COUNT a la BD, eficient #}
+  {{ llibres|length }} llibre{{ llibres|length|pluralize:"s" }} trobat{{ llibres|length|pluralize:"s" }}
+  {% if cerca %} per a "{{ cerca }}"{% endif %}
+&lt;/p&gt;
+
+&lt;div class="llibres-grid"&gt;
+  {% for llibre in llibres %}
+    &lt;article class="llibre-card {% if not llibre.disponible %}no-disponible{% endif %}"&gt;
+
+      &lt;h2&gt;&lt;a href="{% url 'books:detall' pk=llibre.pk %}"&gt;{{ llibre.titol|truncatechars:60 }}&lt;/a&gt;&lt;/h2&gt;
+
+      &lt;p class="autor"&gt;{{ llibre.autor.nom }}&lt;/p&gt;
+      &lt;p class="any"&gt;{{ llibre.any_publicacio }}&lt;/p&gt;
+
+      {# |yesno retorna el primer valor si True, el segon si False #}
+      &lt;span class="badge-disponible"&gt;{{ llibre.disponible|yesno:"Disponible,Prestat" }}&lt;/span&gt;
+
+      {% if user.is_authenticated %}
+        &lt;a href="{% url 'books:editar' pk=llibre.pk %}"&gt;Editar&lt;/a&gt;
+
+        {# Formulari d'esborrat: cal POST i csrf_token #}
+        &lt;form method="post" action="{% url 'books:esborrar' pk=llibre.pk %}"
+              onsubmit="return confirm('Segur que vols esborrar aquest llibre?')"&gt;
+          {% csrf_token %}
+          &lt;button type="submit" class="btn-danger"&gt;Esborrar&lt;/button&gt;
+        &lt;/form&gt;
+      {% endif %}
+
+    &lt;/article&gt;
+
+  {% empty %}
+    {# {% empty %} és el bloc que apareix si 'llibres' és buit #}
+    &lt;p class="sense-resultats"&gt;No s'han trobat llibres amb aquests criteris.&lt;/p&gt;
+  {% endfor %}
+&lt;/div&gt;
+{% endblock %}
+
+
+{# ─── books/templates/books/book_detail.html ─────────────────────────────── #}
+
+{% extends 'base.html' %}
+
+{% block titol %}{{ llibre.titol }}{% endblock %}
+
+{% block contingut %}
+&lt;article class="detall-llibre"&gt;
+  &lt;header&gt;
+    &lt;h1&gt;{{ llibre.titol }}&lt;/h1&gt;
+    &lt;p class="autor"&gt;
+      per &lt;strong&gt;{{ llibre.autor.nom }}&lt;/strong&gt;
+      ({{ llibre.any_publicacio }})
+    &lt;/p&gt;
+  &lt;/header&gt;
+
+  &lt;dl class="metadata"&gt;
+    &lt;dt&gt;ISBN&lt;/dt&gt;
+    {# |default mostra el text alternatiu si isbn és buit o None #}
+    &lt;dd&gt;{{ llibre.isbn|default:"No registrat" }}&lt;/dd&gt;
+
+    &lt;dt&gt;Disponible&lt;/dt&gt;
+    &lt;dd&gt;{{ llibre.disponible|yesno:"Sí,No" }}&lt;/dd&gt;
+  &lt;/dl&gt;
+
+  {# Historial de préstecs del llibre #}
+  &lt;section class="prestecs"&gt;
+    &lt;h2&gt;Historial de préstecs ({{ prestecs|length }})&lt;/h2&gt;
+
+    {% for prestec in prestecs %}
+      &lt;div class="prestec-item"&gt;
+        &lt;span&gt;{{ prestec.lector.get_full_name }}&lt;/span&gt;
+        {# Formatem la data en format català: dia/mes/any #}
+        &lt;span&gt;{{ prestec.data_inici|date:"d/m/Y" }}</span>
+        {% if prestec.data_retorn %}
+          &lt;span&gt;Retornat: {{ prestec.data_retorn|date:"d/m/Y" }}&lt;/span&gt;
+        {% else %}
+          &lt;span class="actiu"&gt;En curs&lt;/span&gt;
+          {% if user.is_authenticated %}
+            &lt;form method="post" action="{% url 'loans:esborrar' pk=prestec.pk %}"&gt;
+              {% csrf_token %}
+              &lt;button type="submit"&gt;Marcar retornat&lt;/button&gt;
+            &lt;/form&gt;
+          {% endif %}
+        {% endif %}
+      &lt;/div&gt;
+    {% empty %}
+      &lt;p&gt;Aquest llibre encara no s'ha prestat mai.&lt;/p&gt;
+    {% endfor %}
+  &lt;/section&gt;
+
+  &lt;div class="accions"&gt;
+    &lt;a href="{% url 'books:llista' %}"&gt;← Tornar al catàleg&lt;/a&gt;
+    {% if user.is_authenticated and llibre.disponible %}
+      &lt;a href="{% url 'loans:crear' pk=llibre.pk %}"&gt;Crear préstec&lt;/a&gt;
+    {% endif %}
+  &lt;/div&gt;
+&lt;/article&gt;
+{% endblock %}
+</code></pre>
+    </div>
+
+    <!-- EXERCICI -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Crear base.html, llista i detall de llibres per a bibliapp</h3>
+        <p class="exercise-context">
+          Fins ara les vistes retornen dades però no hi ha cap template. En aquest exercici crearàs l'estructura completa de templates de bibliapp: el base.html compartit, la pàgina de llista de llibres amb filtres de data i truncatechars, i la pàgina de detall.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Crear <code>templates/base.html</code> amb navbar, bloc de missatges flash, bloc <code>contingut</code> i footer amb l'any actual (<code>{% now "Y" %}</code>).</li>
+            <li>Crear <code>books/templates/books/book_list.html</code> que extengui <code>base.html</code>, mostri la llista de llibres amb <code>|truncatechars:60</code> al títol i <code>|yesno:"Disponible,Prestat"</code> per a la disponibilitat.</li>
+            <li>Crear <code>books/templates/books/book_detail.html</code> que mostri el detall complet amb la data del primer préstec formatada com <code>|date:"d/m/Y"</code> i l'ISBN amb <code>|default:"No registrat"</code>.</li>
+            <li>Afegir el bloc <code>{% empty %}</code> a la llista per mostrar un missatge si no hi ha llibres.</li>
+            <li>Verificar que <code>{% csrf_token %}</code> apareix a tots els formularis POST.</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">HTML</span>
+            <span class="code-file">Codi inicial — templates/base.html</span>
+          </div>
+          <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="ca"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;!-- TODO: Afegir el bloc 'titol' per permetre personalitzar el títol --&gt;
+  &lt;title&gt;Bibliapp&lt;/title&gt;
+
+  &lt;!-- TODO: Carregar static i afegir l'enllaç a l'estil CSS --&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+  &lt;nav&gt;
+    &lt;!-- TODO: Enllaç a books:llista --&gt;
+    &lt;!-- TODO: Mostrar "Entrar" si no autenticat, "Sortir" si ho està --&gt;
+  &lt;/nav&gt;
+
+  &lt;!-- TODO: Mostrar els missatges flash si n'hi ha --&gt;
+
+  &lt;main&gt;
+    &lt;!-- TODO: Definir el bloc 'contingut' --&gt;
+  &lt;/main&gt;
+
+  &lt;footer&gt;
+    &lt;!-- TODO: Mostrar l'any actual amb {% now "Y" %} --&gt;
+  &lt;/footer&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">HTML</span>
+            <span class="code-file">Codi inicial — books/templates/books/book_list.html</span>
+          </div>
+          <pre><code class="language-html">{# TODO: Estendre base.html #}
+{# TODO: Sobreescriure el bloc 'titol' amb "Catàleg de Llibres" #}
+
+{# TODO: Bloc 'contingut' amb: #}
+{#   - Títol de la pàgina #}
+{#   - Formulari de cerca (GET) amb input 'cerca' #}
+{#   - Nombre de resultats amb |length #}
+{#   - Bucle {% for llibre in llibres %} amb: #}
+{#       · Títol amb |truncatechars:60 i link a books:detall #}
+{#       · Autor i any de publicació #}
+{#       · Disponibilitat amb |yesno:"Disponible,Prestat" #}
+{#   - Bloc {% empty %} si no hi ha llibres #}
+</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Pista: Per a que <code>APP_DIRS: True</code> trobi els templates, la carpeta ha de ser exactament <code>books/templates/books/book_list.html</code> (el nom de l'app repetit). Comprova que <code>'books'</code> és a <code>INSTALLED_APPS</code> a <code>settings.py</code>.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>
+            Accedir a <code>/books/</code> mostra la navbar, la llista de llibres amb títols truncats i la disponibilitat en català. Si no hi ha llibres, apareix el missatge del bloc <code>{% empty %}</code>. El detall a <code>/books/1/</code> mostra les dates en format <code>dd/mm/aaaa</code> i l'ISBN amb "No registrat" si és buit. Tots els formularis POST inclouen el token CSRF i no donen error 403.
+          </p>
+        </div>
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa</span><button class="copy-btn">Copiar</button></div>
+              <pre><code class="language-python"># templates/base.html
+&lt;!DOCTYPE html&gt;
+&lt;html lang="ca"&gt;
+&lt;head&gt;
+  {% load static %}
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;{% block titol %}Biblioteca{% endblock %} | BiblioApp&lt;/title&gt;
+  &lt;link rel="stylesheet" href="{% static 'css/main.css' %}"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;nav&gt;
+    &lt;a href="{% url 'books:llistar_llibres' %}"&gt;Llibres&lt;/a&gt;
+    {% if user.is_authenticated %}
+      &lt;span&gt;Hola, {{ user.first_name }}&lt;/span&gt;
+      &lt;a href="{% url 'logout' %}"&gt;Sortir&lt;/a&gt;
+    {% else %}
+      &lt;a href="{% url 'login' %}"&gt;Entrar&lt;/a&gt;
+    {% endif %}
+  &lt;/nav&gt;
+  {% if messages %}
+    {% for message in messages %}
+      &lt;div class="alert alert-{{ message.tags }}"&gt;{{ message }}&lt;/div&gt;
+    {% endfor %}
+  {% endif %}
+  &lt;main&gt;{% block contingut %}{% endblock %}&lt;/main&gt;
+  &lt;footer&gt;&lt;p&gt;&amp;copy; {% now "Y" %} BiblioApp&lt;/p&gt;&lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+# templates/books/llistar_llibres.html
+{% extends 'base.html' %}
+{% load static %}
+{% block titol %}Catàleg de Llibres{% endblock %}
+{% block contingut %}
+&lt;h1&gt;Catàleg de Llibres&lt;/h1&gt;
+&lt;p&gt;Total: {{ llibres|length }} llibre{{ llibres|length|pluralize:"s" }}&lt;/p&gt;
+{% for llibre in llibres %}
+  &lt;article&gt;
+    &lt;h2&gt;&lt;a href="{{ llibre.get_absolute_url }}"&gt;{{ llibre.titol }}&lt;/a&gt;&lt;/h2&gt;
+    &lt;p&gt;{{ llibre.autor }} · {{ llibre.any_publicacio }} · {{ llibre.num_pagines }} pàg.&lt;/p&gt;
+    &lt;p&gt;{{ llibre.descripcio|truncatechars:150|default:"Sense descripció" }}&lt;/p&gt;
+    &lt;span&gt;{{ llibre.disponible|yesno:"Disponible,No disponible" }}&lt;/span&gt;
+  &lt;/article&gt;
+{% empty %}
+  &lt;p&gt;No hi ha llibres al catàleg.&lt;/p&gt;
+{% endfor %}
+{% endblock %}
+
+# templates/books/detall_llibre.html
+{% extends 'base.html' %}
+{% block titol %}{{ llibre.titol }}{% endblock %}
+{% block contingut %}
+&lt;h1&gt;{{ llibre.titol }}&lt;/h1&gt;
+&lt;p&gt;&lt;strong&gt;Autor:&lt;/strong&gt; {{ llibre.autor.nom_complet }}&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Any:&lt;/strong&gt; {{ llibre.any_publicacio }}&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Gènere:&lt;/strong&gt; {{ llibre.get_genere_display }}&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;ISBN:&lt;/strong&gt; {{ llibre.isbn|default:"No disponible" }}&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Pàgines:&lt;/strong&gt; {{ llibre.num_pagines }}&lt;/p&gt;
+&lt;p&gt;{{ llibre.descripcio }}&lt;/p&gt;
+&lt;p&gt;Afegit el {{ llibre.created_at|date:"d/m/Y \a \l\e\s H:i" }}&lt;/p&gt;
+{% endblock %}</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- EXERCICI 2 -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic 2</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Filtres avançats i template amb paginació</h3>
+        <p class="exercise-context">
+          Django inclou el filtre <code>|slice</code>, <code>|dictsort</code>, <code>|groupby</code> i un sistema de paginació integrat. Crearem un template que mostri els llibres amb paginació i formatació avançada de dates.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>A la vista <code>llistar_llibres</code>, afegeix paginació (10 per pàgina) usant <code>Paginator</code>.</li>
+            <li>Al template, usa <code>{% for llibre in page_obj %}</code> i mostra els controls de navegació.</li>
+            <li>Usa el filtre <code>|date:"d \d\e F \d\e Y"</code> per mostrar la data en format llarg.</li>
+            <li>Usa <code>{% with %}</code> per evitar repetir <code>llibre.autor.nom_complet</code>.</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">Codi inicial — books/views.py + template</span>
+          </div>
+          <pre><code class="language-python"># books/views.py
+from django.core.paginator import Paginator
+
+def llistar_llibres(request):
+    qs = Llibre.objects.select_related('autor').order_by('titol')
+    paginator = Paginator(qs, 10)
+    page_number = request.GET.get('page')
+    # TODO: Obté la pàgina actual (page_obj) del paginator
+    page_obj = None  # TODO
+    return render(request, 'books/llistar_llibres.html', {
+        # TODO: passa page_obj al context
+    })</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Pista: <code>paginator.get_page(page_number)</code> retorna la pàgina de forma segura (gestiona errors).</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>La pàgina mostra 10 llibres amb botons "Anterior / Següent" funcionals.</p>
+        </div>
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa</span><button class="copy-btn">Copiar</button></div>
+              <pre><code class="language-python"># books/views.py
+from django.core.paginator import Paginator
+
+def llistar_llibres(request):
+    qs = Llibre.objects.select_related('autor').order_by('titol')
+    paginator = Paginator(qs, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'books/llistar_llibres.html', {'page_obj': page_obj})
+
+# Template:
+# {% for llibre in page_obj %}
+#   {% with autor=llibre.autor.nom_complet %}
+#     &lt;h3&gt;{{ llibre.titol }}&lt;/h3&gt;
+#     &lt;p&gt;{{ autor }}&lt;/p&gt;
+#     &lt;p&gt;{{ llibre.created_at|date:"d \d\e F \d\e Y" }}&lt;/p&gt;
+#   {% endwith %}
+# {% endfor %}
+#
+# &lt;div class="paginacio"&gt;
+#   {% if page_obj.has_previous %}
+#     &lt;a href="?page={{ page_obj.previous_page_number }}"&gt;&#8592; Anterior&lt;/a&gt;
+#   {% endif %}
+#   &lt;span&gt;Pàgina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}&lt;/span&gt;
+#   {% if page_obj.has_next %}
+#     &lt;a href="?page={{ page_obj.next_page_number }}"&gt;Següent &#8594;&lt;/a&gt;
+#   {% endif %}
+# &lt;/div&gt;</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- RESUM -->
+    <section class="summary-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Resum de la unitat
+      </h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h4>Tags fonamentals</h4>
+          <ul>
+            <li><span>{% extends %}</span> — herència</li>
+            <li><span>{% block %}</span> — zona sobreescrivible</li>
+            <li><span>{% include %}</span> — parcial reutilitzable</li>
+            <li><span>{% load static %}</span> — fitxers estàtics</li>
+            <li><span>{% csrf_token %}</span> — seguretat POST</li>
+            <li><span>{% url %}</span> — URL per nom</li>
+            <li><span>{% for/empty %}</span> — iteració</li>
+            <li><span>{% if/elif/else %}</span> — condicionals</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Filtres essencials</h4>
+          <ul>
+            <li><span>|date:"d/m/Y"</span> — format data</li>
+            <li><span>|truncatechars:N</span> — trunca text</li>
+            <li><span>|default:"text"</span> — valor si buit</li>
+            <li><span>|length</span> — nombre elements</li>
+            <li><span>|yesno:"Sí,No"</span> — booleà → text</li>
+            <li><span>|floatformat:2</span> — decimals</li>
+            <li><span>|safe</span> — desactivar escape</li>
+            <li><span>|linebreaks</span> — salt línia → &lt;p&gt;</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="unit-nav">
+    <a href="unitat-07.html" class="nav-prev">← <span>Unitat 07 — URLs i Routing</span></a>
+    <a href="index.html" class="nav-home">Índex</a>
+    <a href="unitat-09.html" class="nav-next"><span>Unitat 09 — Tags i Filtres Personalitzats</span> →</a>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      hljs.highlightAll();
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const code = btn.closest('.code-block').querySelector('code').textContent;
+          navigator.clipboard.writeText(code);
+          btn.textContent = 'Copiat!';
+          setTimeout(() => btn.textContent = 'Copiar', 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

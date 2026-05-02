@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unitat 18 — Testing amb pytest-django | Curs Django</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Highlight.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    /* === RESET === */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* === TOKENS === */
+    :root {
+      --bg:           #F4F7FB;
+      --surface:      #FFFFFF;
+      --surface-2:    #EBF0F8;
+      --code-bg:      #F1F5F9;
+      --border:       #C5D3E4;
+      --border-dim:   #DAE3EF;
+      --text:         #1C2E45;
+      --text-muted:   #4E6478;
+      --text-dim:     #96ABBE;
+      --heading:      #091929;
+      --accent:       #1755C4;
+      --accent-glow:  #1755C420;
+      --blue:         #2463EB;
+      --green:        #057A55;
+      --amber:        #92530A;
+      --purple:       #5B21B6;
+      --django-green: #E8F0FD;
+      --exercise-bg:  #F0FDF8;
+    }
+
+    /* === BASE === */
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Lora', serif;
+      min-height: 100vh;
+    }
+
+    /* === LAYOUT === */
+    .page-wrapper { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+
+    /* === CAPÇALERA === */
+    .unit-header {
+      background: linear-gradient(135deg, var(--django-green) 0%, var(--bg) 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 4rem;
+    }
+    .unit-number {
+      font-family: 'Lora', serif;
+      font-weight: 500;
+      font-size: 0.78rem;
+      color: var(--accent);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .unit-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 2.6rem;
+      color: var(--heading);
+      margin: 0.5rem 0;
+      letter-spacing: -0.01em;
+    }
+    .unit-subtitle {
+      font-family: 'Lora', serif;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+    .objectives {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .objectives h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.75rem;
+    }
+    .objectives ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .objectives li {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      padding-left: 1.25rem;
+      position: relative;
+    }
+    .objectives li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--green);
+      font-family: 'Syne', sans-serif;
+    }
+
+    /* === SECCIONS DE TEORIA === */
+    .theory-section {
+      padding: 2.5rem 0;
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      font-size: 1.3rem;
+      color: var(--heading);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .section-icon { color: var(--accent); font-size: 0.8em; }
+    .theory-text {
+      font-family: 'Lora', serif;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    .concept-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .concept-list li {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.7;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+    .concept-list li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-family: 'Syne', sans-serif;
+    }
+    .concept-list code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88em;
+      color: var(--blue);
+      background: var(--surface-2);
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+    }
+
+    /* === BLOCS DE CODI === */
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+    .code-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .code-lang {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .code-file {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .copy-btn {
+      margin-left: auto;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.7rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    pre { padding: 1.25rem; overflow-x: auto; }
+    pre code {
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 0.88rem !important;
+      line-height: 1.7 !important;
+      background: transparent !important;
+    }
+
+    /* === TIP BLOCKS === */
+    .tip-block {
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .tip-block.tip-info   { background:#EBF2FF; border-left: 3px solid var(--blue); }
+    .tip-block.tip-warning{ background:#FEF9C3; border-left: 3px solid var(--amber); }
+    .tip-block.tip-note   { background:#F5F3FF; border-left: 3px solid var(--purple); }
+    .tip-prefix {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .tip-block.tip-info    .tip-prefix { color: var(--blue); }
+    .tip-block.tip-warning .tip-prefix { color: var(--amber); }
+    .tip-block.tip-note    .tip-prefix { color: var(--purple); }
+    .tip-block p {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* === BADGES === */
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--blue);
+      padding: 0.15em 0.5em;
+      border-radius: 4px;
+    }
+    .badge-shell { color: var(--amber); }
+    .badge-new   { color: var(--green); border-color: #6EE7B7; background: var(--exercise-bg); }
+
+    /* === EXERCICI === */
+    .exercise-block {
+      background: var(--exercise-bg);
+      border: 1px solid #6EE7B7;
+      border-radius: 16px;
+      overflow: hidden;
+      margin: 2rem 0;
+    }
+    .exercise-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      background: #ECFDF5;
+      border-bottom: 1px solid #A7F3D0;
+    }
+    .exercise-label {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .exercise-tag {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #057A55;
+      background: #ECFDF5;
+      border: 1px solid #6EE7B7;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+    }
+    .exercise-body { padding: 1.5rem; }
+    .exercise-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--heading);
+      margin-bottom: 0.75rem;
+    }
+    .exercise-context {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+    .exercise-tasks h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .exercise-tasks ol {
+      padding-left: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .exercise-tasks li {
+      font-family: 'Lora', serif;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .exercise-tip {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      background: #FEF9E7;
+      border: 1px solid #FCD34D;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--amber);
+    }
+    .exercise-result {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px dashed #6EE7B7;
+    }
+    .exercise-result h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+    .exercise-result p {
+      font-family: 'Lora', serif;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* === RESUM === */
+    .summary-section { padding: 2.5rem 0; }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+    .summary-card h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .summary-card ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .summary-card li {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* === NAV === */
+    .unit-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 4rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+    .unit-nav a {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .unit-nav a:hover { color: var(--accent); }
+    .nav-home {
+      font-size: 0.8rem;
+      color: var(--text-dim) !important;
+      border: 1px solid var(--border);
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+    }
+    .nav-home:hover { border-color: var(--accent) !important; }
+
+    /* === SOLUTION SPOILER === */
+    .solution-spoiler { margin-top:1rem; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    .solution-spoiler summary { cursor:pointer; padding:.875rem 1.25rem; background:var(--surface-2); font-family:'Syne',sans-serif; font-size:.85rem; font-weight:600; color:var(--accent); user-select:none; list-style:none; display:flex; align-items:center; gap:.5rem; transition:background .2s; }
+    .solution-spoiler summary::marker,.solution-spoiler summary::-webkit-details-marker{display:none;}
+    .solution-spoiler summary:hover{background:#EBF2FF;}
+    .solution-spoiler[open] summary{border-bottom:1px solid var(--border);}
+    .solution-body .code-block{margin:0;border:none;border-radius:0;}
+    .deps-block{background:#FFF8EE;border:1px solid #FCD34D;border-radius:12px;overflow:hidden;margin:1.5rem 0;}
+    .deps-header{display:flex;align-items:center;gap:.5rem;padding:.75rem 1.25rem;background:#FEF3C7;border-bottom:1px solid #FCD34D;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:#92400E;text-transform:uppercase;letter-spacing:.08em;}
+    .deps-body{padding:1.25rem;}
+
+    /* === COMPARISON TABLE === */
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.25rem 0;
+      font-family: 'Lora', serif;
+      font-size: 0.92rem;
+    }
+    .comparison-table th {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      background: var(--surface);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .comparison-table td {
+      padding: 0.65rem 1rem;
+      color: var(--text);
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .comparison-table tr:hover td { background: var(--surface); }
+    .comparison-table code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      color: var(--blue);
+      background: var(--surface-2);
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CAPÇALERA DE UNITAT -->
+  <header class="unit-header">
+    <div class="page-wrapper">
+      <p class="unit-number">Unitat 18 · Curs de Django</p>
+      <h1 class="unit-title">Testing amb pytest-django</h1>
+      <p class="unit-subtitle">Escriu tests fiables i organitzats usant pytest, fixtures compartides i el client d'API de DRF</p>
+      <div class="objectives">
+        <h3>En aquesta unitat aprendràs:</h3>
+        <ul>
+          <li>Configurar pytest-django amb conftest.py i fixtures compartides per scope de sessió</li>
+          <li>Usar @pytest.mark.django_db i entendre quan és necessari</li>
+          <li>Escriure tests de models, vistes i endpoints de la API amb APIClient</li>
+          <li>Organitzar tests amb markers personalitzats (unit, integration)</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTINGUT PRINCIPAL -->
+  <main class="page-wrapper">
+
+    <!-- Secció 1: pytest-django vs Django TestCase, conftest.py i fixtures -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        pytest-django: configuració i fixtures fonamentals
+      </h2>
+
+      <p class="theory-text">
+        Django inclou el seu propi sistema de testing basat en <code>unittest.TestCase</code>, però <strong>pytest-django</strong> és la manera moderna i preferida. Ofereix fixtures componibles, markers declaratius, millors missatges d'error i integració nativa amb plugins de pytest com <code>pytest-cov</code> per a cobertura de codi.
+      </p>
+
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Característica</th>
+            <th>Django TestCase</th>
+            <th>pytest-django</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Sintaxi</td>
+            <td>Classes que hereten de <code>TestCase</code></td>
+            <td>Funcions simples amb fixtures</td>
+          </tr>
+          <tr>
+            <td>Fixtures</td>
+            <td><code>setUp</code> / <code>setUpClass</code></td>
+            <td>Funcions reutilitzables amb scope configurable</td>
+          </tr>
+          <tr>
+            <td>Base de dades</td>
+            <td>Transaction rollback automàtic</td>
+            <td><code>@pytest.mark.django_db</code> explícit</td>
+          </tr>
+          <tr>
+            <td>Paral·lelisme</td>
+            <td>Limitat</td>
+            <td>Compatible amb <code>pytest-xdist</code></td>
+          </tr>
+          <tr>
+            <td>Assertions</td>
+            <td><code>self.assertEqual()</code></td>
+            <td><code>assert a == b</code> nadiu Python</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="theory-text">
+        El fitxer <strong>conftest.py</strong> és el cor de la configuració de pytest. S'executa automàticament abans de qualsevol test i pot viure a qualsevol nivell del directori (les fixtures definides al <code>conftest.py</code> d'un directori pare estan disponibles als tests fills). La clau és el paràmetre <code>scope</code> de les fixtures:
+      </p>
+
+      <ul class="concept-list">
+        <li><code>scope='function'</code> — la fixture s'executa de nou per a cada test (comportament per defecte); la BD es reinicia entre tests</li>
+        <li><code>scope='class'</code> — compartida entre tots els tests d'una mateixa classe</li>
+        <li><code>scope='module'</code> — compartida entre tots els tests d'un fitxer</li>
+        <li><code>scope='session'</code> — s'executa UNA SOLA vegada per a tota la sessió de tests; ideal per a fixtures costoses com la creació de rols</li>
+        <li><code>django_db_setup</code> — fixture especial de pytest-django per personalitzar la creació de la BD de test</li>
+        <li><code>django_db_blocker</code> — objecte que permet bloquejar/desbloquejar l'accés a la BD en fixtures de sessió</li>
+      </ul>
+
+      <div class="tip-block tip-warning">
+        <span class="tip-prefix">⚠️ Atenció crítica</span>
+        <p>Les fixtures amb <code>scope='session'</code> comparteixen l'estat entre tests. Si un test modifica un objecte creat per una fixture de sessió, els tests posteriors veuran l'objecte modificat i fallaran de manera imprevisible. Per als rols i configuració global, usa <code>scope='session'</code>; per als usuaris de test, usa <code>scope='function'</code> perquè cada test tingui l'usuari net.</p>
+      </div>
+
+      <p class="theory-text">
+        El marker <code>@pytest.mark.django_db</code> és obligatori a qualsevol test que accedeixi a la base de dades. Sense ell, pytest-django llança un error per protegir els tests d'accedir a la BD per accident. Hi ha una variant <code>@pytest.mark.django_db(transaction=True)</code> per a tests que necessiten testar senyals, transaccions i rollbacks reals.
+      </p>
+
+      <ul class="concept-list">
+        <li><code>db</code> — fixture built-in que concedeix accés a la BD (equivalent a <code>@pytest.mark.django_db</code>)</li>
+        <li><code>client</code> — fixture que retorna un <code>django.test.Client</code> per fer peticions HTTP</li>
+        <li><code>admin_client</code> — client ja autenticat com a superusuari</li>
+        <li><code>rf</code> — <code>RequestFactory</code> per crear peticions HTTP sense passar pel middleware</li>
+        <li><code>settings</code> — fixture per modificar settings temporalment durant un test</li>
+      </ul>
+    </section>
+
+    <!-- BLOC DE CODI 1 -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">tests/conftest.py — estil Medinet adaptat a bibliapp</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python"># tests/conftest.py
+"""
+Fitxer de configuració central de pytest per a bibliapp.
+Inspirat en el patró de MediNetNode: rols creats una sola vegada
+per sessió per evitar errors UNIQUE i millorar el rendiment.
+"""
+import pytest
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+# ─── Fixtures de base de dades (scope='session') ──────────────────────────
+
+@pytest.fixture(scope='session')
+def django_db_setup(django_db_setup, django_db_blocker):
+    """
+    Sobreescrivim django_db_setup per crear dades globals una sola vegada.
+    django_db_blocker.unblock() permet accés temporal a la BD en fixtures
+    de sessió sense necessitar @pytest.mark.django_db.
+    """
+    with django_db_blocker.unblock():
+        # Importem aquí per evitar importacions prematures de Django
+        from biblioteca.models import Autor
+        # Dades base que mai canvien durant els tests
+        Autor.objects.get_or_create(
+            nom='Gabriel', cognom='García Márquez',
+            defaults={'nacionalitat': 'Colombiana'}
+        )
+
+
+# ─── Fixtures d'usuaris (scope='function') ────────────────────────────────
+# Scope 'function' perquè cada test necessita un usuari net
+# sense modificacions dels tests anteriors.
+
+@pytest.fixture
+def usuari_lector(db):
+    """Crea un usuari lector estàndard per a tests."""
+    return User.objects.create_user(
+        username='lector_test',
+        email='lector@bibliapp.cat',
+        password='TestPass123!',
+        first_name='Anna',
+        last_name='Puig',
+    )
+
+
+@pytest.fixture
+def usuari_admin(db):
+    """Crea un superusuari per a tests d'operacions d'administració."""
+    return User.objects.create_superuser(
+        username='admin_test',
+        email='admin@bibliapp.cat',
+        password='AdminPass123!',
+    )
+
+
+# ─── Fixtures de models de bibliapp ──────────────────────────────────────
+
+@pytest.fixture
+def autor(db):
+    """Autor de referència reutilitzable als tests."""
+    from biblioteca.models import Autor
+    return Autor.objects.create(
+        nom='Mercè',
+        cognom='Rodoreda',
+        nacionalitat='Catalana'
+    )
+
+
+@pytest.fixture
+def llibre_disponible(db, autor):
+    """Llibre disponible per a préstec — fixture composta."""
+    from biblioteca.models import Llibre
+    return Llibre.objects.create(
+        titol='La plaça del Diamant',
+        isbn='9788429720594',
+        any_publicacio=1962,
+        autor=autor,
+        disponible=True,
+    )
+
+
+@pytest.fixture
+def prestec_actiu(db, llibre_disponible, usuari_lector):
+    """
+    Crea un préstec actiu i marca el llibre com no disponible.
+    Aquesta fixture combina tres fixtures més petites — exemple
+    de composició de fixtures.
+    """
+    from biblioteca.models import Prestec
+    from datetime import date, timedelta
+
+    # Marcar el llibre com no disponible (com faria el signal real)
+    llibre_disponible.disponible = False
+    llibre_disponible.save()
+
+    return Prestec.objects.create(
+        llibre=llibre_disponible,
+        lector=usuari_lector,
+        data_inici=date.today(),
+        data_fi_prevista=date.today() + timedelta(days=14),
+        actiu=True,
+    )
+
+
+# ─── Clients HTTP ──────────────────────────────────────────────────────────
+
+@pytest.fixture
+def client_autenticat(client, usuari_lector):
+    """Client Django autenticat com a lector per a tests de vistes."""
+    client.force_login(usuari_lector)
+    return client
+
+
+@pytest.fixture
+def api_client():
+    """APIClient de DRF per a tests d'endpoints REST."""
+    from rest_framework.test import APIClient
+    return APIClient()
+
+
+@pytest.fixture
+def api_client_autenticat(api_client, usuari_lector):
+    """APIClient autenticat — evita repetir force_authenticate a cada test."""
+    api_client.force_authenticate(user=usuari_lector)
+    return api_client
+
+
+# ─── pytest.ini (o pyproject.toml) ────────────────────────────────────────
+# Configura markers personalitzats per classificar els tests.
+# Afegeix aquest bloc a pyproject.toml:
+#
+# [tool.pytest.ini_options]
+# DJANGO_SETTINGS_MODULE = "config.settings.test"
+# python_files = ["tests/test_*.py", "tests/**/test_*.py"]
+# markers = [
+#     "unit: tests unitaris sense dependències externes",
+#     "integration: tests d'integració que accedeixen a la BD o serveis",
+#     "slow: tests lents (omit amb -m 'not slow')",
+# ]
+</code></pre>
+    </div>
+
+    <!-- Secció 2: Tests de models, vistes i API -->
+    <section class="theory-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Tests de models, vistes i API REST
+      </h2>
+
+      <p class="theory-text">
+        Un bon conjunt de tests segueix la <em>piràmide de testing</em>: molts tests unitaris (ràpids, aïllats), alguns tests d'integració (que toquen la BD o la xarxa interna) i pocs tests end-to-end. Amb pytest-django, els <strong>markers personalitzats</strong> permeten executar subconjunts: <code>pytest -m unit</code> executa només els tests unitaris, útil per al cicle de desenvolupament ràpid.
+      </p>
+
+      <ul class="concept-list">
+        <li><code>@pytest.mark.unit</code> — test que no accedeix a la BD ni a serveis externs; no necessita <code>@pytest.mark.django_db</code></li>
+        <li><code>@pytest.mark.integration</code> — test que accedeix a la BD, l'API o serveis; necessita <code>@pytest.mark.django_db</code></li>
+        <li><code>client.get('/url/')</code> — petició GET; retorna un <code>HttpResponse</code> amb <code>status_code</code> i <code>content</code></li>
+        <li><code>client.post('/url/', data, content_type='application/json')</code> — petició POST amb cos JSON</li>
+        <li><code>client.force_login(user)</code> — autentica l'usuari al client de test sense passar pel formulari de login</li>
+        <li><code>APIClient</code> — client de DRF que gestiona automàticament les capçaleres JSON i l'autenticació per token</li>
+        <li><code>api_client.force_authenticate(user=user)</code> — bypass d'autenticació per a tests d'API sense tokens reals</li>
+        <li><code>response.json()</code> — deserialitza el cos JSON de la resposta; equivalent a <code>response.data</code> a DRF</li>
+      </ul>
+
+      <p class="theory-text">
+        Per als tests de models, l'objectiu és verificar que la <em>lògica de negoci</em> funciona correctament: que els camps es guarden bé, que les validacions salten quan toca, i que els signals i mètodes personalitzats fan allò que han de fer. Per als tests de vistes, l'objectiu és verificar el codi de resposta HTTP, que els templates s'usen correctament i que els redirects funcionen. Per als tests d'API, es comprova el codi HTTP, l'estructura del JSON de resposta i l'efecte sobre la BD.
+      </p>
+
+      <div class="tip-block tip-info">
+        <span class="tip-prefix">📌 Patró recomanat</span>
+        <p>Organitza els tests en carpetes que reflexin l'estructura de l'aplicació: <code>tests/test_models.py</code>, <code>tests/test_views.py</code>, <code>tests/api/test_llibres.py</code>. Cada fitxer importa les fixtures que necessita del <code>conftest.py</code> automàticament — no cal importar-les explícitament.</p>
+      </div>
+
+      <div class="tip-block tip-note">
+        <span class="tip-prefix">🔮 Cobertura de codi</span>
+        <p>Executa <code>pytest --cov=biblioteca --cov-report=html</code> per generar un informe HTML de cobertura. L'objectiu mínim és 80% de cobertura de línies. Les branques no cobertes (<em>branches</em>) sovint indiquen casos d'error no testats. Usa <code>--cov-report=term-missing</code> per veure les línies no cobertes directament a la terminal.</p>
+      </div>
+    </section>
+
+    <!-- BLOC DE CODI 2 -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python</span>
+        <span class="code-file">tests/test_models.py + test_views.py + api/test_prestecs.py</span>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <pre><code class="language-python"># tests/test_models.py
+"""
+Tests unitaris i d'integració per als models de bibliapp.
+"""
+import pytest
+from datetime import date, timedelta
+from django.core.exceptions import ValidationError
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+class TestPrestecModel:
+    """Tests que verifiquen la lògica del model Prestec."""
+
+    def test_crear_prestec_marca_llibre_com_no_disponible(self, llibre_disponible, usuari_lector):
+        """
+        Quan es crea un Prestec, el signal post_save ha de marcar
+        el Llibre com a no disponible.
+        """
+        from biblioteca.models import Prestec
+
+        assert llibre_disponible.disponible is True  # condició inicial
+
+        Prestec.objects.create(
+            llibre=llibre_disponible,
+            lector=usuari_lector,
+            data_inici=date.today(),
+            data_fi_prevista=date.today() + timedelta(days=14),
+            actiu=True,
+        )
+
+        # Recarreguem des de la BD per veure el valor actualitzat pel signal
+        llibre_disponible.refresh_from_db()
+        assert llibre_disponible.disponible is False
+
+    def test_no_es_pot_prestar_un_llibre_no_disponible(self, prestec_actiu, usuari_admin):
+        """
+        No es pot crear un segon préstec sobre un llibre ja prestat.
+        La validació hauria de llançar ValidationError.
+        """
+        from biblioteca.models import Prestec
+
+        # El llibre ja no és disponible gràcies al prestec_actiu
+        assert prestec_actiu.llibre.disponible is False
+
+        amb_errors = Prestec(
+            llibre=prestec_actiu.llibre,
+            lector=usuari_admin,
+            data_inici=date.today(),
+            data_fi_prevista=date.today() + timedelta(days=7),
+            actiu=True,
+        )
+
+        with pytest.raises(ValidationError, match="no disponible"):
+            amb_errors.full_clean()  # activa les validadors del model
+
+    def test_str_del_prestec_inclou_titol_i_lector(self, prestec_actiu):
+        """El __str__ del Prestec ha d'incloure el títol i el nom del lector."""
+        resultat = str(prestec_actiu)
+        assert prestec_actiu.llibre.titol in resultat
+        assert prestec_actiu.lector.username in resultat
+
+
+# tests/test_views.py
+"""
+Tests de les vistes de bibliapp usant el client Django.
+"""
+import pytest
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+class TestVistesLlibre:
+    """Tests de les vistes basades en funcions de bibliapp."""
+
+    def test_llista_llibres_retorna_200_amb_usuari_autenticat(
+        self, client_autenticat, llibre_disponible
+    ):
+        """La vista llista_llibres ha de retornar HTTP 200."""
+        resposta = client_autenticat.get('/biblioteca/llibres/')
+        assert resposta.status_code == 200
+
+    def test_llista_llibres_redirigeix_usuari_no_autenticat(self, client):
+        """Sense login, la vista ha de redirigir al formulari d'autenticació."""
+        resposta = client.get('/biblioteca/llibres/')
+        # 302 redirect cap a /accounts/login/?next=...
+        assert resposta.status_code == 302
+        assert '/accounts/login/' in resposta['Location']
+
+    def test_llista_llibres_filtra_per_disponible(
+        self, client_autenticat, llibre_disponible, autor
+    ):
+        """El filtre ?disponible=true retorna només els llibres disponibles."""
+        from biblioteca.models import Llibre
+        # Creem un segon llibre no disponible
+        Llibre.objects.create(
+            titol='Solitud',
+            isbn='9788429716023',
+            any_publicacio=1905,
+            autor=autor,
+            disponible=False,
+        )
+
+        resposta = client_autenticat.get('/biblioteca/llibres/?disponible=true')
+        assert resposta.status_code == 200
+        # Comprovem el context del template
+        llibres = resposta.context['llibres']
+        assert all(ll.disponible for ll in llibres)
+        assert llibres.count() == 1  # només el llibre_disponible
+
+
+# tests/api/test_prestecs.py
+"""
+Tests d'integració per als endpoints de l'API REST de bibliapp.
+"""
+import pytest
+from datetime import date, timedelta
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+class TestAPILlibres:
+    """Tests dels endpoints de Llibre a la API REST."""
+
+    def test_llista_llibres_requereix_autenticacio(self, api_client):
+        """GET /api/llibres/ sense autenticació ha de retornar 401."""
+        resposta = api_client.get('/api/llibres/')
+        assert resposta.status_code == 401
+
+    def test_llista_llibres_retorna_200_amb_usuari_valid(
+        self, api_client_autenticat, llibre_disponible
+    ):
+        """GET /api/llibres/ amb autenticació ha de retornar 200 i una llista."""
+        resposta = api_client_autenticat.get('/api/llibres/')
+        assert resposta.status_code == 200
+        dades = resposta.json()
+        assert isinstance(dades['results'], list)
+        assert len(dades['results']) >= 1
+
+    def test_filtre_disponible_funciona_a_la_api(
+        self, api_client_autenticat, llibre_disponible, autor
+    ):
+        """GET /api/llibres/?disponible=false no retorna el llibre disponible."""
+        from biblioteca.models import Llibre
+        Llibre.objects.create(
+            titol='Crim i Càstig',
+            isbn='9788490060537',
+            any_publicacio=1866,
+            autor=autor,
+            disponible=False,
+        )
+
+        resposta = api_client_autenticat.get('/api/llibres/?disponible=false')
+        assert resposta.status_code == 200
+        titols = [ll['titol'] for ll in resposta.json()['results']]
+        assert 'Crim i Càstig' in titols
+        assert 'La plaça del Diamant' not in titols
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+class TestAPIPrestecs:
+    """Tests dels endpoints de Prestec a la API REST."""
+
+    def test_crear_prestec_via_api(self, api_client_autenticat, llibre_disponible):
+        """POST /api/prestecs/ ha de crear el préstec i retornar 201."""
+        dades = {
+            'llibre': llibre_disponible.id,
+            'data_inici': str(date.today()),
+            'data_fi_prevista': str(date.today() + timedelta(days=14)),
+        }
+        resposta = api_client_autenticat.post('/api/prestecs/', dades, format='json')
+        assert resposta.status_code == 201
+        # El lector s'ha d'assignar automàticament pel perform_create
+        assert 'id' in resposta.json()
+
+    def test_retornar_prestec_via_api(self, api_client_autenticat, prestec_actiu):
+        """POST /api/prestecs/{id}/retornar/ ha de marcar el préstec com a retornat."""
+        url = f'/api/prestecs/{prestec_actiu.id}/retornar/'
+        resposta = api_client_autenticat.post(url)
+        assert resposta.status_code == 200
+
+        # Verifiquem la BD directament — la font de la veritat
+        prestec_actiu.refresh_from_db()
+        assert prestec_actiu.data_retorn == date.today()
+        assert prestec_actiu.actiu is False
+
+        prestec_actiu.llibre.refresh_from_db()
+        assert prestec_actiu.llibre.disponible is True
+</code></pre>
+    </div>
+
+    <!-- DEPS BLOCK -->
+    <div class="deps-block">
+      <div class="deps-header">📦 Dependències i fitxers necessaris</div>
+      <div class="deps-body">
+        <p><strong>Instal·lació:</strong></p>
+        <div class="code-block"><div class="code-header"><span class="code-lang">Bash</span><span class="code-file">Terminal</span><button class="copy-btn">Copiar</button></div>
+        <pre><code class="language-bash">pip install pytest pytest-django factory-boy</code></pre></div>
+        <p style="margin-top:1rem"><strong>Fitxer pytest.ini (a l'arrel del projecte):</strong></p>
+        <div class="code-block"><div class="code-header"><span class="code-lang">INI</span><span class="code-file">pytest.ini</span><button class="copy-btn">Copiar</button></div>
+        <pre><code class="language-ini">[pytest]
+DJANGO_SETTINGS_MODULE = bibliapp.settings
+python_files = tests/*.py
+python_classes = Test*
+python_functions = test_*</code></pre></div>
+        <p style="margin-top:1rem"><strong>Estructura recomanada:</strong></p>
+        <div class="code-block"><div class="code-header"><span class="code-lang">Text</span><span class="code-file">Estructura</span><button class="copy-btn">Copiar</button></div>
+        <pre><code>bibliapp/
+  biblioteca/
+    tests/
+      __init__.py
+      conftest.py
+      test_models.py
+      test_views.py
+      test_api.py</code></pre></div>
+      </div>
+    </div>
+
+    <!-- EXERCICI -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Tests complets per a la lògica de bibliapp</h3>
+        <p class="exercise-context">
+          La suite de tests de bibliapp ha de cobrir els casos més importants: que els signals funcionin correctament, que la API requereixi autenticació i que les vistes filtrin els resultats adequadament. Escriu tests que actuïn com a documentació viva de com funciona l'aplicació.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Escriu el test <code>test_crear_prestec_marca_llibre_com_no_disponible</code>: crea un <code>Prestec</code> directament amb l'ORM i verifica que, gràcies al signal <code>post_save</code>, el camp <code>disponible</code> del <code>Llibre</code> és <code>False</code> (usa <code>refresh_from_db()</code>).</li>
+            <li>Escriu el test <code>test_api_llibres_sense_auth_retorna_401</code>: usa <code>api_client</code> (sense autenticació) i verifica que <code>GET /api/llibres/</code> retorna <code>status_code == 401</code>.</li>
+            <li>Escriu el test <code>test_api_llibres_amb_auth_retorna_200</code>: usa <code>api_client_autenticat</code> i verifica que retorna 200 i que la resposta conté la clau <code>'results'</code>.</li>
+            <li>Escriu el test <code>test_vista_llista_llibres_filtra_per_disponible</code>: crea dos llibres (un disponible, un no), fes <code>GET /biblioteca/llibres/?disponible=true</code> amb <code>client_autenticat</code> i verifica que el context de la resposta només conté els disponibles.</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">Codi inicial — completa els TODO</span>
+          </div>
+          <pre><code class="language-python"># tests/conftest.py — ja implementat a l'exemple anterior
+# Assegura't de tenir les fixtures: usuari_lector, llibre_disponible,
+# api_client, api_client_autenticat, client_autenticat
+
+
+# tests/test_exercici.py
+import pytest
+from datetime import date, timedelta
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_crear_prestec_marca_llibre_com_no_disponible(llibre_disponible, usuari_lector):
+    """El signal post_save de Prestec ha de marcar el llibre com no disponible."""
+    from biblioteca.models import Prestec
+
+    # Verificació de la condició inicial
+    assert llibre_disponible.disponible is True
+
+    # TODO: crear el Prestec amb l'ORM
+    # Prestec.objects.create(...)
+
+    # TODO: recarregar el llibre des de la BD
+    # llibre_disponible.refresh_from_db()
+
+    # TODO: verificar que disponible és False
+    # assert ...
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_api_llibres_sense_auth_retorna_401(api_client):
+    """L'API ha de requerir autenticació."""
+    # TODO: fer GET /api/llibres/ amb api_client (sense autenticació)
+    # TODO: verificar status_code == 401
+    pass
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_api_llibres_amb_auth_retorna_200(api_client_autenticat, llibre_disponible):
+    """Amb usuari autenticat, l'API retorna 200 i la llista de llibres."""
+    # TODO: fer GET /api/llibres/ amb api_client_autenticat
+    # TODO: verificar status_code == 200
+    # TODO: verificar que 'results' és a la resposta JSON
+    pass
+
+
+@pytest.mark.integration
+@pytest.mark.django_db
+def test_vista_llista_llibres_filtra_per_disponible(client_autenticat, autor):
+    """La vista ha de filtrar correctament per disponible=true."""
+    from biblioteca.models import Llibre
+
+    # TODO: crear dos llibres: un disponible=True i un disponible=False
+    # Llibre.objects.create(titol='Disponible', disponible=True, ...)
+    # Llibre.objects.create(titol='No disponible', disponible=False, ...)
+
+    # TODO: fer GET /biblioteca/llibres/?disponible=true amb client_autenticat
+    # resposta = client_autenticat.get(...)
+
+    # TODO: verificar status_code == 200
+    # TODO: verificar que tots els llibres al context['llibres'] són disponibles
+    pass
+</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Per executar només els teus tests nous sense tota la suite: <code>pytest tests/test_exercici.py -v</code>. Si un test falla amb <code>PytestUnraisableExceptionWarning</code>, és probable que el signal no estigui connectat correctament. Verifica que <code>apps.py</code> importa els signals al mètode <code>ready()</code>.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>
+            Tots quatre tests passen amb <code>pytest tests/test_exercici.py -v</code>. La sortida mostra <code>4 passed</code>. Si executes <code>pytest -m integration --cov=biblioteca --cov-report=term-missing</code>, la cobertura de les rutes testades hauria de superar el 75%. Els tests que comproven el filtre verifiquen el comportament real de la vista, no la implementació interna.
+          </p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa</span><button class="copy-btn">Copiar</button></div>
+              <pre><code class="language-python"># tests/conftest.py
+import pytest
+from biblioteca.models import Llibre, Autor
+
+@pytest.fixture
+def autor(db):
+    return Autor.objects.create(
+        nom="Gabriel García Márquez",
+        biografia="Escriptor colombià, premi Nobel de Literatura 1982."
+    )
+
+@pytest.fixture
+def llibre(db, autor):
+    return Llibre.objects.create(
+        titol="Cent anys de solitud",
+        autor=autor,
+        any_publicacio=1967,
+        disponible=True
+    )
+
+# tests/test_models.py
+import pytest
+from biblioteca.models import Llibre
+
+@pytest.mark.django_db
+def test_llibre_str(llibre):
+    assert str(llibre) == "Cent anys de solitud"
+
+@pytest.mark.django_db
+def test_llibre_disponible_per_defecte(autor):
+    llibre = Llibre.objects.create(
+        titol="La casa dels esperits",
+        autor=autor,
+        any_publicacio=1982
+    )
+    assert llibre.disponible is True
+
+@pytest.mark.django_db
+def test_filtra_per_autor(llibre, autor):
+    resultats = Llibre.objects.filter(autor=autor)
+    assert resultats.count() == 1
+    assert resultats.first().titol == "Cent anys de solitud"</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- EXERCICI 2 -->
+    <div class="exercise-block">
+      <div class="exercise-header">
+        <span class="exercise-icon">🏋️</span>
+        <span class="exercise-label">Exercici Pràctic</span>
+        <span class="exercise-tag">bibliapp</span>
+      </div>
+      <div class="exercise-body">
+        <h3 class="exercise-title">Exercici 2: Test de vistes i API REST</h3>
+        <p class="exercise-context">
+          Escriu tests per a la vista de llista de llibres i per a l'endpoint de l'API. Comprova que un usuari anònim rep 200 a la llista pública, però 401 si intenta crear un llibre via API sense autenticar.
+        </p>
+
+        <div class="exercise-tasks">
+          <h4>Tasques:</h4>
+          <ol>
+            <li>Escriu el test <code>test_llista_llibres_anonima</code>: fes un GET a <code>reverse('biblioteca:llista_llibres')</code> amb el client anònim i comprova que retorna 200.</li>
+            <li>Escriu el test <code>test_detall_llibre</code>: fes un GET al detall d'un llibre existent i verifica que el títol apareix al contingut HTML.</li>
+            <li>Escriu el test <code>test_crear_llibre_sense_auth</code>: fes un POST a <code>reverse('api:llibre-list')</code> sense autenticar i comprova que el codi de resposta és 401 o 403.</li>
+            <li>Escriu el test <code>test_llistar_llibres_api</code>: fes un GET a l'endpoint de la API i verifica que retorna 200 i almenys un resultat.</li>
+          </ol>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Python</span>
+            <span class="code-file">Codi inicial — completa els TODO</span>
+          </div>
+          <pre><code class="language-python"># tests/test_views.py
+import pytest
+from django.urls import reverse
+
+@pytest.mark.django_db
+def test_llista_llibres_anonima(client):
+    url = reverse('biblioteca:llista_llibres')
+    # TODO: fes la petició GET i comprova que la resposta és 200
+
+# tests/test_api.py
+import pytest
+from django.urls import reverse
+
+@pytest.mark.django_db
+def test_crear_llibre_sense_auth(client):
+    url = reverse('api:llibre-list')
+    dades = {'titol': 'Nou llibre', 'any_publicacio': 2024}
+    # TODO: fes un POST i comprova que la resposta és 401 o 403</code></pre>
+        </div>
+
+        <div class="exercise-tip">
+          <span>💡</span>
+          <span>Usa <code>reverse()</code> per obtenir les URLs en lloc d'escriure-les a mà — així els tests no es trenquen si canvies el routing. Per als tests d'API sense autenticació, el client Django estàndard (fixture <code>client</code>) és suficient; no cal APIClient.</span>
+        </div>
+
+        <div class="exercise-result">
+          <h4>Resultat esperat:</h4>
+          <p>Els quatre tests passen. La llista és pública (200 sense login), el detall mostra el títol al HTML, i l'endpoint de creació rebutja els usuaris no autenticats amb 401 o 403 segons la configuració de permisos de DRF.</p>
+        </div>
+
+        <details class="solution-spoiler">
+          <summary>👁 Veure solució</summary>
+          <div class="solution-body">
+            <div class="code-block">
+              <div class="code-header"><span class="code-lang">Python</span><span class="code-file">Solució completa</span><button class="copy-btn">Copiar</button></div>
+              <pre><code class="language-python"># tests/test_views.py
+import pytest
+from django.urls import reverse
+
+@pytest.mark.django_db
+def test_llista_llibres_anonima(client):
+    url = reverse('biblioteca:llista_llibres')
+    resposta = client.get(url)
+    assert resposta.status_code == 200
+
+@pytest.mark.django_db
+def test_detall_llibre(client, llibre):
+    url = reverse('biblioteca:detall_llibre', kwargs={'pk': llibre.pk})
+    resposta = client.get(url)
+    assert resposta.status_code == 200
+    assert 'Cent anys de solitud' in resposta.content.decode()
+
+# tests/test_api.py
+import pytest
+from django.urls import reverse
+
+@pytest.mark.django_db
+def test_crear_llibre_sense_auth(client):
+    url = reverse('api:llibre-list')
+    dades = {
+        'titol': 'Nou llibre',
+        'any_publicacio': 2024,
+        'disponible': True
+    }
+    resposta = client.post(url, dades, content_type='application/json')
+    assert resposta.status_code in [401, 403]
+
+@pytest.mark.django_db
+def test_llistar_llibres_api(client, llibre):
+    url = reverse('api:llibre-list')
+    resposta = client.get(url)
+    assert resposta.status_code == 200
+    dades = resposta.json()
+    assert len(dades) >= 1</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- RESUM -->
+    <section class="summary-section">
+      <h2 class="section-title">
+        <span class="section-icon">◆</span>
+        Resum
+      </h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h4>Configuració</h4>
+          <ul>
+            <li>conftest.py</li>
+            <li>scope='session'</li>
+            <li>django_db_blocker</li>
+            <li>pyproject.toml markers</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Markers</h4>
+          <ul>
+            <li>@pytest.mark.django_db</li>
+            <li>@pytest.mark.unit</li>
+            <li>@pytest.mark.integration</li>
+            <li>django_db(transaction=True)</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Clients de test</h4>
+          <ul>
+            <li>client (Django)</li>
+            <li>client.force_login()</li>
+            <li>APIClient (DRF)</li>
+            <li>force_authenticate()</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Assertions</h4>
+          <ul>
+            <li>assert status_code == 200</li>
+            <li>response.json()</li>
+            <li>refresh_from_db()</li>
+            <li>pytest.raises()</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- NAV ENTRE UNITATS -->
+  <nav class="unit-nav">
+    <a href="unitat-17.html" class="nav-prev">← <span>Unitat 17 — Django REST Framework</span></a>
+    <a href="index.html" class="nav-home">Índex</a>
+    <a href="unitat-19.html" class="nav-next"><span>Unitat 19 — Seguretat en Django</span> →</a>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      hljs.highlightAll();
+
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const code = btn.closest('.code-block').querySelector('code').textContent;
+          navigator.clipboard.writeText(code);
+          btn.textContent = 'Copiat!';
+          setTimeout(() => btn.textContent = 'Copiar', 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
